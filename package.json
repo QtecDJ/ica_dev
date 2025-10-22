@@ -6,14 +6,16 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup-db": "node setup-db.mjs"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.9.0",
+    "dotenv": "^17.2.3",
+    "lucide-react": "^0.400.0",
     "next": "14.2.5",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "lucide-react": "^0.400.0"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^20",
