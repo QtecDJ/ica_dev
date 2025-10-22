@@ -4,14 +4,17 @@
 
 :root {
   --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background-start-rgb: 255, 255, 255;
+  --background-end-rgb: 245, 245, 245;
+  --brand-red: #DC2626;
+  --brand-black: #000000;
+  --brand-white: #FFFFFF;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
+    --background-start-rgb: 17, 24, 39;
     --background-end-rgb: 0, 0, 0;
   }
 }
@@ -29,5 +32,23 @@ body {
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-brand-red-DEFAULT text-white px-4 py-2 rounded-lg hover:bg-brand-red-dark transition-colors font-semibold;
+  }
+  
+  .btn-secondary {
+    @apply bg-brand-black text-white px-4 py-2 rounded-lg hover:bg-brand-gray-800 transition-colors font-semibold;
+  }
+  
+  .card {
+    @apply bg-white rounded-lg shadow-lg border border-gray-200;
+  }
+  
+  .card-header {
+    @apply bg-gradient-to-r from-brand-black via-brand-red-dark to-brand-black text-white px-6 py-4 rounded-t-lg;
   }
 }
