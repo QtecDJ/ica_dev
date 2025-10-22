@@ -24,6 +24,7 @@ export type Member = {
   parent_name?: string;
   parent_email?: string;
   parent_phone?: string;
+  avatar_url?: string;
   created_at: string;
 };
 
@@ -156,10 +157,11 @@ export async function createMember(formData: FormData) {
     const parentName = formData.get("parent_name") as string;
     const parentEmail = formData.get("parent_email") as string;
     const parentPhone = formData.get("parent_phone") as string;
+    const avatarUrl = formData.get("avatar_url") as string;
 
     await sql`
-      INSERT INTO members (first_name, last_name, birth_date, team_id, email, phone, parent_name, parent_email, parent_phone)
-      VALUES (${firstName}, ${lastName}, ${birthDate}, ${teamId}, ${email}, ${phone}, ${parentName}, ${parentEmail}, ${parentPhone})
+      INSERT INTO members (first_name, last_name, birth_date, team_id, email, phone, parent_name, parent_email, parent_phone, avatar_url)
+      VALUES (${firstName}, ${lastName}, ${birthDate}, ${teamId}, ${email}, ${phone}, ${parentName}, ${parentEmail}, ${parentPhone}, ${avatarUrl})
     `;
     
     revalidatePath("/members");
@@ -181,12 +183,14 @@ export async function updateMember(id: number, formData: FormData) {
     const parentName = formData.get("parent_name") as string;
     const parentEmail = formData.get("parent_email") as string;
     const parentPhone = formData.get("parent_phone") as string;
+    const avatarUrl = formData.get("avatar_url") as string;
 
     await sql`
       UPDATE members 
       SET first_name = ${firstName}, last_name = ${lastName}, birth_date = ${birthDate},
           team_id = ${teamId}, email = ${email}, phone = ${phone},
-          parent_name = ${parentName}, parent_email = ${parentEmail}, parent_phone = ${parentPhone}
+          parent_name = ${parentName}, parent_email = ${parentEmail}, parent_phone = ${parentPhone},
+          avatar_url = ${avatarUrl}
       WHERE id = ${id}
     `;
     
