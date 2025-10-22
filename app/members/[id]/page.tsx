@@ -1,10 +1,13 @@
-import { getMember, getTeam } from "@/app/actions";
+import { getMember, getTeam, getMemberComments, getMemberAttendance } from "@/app/actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Mail, Phone, Calendar, Users, User as UserIcon, Edit } from "lucide-react";
+import { auth } from "@/auth";
+import CommentsSection from "@/app/components/CommentsSection";
 
 export default async function MemberProfilePage({ params }: { params: { id: string } }) {
+  const session = await auth();
   const member = await getMember(parseInt(params.id));
 
   if (!member) {
@@ -12,6 +15,18 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   }
 
   const team = member.team_id ? await getTeam(member.team_id) : null;
+  const comments = await getMemberComments(parseInt(params.id));
+  const attendance = await getMemberAttendance(parseInt(params.id));
+
+  // Check if user can comment (admin or coach)
+  const canComment =
+    session?.user && ["admin", "coach"].includes(session.user.role);
+
+  // Filter comments based on role
+  const visibleComments: any[] =
+    session?.user && ["admin", "coach"].includes(session.user.role)
+      ? comments
+      : comments.filter((c: any) => !c.is_private);
 
   const calculateAge = (birthDate: string) => {
     const today = new Date();
@@ -218,6 +233,70 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
             </div>
           </div>
         </div>
+
+        {/* Training Attendance History */}
+        {attendance && attendance.length > 0 && (
+          <div className="mt-8 bg-white rounded-2xl shadow-xl p-6">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Trainingsteilnahme
+            </h2>
+            <div className="space-y-3">
+              {attendance.map((att: any) => (
+                <div
+                  key={att.id}
+                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
+                  <div>
+                    <p className="font-semibold text-gray-900">
+                      {new Date(att.training_date).toLocaleDateString("de-DE", {
+                        weekday: "long",
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      })}
+                    </p>
+                    <p className="text-sm text-gray-600">
+                      {att.start_time.slice(0, 5)} - {att.end_time.slice(0, 5)} •{" "}
+                      {att.location}
+                    </p>
+                    {att.team_name && (
+                      <p className="text-xs text-gray-500 mt-1">{att.team_name}</p>
+                    )}
+                  </div>
+                  <div>
+                    <span
+                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                        att.status === "accepted"
+                          ? "bg-green-100 text-green-800"
+                          : att.status === "declined"
+                          ? "bg-red-100 text-red-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {att.status === "accepted"
+                        ? "Zugesagt"
+                        : att.status === "declined"
+                        ? "Abgesagt"
+                        : "Ausstehend"}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Comments Section */}
+        {session?.user && (
+          <div className="mt-8">
+            <CommentsSection
+              comments={visibleComments}
+              authorId={session.user.id}
+              memberId={parseInt(params.id)}
+              canComment={canComment || false}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
