@@ -151,7 +151,8 @@ export async function createMember(formData: FormData) {
     const firstName = formData.get("first_name") as string;
     const lastName = formData.get("last_name") as string;
     const birthDate = formData.get("birth_date") as string;
-    const teamId = formData.get("team_id") as string;
+    const teamIdStr = formData.get("team_id") as string;
+    const teamId = teamIdStr && teamIdStr !== "" ? parseInt(teamIdStr) : null;
     const email = formData.get("email") as string;
     const phone = formData.get("phone") as string;
     const parentName = formData.get("parent_name") as string;
@@ -161,7 +162,7 @@ export async function createMember(formData: FormData) {
 
     await sql`
       INSERT INTO members (first_name, last_name, birth_date, team_id, email, phone, parent_name, parent_email, parent_phone, avatar_url)
-      VALUES (${firstName}, ${lastName}, ${birthDate}, ${teamId}, ${email}, ${phone}, ${parentName}, ${parentEmail}, ${parentPhone}, ${avatarUrl})
+      VALUES (${firstName}, ${lastName}, ${birthDate}, ${teamId}, ${email || null}, ${phone || null}, ${parentName || null}, ${parentEmail || null}, ${parentPhone || null}, ${avatarUrl || null})
     `;
     
     revalidatePath("/members");
@@ -177,7 +178,8 @@ export async function updateMember(id: number, formData: FormData) {
     const firstName = formData.get("first_name") as string;
     const lastName = formData.get("last_name") as string;
     const birthDate = formData.get("birth_date") as string;
-    const teamId = formData.get("team_id") as string;
+    const teamIdStr = formData.get("team_id") as string;
+    const teamId = teamIdStr && teamIdStr !== "" ? parseInt(teamIdStr) : null;
     const email = formData.get("email") as string;
     const phone = formData.get("phone") as string;
     const parentName = formData.get("parent_name") as string;
@@ -188,9 +190,9 @@ export async function updateMember(id: number, formData: FormData) {
     await sql`
       UPDATE members 
       SET first_name = ${firstName}, last_name = ${lastName}, birth_date = ${birthDate},
-          team_id = ${teamId}, email = ${email}, phone = ${phone},
-          parent_name = ${parentName}, parent_email = ${parentEmail}, parent_phone = ${parentPhone},
-          avatar_url = ${avatarUrl}
+          team_id = ${teamId}, email = ${email || null}, phone = ${phone || null},
+          parent_name = ${parentName || null}, parent_email = ${parentEmail || null}, parent_phone = ${parentPhone || null},
+          avatar_url = ${avatarUrl || null}
       WHERE id = ${id}
     `;
     
@@ -317,7 +319,8 @@ export async function getTraining(id: number) {
 
 export async function createTraining(formData: FormData) {
   try {
-    const teamId = formData.get("team_id") as string;
+    const teamIdStr = formData.get("team_id") as string;
+    const teamId = teamIdStr && teamIdStr !== "" ? parseInt(teamIdStr) : null;
     const trainingDate = formData.get("training_date") as string;
     const startTime = formData.get("start_time") as string;
     const endTime = formData.get("end_time") as string;
@@ -326,7 +329,7 @@ export async function createTraining(formData: FormData) {
 
     await sql`
       INSERT INTO trainings (team_id, training_date, start_time, end_time, location, notes)
-      VALUES (${teamId}, ${trainingDate}, ${startTime}, ${endTime}, ${location}, ${notes})
+      VALUES (${teamId}, ${trainingDate}, ${startTime}, ${endTime}, ${location}, ${notes || null})
     `;
     
     revalidatePath("/trainings");
@@ -339,7 +342,8 @@ export async function createTraining(formData: FormData) {
 
 export async function updateTraining(id: number, formData: FormData) {
   try {
-    const teamId = formData.get("team_id") as string;
+    const teamIdStr = formData.get("team_id") as string;
+    const teamId = teamIdStr && teamIdStr !== "" ? parseInt(teamIdStr) : null;
     const trainingDate = formData.get("training_date") as string;
     const startTime = formData.get("start_time") as string;
     const endTime = formData.get("end_time") as string;
@@ -350,7 +354,7 @@ export async function updateTraining(id: number, formData: FormData) {
       UPDATE trainings 
       SET team_id = ${teamId}, training_date = ${trainingDate}, 
           start_time = ${startTime}, end_time = ${endTime},
-          location = ${location}, notes = ${notes}
+          location = ${location}, notes = ${notes || null}
       WHERE id = ${id}
     `;
     
