@@ -37,11 +37,11 @@ body {
 
 @layer components {
   .btn-primary {
-    @apply bg-brand-red-DEFAULT text-white px-4 py-2 rounded-lg hover:bg-brand-red-dark transition-colors font-semibold;
+    @apply bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-semibold;
   }
   
   .btn-secondary {
-    @apply bg-brand-black text-white px-4 py-2 rounded-lg hover:bg-brand-gray-800 transition-colors font-semibold;
+    @apply bg-black text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-semibold;
   }
   
   .card {
@@ -49,6 +49,6 @@ body {
   }
   
   .card-header {
-    @apply bg-gradient-to-r from-brand-black via-brand-red-dark to-brand-black text-white px-6 py-4 rounded-t-lg;
+    @apply bg-gradient-to-r from-black via-red-700 to-black text-white px-6 py-4 rounded-t-lg;
   }
 }

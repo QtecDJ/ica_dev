@@ -9,7 +9,7 @@ export default async function Home() {
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-2">
-          <div className="w-16 h-16 bg-gradient-to-br from-brand-red-DEFAULT to-brand-red-dark rounded-xl flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+          <div className="w-16 h-16 bg-gradient-to-br from-red-600 to-red-700 rounded-xl flex items-center justify-center text-white text-3xl font-bold shadow-lg">
             ∞
           </div>
           <div>
@@ -17,7 +17,7 @@ export default async function Home() {
               Infinity Cheer Allstars
             </h1>
             <p className="text-gray-600 flex items-center gap-2">
-              <Star className="w-4 h-4 text-brand-red-DEFAULT fill-brand-red-DEFAULT" />
+              <Star className="w-4 h-4 text-red-600 fill-red-600" />
               Backoffice Dashboard
             </p>
           </div>
@@ -30,7 +30,7 @@ export default async function Home() {
           icon={<Trophy className="w-8 h-8" />}
           title="Teams"
           value={stats.teams}
-          color="from-brand-black to-gray-800"
+          color="from-black to-gray-800"
           bgAccent="bg-gray-900"
           link="/teams"
         />
@@ -38,8 +38,8 @@ export default async function Home() {
           icon={<Users className="w-8 h-8" />}
           title="Mitglieder"
           value={stats.members}
-          color="from-brand-red-DEFAULT to-brand-red-dark"
-          bgAccent="bg-brand-red-DEFAULT"
+          color="from-red-600 to-red-700"
+          bgAccent="bg-red-600"
           link="/members"
         />
         <StatCard
@@ -54,8 +54,8 @@ export default async function Home() {
           icon={<Dumbbell className="w-8 h-8" />}
           title="Trainings"
           value={stats.trainings}
-          color="from-brand-red-dark to-red-900"
-          bgAccent="bg-brand-red-dark"
+          color="from-red-700 to-red-900"
+          bgAccent="bg-red-700"
           link="/trainings"
         />
       </div>
@@ -126,14 +126,14 @@ function QuickLink({ href, title, description, icon }: { href: string; title: st
   return (
     <a
       href={href}
-      className="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl hover:border-brand-red-DEFAULT hover:bg-red-50 transition-all group"
+      className="flex items-center gap-4 p-4 border-2 border-gray-200 rounded-xl hover:border-red-600 hover:bg-red-50 transition-all group"
     >
       <div className="text-3xl">{icon}</div>
       <div className="flex-1">
-        <h3 className="font-semibold text-lg text-gray-900 group-hover:text-brand-red-DEFAULT transition-colors">{title}</h3>
+        <h3 className="font-semibold text-lg text-gray-900 group-hover:text-red-600 transition-colors">{title}</h3>
         <p className="text-gray-600 text-sm">{description}</p>
       </div>
-      <div className="text-brand-red-DEFAULT opacity-0 group-hover:opacity-100 transition-opacity">→</div>
+      <div className="text-red-600 opacity-0 group-hover:opacity-100 transition-opacity">→</div>
     </a>
   );
 }
@@ -142,7 +142,7 @@ function InfoRow({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-gray-200 last:border-0">
       <span className="text-gray-700 font-medium">{label}</span>
-      <span className="text-2xl font-bold text-brand-red-DEFAULT">{value}</span>
+      <span className="text-2xl font-bold text-red-600">{value}</span>
     </div>
   );
 }

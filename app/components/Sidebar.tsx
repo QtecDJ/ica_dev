@@ -15,15 +15,15 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-64 bg-gradient-to-b from-brand-black via-gray-900 to-brand-black text-white p-6 border-r-4 border-brand-red-DEFAULT">
+    <aside className="w-64 bg-gradient-to-b from-black via-gray-900 to-black text-white p-6 border-r-4 border-red-600">
       <div className="mb-8">
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-12 h-12 bg-brand-red-DEFAULT rounded-lg flex items-center justify-center font-bold text-2xl">
+          <div className="w-12 h-12 bg-red-600 rounded-lg flex items-center justify-center font-bold text-2xl">
             ∞
           </div>
           <div>
             <h1 className="text-xl font-bold">Infinity Cheer</h1>
-            <p className="text-brand-red-light text-xs font-semibold tracking-wider">ALLSTARS</p>
+            <p className="text-red-400 text-xs font-semibold tracking-wider">ALLSTARS</p>
           </div>
         </div>
       </div>
@@ -40,7 +40,7 @@ export default function Sidebar() {
                   href={item.href}
                   className={`flex items-center space-x-3 px-4 py-3 rounded-lg transition-all ${
                     isActive
-                      ? "bg-brand-red-DEFAULT text-white shadow-lg shadow-red-500/50"
+                      ? "bg-red-600 text-white shadow-lg shadow-red-500/50"
                       : "text-gray-300 hover:bg-gray-800 hover:text-white"
                   }`}
                 >
@@ -54,7 +54,7 @@ export default function Sidebar() {
       </nav>
       
       <div className="absolute bottom-6 left-6 right-6">
-        <div className="bg-gray-800 rounded-lg p-4 border border-brand-red-dark">
+        <div className="bg-gray-800 rounded-lg p-4 border border-red-700">
           <p className="text-xs text-gray-400 mb-1">Admin</p>
           <p className="text-sm font-semibold">Backoffice System</p>
         </div>
