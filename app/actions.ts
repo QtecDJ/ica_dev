@@ -396,3 +396,184 @@ export async function getStats() {
     return { teams: 0, members: 0, events: 0, trainings: 0 };
   }
 }
+
+// Training Attendance Actions
+export type TrainingAttendance = {
+  id: number;
+  training_id: number;
+  member_id: number;
+  status: "accepted" | "declined" | "pending";
+  comment?: string;
+  created_at: string;
+};
+
+export async function getTrainingAttendance(trainingId: number) {
+  try {
+    const attendance = await sql`
+      SELECT 
+        ta.*,
+        m.first_name,
+        m.last_name
+      FROM training_attendance ta
+      JOIN members m ON ta.member_id = m.id
+      WHERE ta.training_id = ${trainingId}
+      ORDER BY m.last_name, m.first_name
+    `;
+    return attendance;
+  } catch (error) {
+    console.error("Error fetching training attendance:", error);
+    return [];
+  }
+}
+
+export async function getMemberAttendance(memberId: number) {
+  try {
+    const attendance = await sql`
+      SELECT 
+        ta.*,
+        t.training_date,
+        t.start_time,
+        t.end_time,
+        t.location,
+        teams.name as team_name
+      FROM training_attendance ta
+      JOIN trainings t ON ta.training_id = t.id
+      LEFT JOIN teams ON t.team_id = teams.id
+      WHERE ta.member_id = ${memberId}
+      ORDER BY t.training_date DESC, t.start_time DESC
+    `;
+    return attendance;
+  } catch (error) {
+    console.error("Error fetching member attendance:", error);
+    return [];
+  }
+}
+
+export async function updateAttendanceStatus(
+  trainingId: number,
+  memberId: number,
+  status: "accepted" | "declined" | "pending",
+  comment?: string
+) {
+  try {
+    await sql`
+      INSERT INTO training_attendance (training_id, member_id, status, comment)
+      VALUES (${trainingId}, ${memberId}, ${status}, ${comment || null})
+      ON CONFLICT (training_id, member_id)
+      DO UPDATE SET
+        status = ${status},
+        comment = ${comment || null},
+        updated_at = CURRENT_TIMESTAMP
+    `;
+    revalidatePath(`/trainings/${trainingId}`);
+    revalidatePath(`/members/${memberId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating attendance:", error);
+    return { success: false, error: "Fehler beim Aktualisieren der Teilnahme" };
+  }
+}
+
+// Comments Actions
+export type Comment = {
+  id: number;
+  author_id: number;
+  member_id?: number;
+  training_id?: number;
+  content: string;
+  is_private: boolean;
+  created_at: string;
+  author_name?: string;
+};
+
+export async function getMemberComments(memberId: number) {
+  try {
+    const comments = await sql`
+      SELECT 
+        c.*,
+        u.name as author_name
+      FROM comments c
+      JOIN users u ON c.author_id = u.id
+      WHERE c.member_id = ${memberId}
+      ORDER BY c.created_at DESC
+    `;
+    return comments;
+  } catch (error) {
+    console.error("Error fetching member comments:", error);
+    return [];
+  }
+}
+
+export async function getTrainingComments(trainingId: number) {
+  try {
+    const comments = await sql`
+      SELECT 
+        c.*,
+        u.name as author_name
+      FROM comments c
+      JOIN users u ON c.author_id = u.id
+      WHERE c.training_id = ${trainingId}
+      ORDER BY c.created_at DESC
+    `;
+    return comments;
+  } catch (error) {
+    console.error("Error fetching training comments:", error);
+    return [];
+  }
+}
+
+export async function createComment(
+  authorId: string,
+  content: string,
+  memberId?: number,
+  trainingId?: number,
+  isPrivate: boolean = false
+) {
+  try {
+    await sql`
+      INSERT INTO comments (author_id, member_id, training_id, content, is_private)
+      VALUES (${authorId}, ${memberId || null}, ${trainingId || null}, ${content}, ${isPrivate})
+    `;
+    if (memberId) revalidatePath(`/members/${memberId}`);
+    if (trainingId) revalidatePath(`/trainings/${trainingId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error creating comment:", error);
+    return { success: false, error: "Fehler beim Erstellen des Kommentars" };
+  }
+}
+
+// Parent-Children Relationships
+export async function getParentChildren(parentUserId: string) {
+  try {
+    const children = await sql`
+      SELECT 
+        m.*,
+        teams.name as team_name
+      FROM parent_children pc
+      JOIN members m ON pc.child_member_id = m.id
+      LEFT JOIN teams ON m.team_id = teams.id
+      WHERE pc.parent_user_id = ${parentUserId}
+      ORDER BY m.last_name, m.first_name
+    `;
+    return children;
+  } catch (error) {
+    console.error("Error fetching parent children:", error);
+    return [];
+  }
+}
+
+export async function addParentChild(parentUserId: string, childMemberId: number) {
+  try {
+    await sql`
+      INSERT INTO parent_children (parent_user_id, child_member_id)
+      VALUES (${parentUserId}, ${childMemberId})
+      ON CONFLICT (parent_user_id, child_member_id) DO NOTHING
+    `;
+    revalidatePath("/members");
+    return { success: true };
+  } catch (error) {
+    console.error("Error adding parent-child relationship:", error);
+    return { success: false, error: "Fehler beim Hinzufügen der Beziehung" };
+  }
+}

@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Users, Trophy, Calendar, Dumbbell } from "lucide-react";
+import { Home, Users, Trophy, Calendar, Dumbbell, LogOut } from "lucide-react";
+import { signOut, useSession } from "next-auth/react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: Home },
@@ -13,6 +14,11 @@ const navItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: "/login" });
+  };
 
   return (
     <aside className="w-64 bg-gradient-to-b from-black via-gray-900 to-black text-white p-6 border-r-4 border-red-600">
@@ -55,8 +61,29 @@ export default function Sidebar() {
       
       <div className="absolute bottom-6 left-6 right-6">
         <div className="bg-gray-800 rounded-lg p-4 border border-red-700">
-          <p className="text-xs text-gray-400 mb-1">Admin</p>
-          <p className="text-sm font-semibold">Backoffice System</p>
+          {session?.user && (
+            <>
+              <p className="text-xs text-gray-400 mb-1">
+                {session.user.role === "admin"
+                  ? "Administrator"
+                  : session.user.role === "coach"
+                  ? "Coach"
+                  : session.user.role === "parent"
+                  ? "Elternteil"
+                  : "Mitglied"}
+              </p>
+              <p className="text-sm font-semibold text-white truncate mb-3">
+                {session.user.name || session.user.email}
+              </p>
+            </>
+          )}
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Abmelden
+          </button>
         </div>
       </div>
     </aside>
