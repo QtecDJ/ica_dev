@@ -5,7 +5,9 @@ Ein modernes Verwaltungssystem für die Infinity Cheer Allstars, gebaut mit Next
 ## Features
 
 - 📊 Dashboard mit Statistiken
-- 👥 Mitgliederverwaltung
+- 👥 Mitgliederverwaltung mit Profilseiten
+- 🖼️ Avatar-Upload für Mitglieder
+- 🎫 ID-Card Style Profilseiten
 - 🏆 Teamverwaltung
 - 📅 Event- und Wettbewerbsplanung
 - 💪 Trainingsplanung
