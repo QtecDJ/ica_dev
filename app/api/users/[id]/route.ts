@@ -110,7 +110,7 @@ export async function DELETE(
     const userId = parseInt(params.id);
 
     // Verhindere das Löschen des eigenen Accounts
-    if (session.user.id === userId.toString()) {
+    if (parseInt(session.user.id) === userId) {
       return NextResponse.json(
         { error: "Du kannst deinen eigenen Account nicht löschen" },
         { status: 400 }
@@ -127,14 +127,26 @@ export async function DELETE(
     }
 
     // Lösche abhängige Einträge in der richtigen Reihenfolge
+    console.log(`Deleting user ${userId}...`);
+    
     // 1. Lösche Kommentare des Benutzers
-    await sql`DELETE FROM comments WHERE author_id = ${userId}`;
+    const deletedComments = await sql`DELETE FROM comments WHERE author_id = ${userId} RETURNING id`;
+    console.log(`Deleted ${deletedComments.length} comments`);
     
     // 2. Lösche Eltern-Kind-Beziehungen
-    await sql`DELETE FROM parent_children WHERE parent_user_id = ${userId}`;
+    const deletedRelations = await sql`DELETE FROM parent_children WHERE parent_user_id = ${userId} RETURNING id`;
+    console.log(`Deleted ${deletedRelations.length} parent_children relations`);
     
     // 3. Lösche den Benutzer
-    await sql`DELETE FROM users WHERE id = ${userId}`;
+    const deletedUser = await sql`DELETE FROM users WHERE id = ${userId} RETURNING id`;
+    console.log(`Deleted ${deletedUser.length} user`);
+
+    if (deletedUser.length === 0) {
+      return NextResponse.json(
+        { error: "Benutzer konnte nicht gelöscht werden" },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,
@@ -142,8 +154,9 @@ export async function DELETE(
     });
   } catch (error) {
     console.error("Error deleting user:", error);
+    const errorMessage = error instanceof Error ? error.message : "Unbekannter Fehler";
     return NextResponse.json(
-      { error: "Fehler beim Löschen des Benutzers" },
+      { error: `Fehler beim Löschen des Benutzers: ${errorMessage}` },
       { status: 500 }
     );
   }
