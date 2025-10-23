@@ -27,7 +27,7 @@ function generatePassword(length: number = 12): string {
   return password.split('').sort(() => Math.random() - 0.5).join('');
 }
 
-export default function CreateUserForm() {
+export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }) {
   const [formData, setFormData] = useState({
     username: "",
     name: "",
@@ -78,6 +78,11 @@ export default function CreateUserForm() {
         password: "",
         role: "member",
       });
+      
+      // Callback aufrufen falls vorhanden
+      if (onSuccess) {
+        setTimeout(() => onSuccess(), 1500);
+      }
     } catch (error) {
       setError("Ein Fehler ist aufgetreten");
     } finally {
