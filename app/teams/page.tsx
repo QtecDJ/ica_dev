@@ -2,8 +2,12 @@ import { getTeams, deleteTeam } from "../actions";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
+import { requireRole } from "@/lib/auth-utils";
 
 export default async function TeamsPage() {
+  // Only admin and coach can access this page
+  await requireRole(["admin", "coach"]);
+  
   const teams = await getTeams();
 
   return (

@@ -1,37 +1,20 @@
-import type { NextAuthConfig } from "next-auth";
+import type { NextAuthOptions } from "next-auth";
 
-export const authConfig = {
+export const authConfig: Partial<NextAuthOptions> = {
   pages: {
     signIn: "/login",
   },
   callbacks: {
-    authorized({ auth, request: { nextUrl } }) {
-      const isLoggedIn = !!auth?.user;
-      const isOnDashboard = nextUrl.pathname.startsWith("/");
-      const isOnLogin = nextUrl.pathname.startsWith("/login");
-      const isOnRegister = nextUrl.pathname.startsWith("/register");
-
-      if (isOnDashboard && !isOnLogin && !isOnRegister) {
-        if (!isLoggedIn) return false;
-        return true;
-      }
-
-      if (isLoggedIn && (isOnLogin || isOnRegister)) {
-        return Response.redirect(new URL("/", nextUrl));
-      }
-
-      return true;
-    },
-    jwt({ token, user }) {
+    async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-        token.memberId = user.memberId;
+        token.role = (user as any).role;
+        token.memberId = (user as any).memberId;
       }
       return token;
     },
-    session({ session, token }) {
-      if (token) {
+    async session({ session, token }) {
+      if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
         session.user.memberId = token.memberId as number | null;
@@ -39,5 +22,4 @@ export const authConfig = {
       return session;
     },
   },
-  providers: [],
-} satisfies NextAuthConfig;
+};

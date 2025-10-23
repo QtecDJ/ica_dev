@@ -1,22 +1,41 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getToken } from "next-auth/jwt";
 
-export function middleware(request: NextRequest) {
-  // Allow access to login, register, and API routes
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  if (
+  // Public paths that don't require authentication
+  const isPublicPath = 
     pathname.startsWith("/login") ||
-    pathname.startsWith("/register") ||
-    pathname.startsWith("/api") ||
+    pathname.startsWith("/api/auth") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/avatars")
-  ) {
-    return NextResponse.next();
+    pathname.startsWith("/avatars") ||
+    pathname.match(/\.(png|jpg|jpeg|gif|svg|ico)$/);
+
+  if (isPublicPath) {
+    const response = NextResponse.next();
+    response.headers.set("x-pathname", pathname);
+    return response;
   }
 
-  // For now, allow all access (authentication will be enforced client-side)
-  return NextResponse.next();
+  // Check if user is authenticated
+  const token = await getToken({
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET,
+  });
+
+  // Redirect to login if not authenticated
+  if (!token) {
+    const url = new URL("/login", request.url);
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
+  }
+
+  // User is authenticated, continue
+  const response = NextResponse.next();
+  response.headers.set("x-pathname", pathname);
+  return response;
 }
 
 export const config = {

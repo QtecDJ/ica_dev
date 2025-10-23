@@ -1,30 +1,31 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { authConfig } from "./auth.config";
-import { sql } from "@vercel/postgres";
 import { neon } from "@neondatabase/serverless";
 import bcrypt from "bcryptjs";
-
-const dbUrl = process.env.DATABASE_URL!;
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
+      credentials: {
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
       async authorize(credentials) {
-        const { email, password } = credentials as {
-          email: string;
+        const { username, password } = credentials as {
+          username: string;
           password: string;
         };
 
-        if (!email || !password) return null;
+        if (!username || !password) return null;
 
         try {
-          const sql = neon(dbUrl);
+          const sql = neon(process.env.DATABASE_URL!);
           const result = await sql`
-            SELECT id, email, password_hash, role, member_id, name
+            SELECT id, username, password_hash, role, member_id, name
             FROM users
-            WHERE email = ${email}
+            WHERE username = ${username}
           `;
 
           if (result.length === 0) return null;
@@ -39,7 +40,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
 
           return {
             id: user.id.toString(),
-            email: user.email,
+            email: user.username, // Use username as email for NextAuth compatibility
             name: user.name,
             role: user.role,
             memberId: user.member_id,

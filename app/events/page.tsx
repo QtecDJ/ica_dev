@@ -2,8 +2,12 @@ import { getEvents, deleteEvent } from "../actions";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
+import { requireRole } from "@/lib/auth-utils";
 
 export default async function EventsPage() {
+  // Only admin and coach can access this page
+  await requireRole(["admin", "coach"]);
+  
   const events = await getEvents();
 
   return (

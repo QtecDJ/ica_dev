@@ -52,3 +52,106 @@ body {
     @apply bg-gradient-to-r from-black via-red-700 to-black text-white px-6 py-4 rounded-t-lg;
   }
 }
+
+/* Fix input text color - ensure text is always visible */
+input,
+textarea,
+select {
+  color: #1f2937 !important; /* gray-800 */
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9ca3af !important; /* gray-400 */
+}
+
+/* Dark mode override */
+@media (prefers-color-scheme: dark) {
+  input,
+  textarea,
+  select {
+    color: #1f2937 !important; /* Keep text dark even in dark mode for white backgrounds */
+  }
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Grid pattern for modern hero sections */
+.bg-grid-white {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' width='32' height='32' fill='none' stroke='rgb(255 255 255 / 0.05)'%3e%3cpath d='M0 .5H31.5V32'/%3e%3c/svg%3e");
+}
+
+/* Responsive Table Styles */
+@media (max-width: 768px) {
+  .responsive-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .responsive-table thead {
+    display: none;
+  }
+
+  .responsive-table tbody tr {
+    display: block;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(6, 182, 212, 0.2);
+    border-radius: 0.5rem;
+    background: rgba(15, 23, 42, 0.5);
+    padding: 0.75rem;
+  }
+
+  .responsive-table tbody td {
+    display: block;
+    text-align: right;
+    padding: 0.5rem;
+    border: none;
+  }
+
+  .responsive-table tbody td::before {
+    content: attr(data-label);
+    float: left;
+    font-weight: bold;
+    color: rgba(6, 182, 212, 0.8);
+  }
+}
+
+/* Responsive Grid Adjustments */
+@media (max-width: 640px) {
+  .grid-cols-2 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+  }
+}
+
+/* Mobile-friendly cards */
+@media (max-width: 768px) {
+  .card-mobile {
+    padding: 1rem !important;
+  }
+
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+}

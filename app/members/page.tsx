@@ -3,21 +3,36 @@ import { Plus, Pencil, Trash2, Eye } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
 import Image from "next/image";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-utils";
+import type { Session } from "next-auth";
 
 export default async function MembersPage() {
+  const session = (await getServerSession(authOptions)) as Session | null;
+  const userRole = session?.user?.role;
+  
+  // Only admin and coach can see all members
+  // Parents will see filtered list (to be implemented)
+  // Members should not access this page (redirected by sidebar)
+  
   const members = await getMembers();
+  
+  // Hide create button for non-admin/coach
+  const canCreate = userRole === "admin" || userRole === "coach";
 
   return (
     <div className="p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Mitglieder</h1>
-        <Link
-          href="/members/new"
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          Neues Mitglied
-        </Link>
+        {canCreate && (
+          <Link
+            href="/members/new"
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            Neues Mitglied
+          </Link>
+        )}
       </div>
 
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -92,14 +107,18 @@ export default async function MembersPage() {
                     >
                       <Eye className="w-4 h-4" />
                     </Link>
-                    <Link
-                      href={`/members/${member.id}/edit`}
-                      className="text-blue-600 hover:text-blue-900"
-                      title="Bearbeiten"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Link>
-                    <DeleteButton id={member.id} action={deleteMember} />
+                    {canCreate && (
+                      <>
+                        <Link
+                          href={`/members/${member.id}/edit`}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Bearbeiten"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Link>
+                        <DeleteButton id={member.id} action={deleteMember} />
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>

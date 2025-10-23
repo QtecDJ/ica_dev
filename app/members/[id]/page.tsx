@@ -3,11 +3,13 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, Mail, Phone, Calendar, Users, User as UserIcon, Edit } from "lucide-react";
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-utils";
 import CommentsSection from "@/app/components/CommentsSection";
+import type { Session } from "next-auth";
 
 export default async function MemberProfilePage({ params }: { params: { id: string } }) {
-  const session = await auth();
+  const session = (await getServerSession(authOptions)) as Session | null;
   const member = await getMember(parseInt(params.id));
 
   if (!member) {

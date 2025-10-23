@@ -1,0 +1,10 @@
+import LoginProvider from "./LoginProvider";
+import LoginPage from "./LoginPage";
+
+export default function Page() {
+  return (
+    <LoginProvider>
+      <LoginPage />
+    </LoginProvider>
+  );
+}
