@@ -42,214 +42,203 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 p-8">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <Link
-            href="/members"
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Zurück zur Übersicht
-          </Link>
-          <Link
-            href={`/members/${params.id}/edit`}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <Edit className="w-4 h-4" />
-            Bearbeiten
-          </Link>
-        </div>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <Link
+          href="/members"
+          className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50 transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5" />
+          <span className="font-medium">Zurück zur Übersicht</span>
+        </Link>
+        <Link
+          href={`/members/${params.id}/edit`}
+          className="btn btn-primary"
+        >
+          <Edit className="w-4 h-4" />
+          Bearbeiten
+        </Link>
+      </div>
 
-        {/* ID Card */}
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden transform hover:scale-[1.01] transition-transform">
-          {/* Card Header - Cheerleading Theme */}
-          <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 h-32 relative">
-            <div className="absolute inset-0 bg-black opacity-10"></div>
-            <div className="absolute top-4 right-4 text-white font-bold text-sm bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
-              INFINITY CHEER ALLSTARS
+      {/* Profile Card */}
+      <div className="card">
+        <div className="card-header">
+          <div className="flex items-center justify-center -mt-8 mb-4">
+            <div className="relative">
+              <div className="w-32 h-32 rounded-full border-4 border-white dark:border-slate-900 shadow-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+                {member.avatar_url ? (
+                  <Image
+                    src={member.avatar_url}
+                    alt={`${member.first_name} ${member.last_name}`}
+                    fill
+                    className="object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <UserIcon className="w-16 h-16 text-slate-400" />
+                  </div>
+                )}
+              </div>
+              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg border-4 border-white dark:border-slate-900">
+                {member.id}
+              </div>
             </div>
           </div>
-
-          {/* Profile Section */}
-          <div className="px-8 pb-8">
-            {/* Avatar */}
-            <div className="flex justify-center -mt-20 mb-6">
-              <div className="relative">
-                <div className="w-40 h-40 rounded-full border-8 border-white shadow-xl overflow-hidden bg-gradient-to-br from-blue-100 to-purple-100">
-                  {member.avatar_url ? (
-                    <Image
-                      src={member.avatar_url}
-                      alt={`${member.first_name} ${member.last_name}`}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <UserIcon className="w-20 h-20 text-gray-400" />
-                    </div>
-                  )}
-                </div>
-                {/* ID Badge Number */}
-                <div className="absolute -bottom-2 -right-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg shadow-lg border-4 border-white">
-                  #{member.id}
-                </div>
-              </div>
-            </div>
-
-            {/* Name and Team */}
-            <div className="text-center mb-8">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                {member.first_name} {member.last_name}
-              </h1>
-              {team && (
-                <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-purple-50 px-4 py-2 rounded-full">
-                  <Users className="w-4 h-4 text-purple-600" />
-                  <span className="text-purple-700 font-semibold">{team.name}</span>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-gray-600">{team.level}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Info Grid */}
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {/* Personal Info Card */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-2xl p-6 border border-blue-200">
-                <h3 className="text-sm font-bold text-blue-900 uppercase tracking-wide mb-4 flex items-center gap-2">
-                  <UserIcon className="w-4 h-4" />
-                  Persönliche Daten
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-blue-600" />
-                    <div>
-                      <p className="text-xs text-gray-600">Geburtsdatum</p>
-                      <p className="font-semibold text-gray-900">
-                        {new Date(member.birth_date).toLocaleDateString("de-DE")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-5 h-5 flex items-center justify-center">
-                      <span className="text-2xl">🎂</span>
-                    </div>
-                    <div>
-                      <p className="text-xs text-gray-600">Alter</p>
-                      <p className="font-semibold text-gray-900">
-                        {calculateAge(member.birth_date)} Jahre
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Contact Info Card */}
-              <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-2xl p-6 border border-purple-200">
-                <h3 className="text-sm font-bold text-purple-900 uppercase tracking-wide mb-4 flex items-center gap-2">
-                  <Mail className="w-4 h-4" />
-                  Kontakt
-                </h3>
-                <div className="space-y-3">
-                  {member.email && (
-                    <div className="flex items-start gap-3">
-                      <Mail className="w-5 h-5 text-purple-600 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-gray-600">Email</p>
-                        <a
-                          href={`mailto:${member.email}`}
-                          className="font-semibold text-purple-700 hover:text-purple-900 break-all"
-                        >
-                          {member.email}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                  {member.phone && (
-                    <div className="flex items-start gap-3">
-                      <Phone className="w-5 h-5 text-purple-600 mt-0.5" />
-                      <div>
-                        <p className="text-xs text-gray-600">Telefon</p>
-                        <a
-                          href={`tel:${member.phone}`}
-                          className="font-semibold text-purple-700 hover:text-purple-900"
-                        >
-                          {member.phone}
-                        </a>
-                      </div>
-                    </div>
-                  )}
-                  {!member.email && !member.phone && (
-                    <p className="text-gray-500 text-sm">Keine Kontaktdaten hinterlegt</p>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* Parent/Guardian Info */}
-            {(member.parent_name || member.parent_email || member.parent_phone) && (
-              <div className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-2xl p-6 border border-pink-200">
-                <h3 className="text-sm font-bold text-pink-900 uppercase tracking-wide mb-4 flex items-center gap-2">
-                  <Users className="w-4 h-4" />
-                  Erziehungsberechtigte(r)
-                </h3>
-                <div className="grid md:grid-cols-3 gap-4">
-                  {member.parent_name && (
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Name</p>
-                      <p className="font-semibold text-gray-900">{member.parent_name}</p>
-                    </div>
-                  )}
-                  {member.parent_email && (
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Email</p>
-                      <a
-                        href={`mailto:${member.parent_email}`}
-                        className="font-semibold text-pink-700 hover:text-pink-900 break-all"
-                      >
-                        {member.parent_email}
-                      </a>
-                    </div>
-                  )}
-                  {member.parent_phone && (
-                    <div>
-                      <p className="text-xs text-gray-600 mb-1">Telefon</p>
-                      <a
-                        href={`tel:${member.parent_phone}`}
-                        className="font-semibold text-pink-700 hover:text-pink-900"
-                      >
-                        {member.parent_phone}
-                      </a>
-                    </div>
-                  )}
-                </div>
+          
+          <div className="text-center">
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
+              {member.first_name} {member.last_name}
+            </h1>
+            {team && (
+              <div className="inline-flex items-center gap-2 badge badge-blue">
+                <Users className="w-4 h-4" />
+                <span>{team.name}</span>
+                <span>•</span>
+                <span>{team.level}</span>
               </div>
             )}
-
-            {/* Card Footer */}
-            <div className="mt-8 pt-6 border-t border-gray-200 text-center">
-              <p className="text-xs text-gray-500">
-                Mitglied seit {new Date(member.created_at).toLocaleDateString("de-DE")}
-              </p>
-            </div>
           </div>
         </div>
 
-        {/* Training Attendance History */}
-        {attendance && attendance.length > 0 && (
-          <div className="mt-8 bg-white rounded-2xl shadow-xl p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+        <div className="card-body">
+          {/* Info Grid */}
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            {/* Personal Info */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <UserIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                Persönliche Daten
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <Calendar className="w-5 h-5 text-slate-400 mt-0.5" />
+                  <div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Geburtsdatum</p>
+                    <p className="font-medium text-slate-900 dark:text-slate-50">
+                      {new Date(member.birth_date).toLocaleDateString("de-DE")}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 flex items-center justify-center text-xl">🎂</div>
+                  <div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400">Alter</p>
+                    <p className="font-medium text-slate-900 dark:text-slate-50">
+                      {calculateAge(member.birth_date)} Jahre
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Info */}
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <Mail className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                Kontakt
+              </h3>
+              <div className="space-y-3">
+                {member.email && (
+                  <div className="flex items-start gap-3">
+                    <Mail className="w-5 h-5 text-slate-400 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">Email</p>
+                      <a
+                        href={`mailto:${member.email}`}
+                        className="font-medium text-red-600 dark:text-red-400 hover:underline break-all"
+                      >
+                        {member.email}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {member.phone && (
+                  <div className="flex items-start gap-3">
+                    <Phone className="w-5 h-5 text-slate-400 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-slate-600 dark:text-slate-400">Telefon</p>
+                      <a
+                        href={`tel:${member.phone}`}
+                        className="font-medium text-red-600 dark:text-red-400 hover:underline"
+                      >
+                        {member.phone}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                {!member.email && !member.phone && (
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">Keine Kontaktdaten hinterlegt</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Parent/Guardian Info */}
+          {(member.parent_name || member.parent_email || member.parent_phone) && (
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3 flex items-center gap-2">
+                <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
+                Erziehungsberechtigte(r)
+              </h3>
+              <div className="grid md:grid-cols-3 gap-4">
+                {member.parent_name && (
+                  <div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Name</p>
+                    <p className="font-medium text-slate-900 dark:text-slate-50">{member.parent_name}</p>
+                  </div>
+                )}
+                {member.parent_email && (
+                  <div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Email</p>
+                    <a
+                      href={`mailto:${member.parent_email}`}
+                      className="font-medium text-red-600 dark:text-red-400 hover:underline break-all"
+                    >
+                      {member.parent_email}
+                    </a>
+                  </div>
+                )}
+                {member.parent_phone && (
+                  <div>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Telefon</p>
+                    <a
+                      href={`tel:${member.parent_phone}`}
+                      className="font-medium text-red-600 dark:text-red-400 hover:underline"
+                    >
+                      {member.parent_phone}
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="card-footer">
+          <p className="text-xs text-slate-600 dark:text-slate-400 text-center">
+            Mitglied seit {new Date(member.created_at).toLocaleDateString("de-DE")}
+          </p>
+        </div>
+      </div>
+
+      {/* Training Attendance History */}
+      {attendance && attendance.length > 0 && (
+        <div className="card">
+          <div className="card-header">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
               Trainingsteilnahme
             </h2>
+          </div>
+          <div className="card-body">
             <div className="space-y-3">
               {attendance.map((att: any) => (
                 <div
                   key={att.id}
-                  className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
                 >
-                  <div>
-                    <p className="font-semibold text-gray-900">
+                  <div className="flex-1">
+                    <p className="font-semibold text-slate-900 dark:text-slate-50">
                       {new Date(att.training_date).toLocaleDateString("de-DE", {
                         weekday: "long",
                         day: "2-digit",
@@ -257,49 +246,40 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
                         year: "numeric",
                       })}
                     </p>
-                    <p className="text-sm text-gray-600">
-                      {att.start_time.slice(0, 5)} - {att.end_time.slice(0, 5)} •{" "}
-                      {att.location}
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {att.start_time.slice(0, 5)} - {att.end_time.slice(0, 5)} • {att.location}
                     </p>
                     {att.team_name && (
-                      <p className="text-xs text-gray-500 mt-1">{att.team_name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{att.team_name}</p>
                     )}
                   </div>
                   <div>
-                    <span
-                      className={`px-3 py-1 rounded-full text-sm font-semibold ${
-                        att.status === "accepted"
-                          ? "bg-green-100 text-green-800"
-                          : att.status === "declined"
-                          ? "bg-red-100 text-red-800"
-                          : "bg-yellow-100 text-yellow-800"
-                      }`}
-                    >
-                      {att.status === "accepted"
-                        ? "Zugesagt"
-                        : att.status === "declined"
-                        ? "Abgesagt"
-                        : "Ausstehend"}
-                    </span>
+                    {att.status === "accepted" && (
+                      <span className="badge badge-green">Zugesagt</span>
+                    )}
+                    {att.status === "declined" && (
+                      <span className="badge badge-red">Abgesagt</span>
+                    )}
+                    {att.status !== "accepted" && att.status !== "declined" && (
+                      <span className="badge badge-gray">Ausstehend</span>
+                    )}
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Comments Section */}
-        {session?.user && (
-          <div className="mt-8">
-            <CommentsSection
-              comments={visibleComments}
-              authorId={session.user.id}
-              memberId={parseInt(params.id)}
-              canComment={canComment || false}
-            />
-          </div>
-        )}
-      </div>
+      {/* Comments Section */}
+      {session?.user && (
+        <CommentsSection
+          comments={visibleComments}
+          authorId={session.user.id}
+          memberId={parseInt(params.id)}
+          canComment={canComment || false}
+        />
+      )}
     </div>
   );
 }
