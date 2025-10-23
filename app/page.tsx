@@ -1,5 +1,5 @@
-import { getStats, getMember, getTeam, getMembers } from "./actions";
-import { Users, Calendar, Trophy, Dumbbell, TrendingUp, Star, CheckCircle, XCircle, AlertTriangle, UserPlus, BarChart3, Bell } from "lucide-react";
+import { getStats, getMember, getTeam } from "./actions";
+import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, XCircle, Bell, ArrowRight } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import MemberDashboard from "./components/MemberDashboard";
@@ -121,202 +121,146 @@ export default async function Home() {
   const adminStats = extendedStats[0];
 
   return (
-    <div className="min-h-screen bg-slate-950 p-4">
-      <div className="max-w-7xl mx-auto space-y-4">
-        {/* Sci-Fi Header */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 rounded-lg border border-cyan-500/20 shadow-lg shadow-cyan-500/10">
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAwIDEwIEwgNDAgMTAgTSAxMCAwIEwgMTAgNDAgTSAwIDIwIEwgNDAgMjAgTSAyMCAwIEwgMjAgNDAgTSAwIDMwIEwgNDAgMzAgTSAzMCAwIEwgMzAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAyKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-40"></div>
-          <div className="relative px-6 py-4 flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-cyan-500/30">
-              ∞
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Infinity Cheer Allstars</h1>
-              <p className="text-cyan-400 text-xs font-semibold tracking-wider uppercase flex items-center gap-2">
-                <Star className="w-3 h-3 fill-cyan-400" />
-                {userRole === "admin" ? "Admin" : "Coach"} Dashboard
-              </p>
-            </div>
-          </div>
-        </div>
+    <div className="space-y-8">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+          Dashboard
+        </h1>
+        <p className="text-slate-600 dark:text-slate-400 mt-1">
+          Willkommen zurück, {session?.user?.name || "Admin"}
+        </p>
+      </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <StatCard
-            icon={<Trophy className="w-5 h-5" />}
-            title="Teams"
-            value={stats.teams}
-            color="cyan"
-            link="/teams"
-          />
-          <StatCard
-            icon={<Users className="w-5 h-5" />}
-            title="Mitglieder"
-            value={stats.members}
-            color="blue"
-            link="/members"
-          />
-          <StatCard
-            icon={<Calendar className="w-5 h-5" />}
-            title="Events"
-            value={stats.events}
-            color="purple"
-            link="/events"
-          />
-          <StatCard
-            icon={<Dumbbell className="w-5 h-5" />}
-            title="Trainings"
-            value={stats.trainings}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          icon={<Trophy className="w-6 h-6" />}
+          title="Teams"
+          value={stats.teams}
+          color="red"
+          href="/teams"
+        />
+        <StatCard
+          icon={<Users className="w-6 h-6" />}
+          title="Mitglieder"
+          value={stats.members}
+          color="blue"
+          href="/members"
+        />
+        <StatCard
+          icon={<Calendar className="w-6 h-6" />}
+          title="Events"
+          value={stats.events}
+          color="purple"
+          href="/events"
+        />
+        <StatCard
+          icon={<Dumbbell className="w-6 h-6" />}
+          title="Trainings"
+          value={stats.trainings}
+          color="green"
+          href="/trainings"
+        />
+      </div>
+
+      {/* Extended Stats for Admin */}
+      {userRole === "admin" && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <MiniStatCard
+            icon={<UserPlus className="w-5 h-5" />}
+            title="Neue (30 Tage)"
+            value={adminStats.new_members || 0}
             color="green"
-            link="/trainings"
+          />
+          <MiniStatCard
+            icon={<CheckCircle className="w-5 h-5" />}
+            title="Zusagen"
+            value={adminStats.accepted_count || 0}
+            color="blue"
+          />
+          <MiniStatCard
+            icon={<XCircle className="w-5 h-5" />}
+            title="Absagen"
+            value={adminStats.declined_count || 0}
+            color="red"
+          />
+          <MiniStatCard
+            icon={<Bell className="w-5 h-5" />}
+            title="Anstehende Events"
+            value={adminStats.upcoming_events || 0}
+            color="purple"
           />
         </div>
+      )}
 
-        {/* Admin Extended Stats */}
-        {userRole === "admin" && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <MiniStatCard
-              icon={<UserPlus className="w-4 h-4" />}
-              title="Neue (30T)"
-              value={adminStats.new_members || 0}
-              color="green"
-            />
-            <MiniStatCard
-              icon={<CheckCircle className="w-4 h-4" />}
-              title="Zusagen"
-              value={adminStats.accepted_count || 0}
-              color="cyan"
-            />
-            <MiniStatCard
-              icon={<XCircle className="w-4 h-4" />}
-              title="Absagen"
-              value={adminStats.declined_count || 0}
-              color="red"
-            />
-            <MiniStatCard
-              icon={<Bell className="w-4 h-4" />}
-              title="Events bald"
-              value={adminStats.upcoming_events || 0}
-              color="purple"
-            />
-          </div>
-        )}
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <SciFiCard title="Schnellzugriff" icon={<TrendingUp className="w-4 h-4" />} color="cyan">
-            <div className="space-y-2">
-              <QuickLink href="/teams" title="Teams verwalten" icon="🏆" />
-              <QuickLink href="/members" title="Mitglieder verwalten" icon="👥" />
-              <QuickLink href="/events" title="Events planen" icon="📅" />
-              <QuickLink href="/trainings" title="Trainings planen" icon="💪" />
-              {userRole === "admin" && (
-                <>
-                  <QuickLink href="/users" title="Benutzerverwaltung" icon="👤" />
-                  <QuickLink href="/reports" title="Berichte & Statistiken" icon="📊" />
-                </>
-              )}
+      {/* Quick Actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="card">
+          <div className="card-header">
+            <div className="flex items-center gap-3">
+              <TrendingUp className="w-5 h-5" />
+              <h2 className="text-lg font-semibold">Schnellzugriff</h2>
             </div>
-          </SciFiCard>
-
-          <SciFiCard title={userRole === "admin" ? "Team-Übersicht" : "Systeminfo"} icon={<BarChart3 className="w-4 h-4" />} color="blue">
-            {userRole === "admin" && adminStats.team_stats ? (
-              <div className="space-y-2">
-                {(adminStats.team_stats as any[]).map((team: any, index: number) => (
-                  <TeamStatRow key={index} team={team} />
-                ))}
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <InfoRow label="Gesamte Teams" value={stats.teams} />
-                <InfoRow label="Gesamte Mitglieder" value={stats.members} />
-                <InfoRow label="Aktive Events" value={stats.events} />
-                <InfoRow label="Geplante Trainings" value={stats.trainings} />
-              </div>
+          </div>
+          <div className="card-body space-y-2">
+            <QuickLink href="/teams" title="Teams verwalten" />
+            <QuickLink href="/members" title="Mitglieder verwalten" />
+            <QuickLink href="/events" title="Events planen" />
+            <QuickLink href="/trainings" title="Trainings planen" />
+            {userRole === "admin" && (
+              <QuickLink href="/users" title="Benutzerverwaltung" />
             )}
-          </SciFiCard>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-header">
+            <div className="flex items-center gap-3">
+              <Trophy className="w-5 h-5" />
+              <h2 className="text-lg font-semibold">System-Übersicht</h2>
+            </div>
+          </div>
+          <div className="card-body space-y-3">
+            <InfoRow label="Teams" value={stats.teams} />
+            <InfoRow label="Mitglieder" value={stats.members} />
+            <InfoRow label="Events" value={stats.events} />
+            <InfoRow label="Trainings" value={stats.trainings} />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function SciFiCard({ title, icon, color, children }: any) {
-  const colorMap = {
-    cyan: "border-cyan-500/30 bg-cyan-500/5",
-    blue: "border-blue-500/30 bg-blue-500/5",
-    purple: "border-purple-500/30 bg-purple-500/5",
-    green: "border-green-500/30 bg-green-500/5",
-  };
-
-  return (
-    <div className={`bg-slate-900 border ${colorMap[color as keyof typeof colorMap]} rounded-lg overflow-hidden`}>
-      <div className="border-b border-slate-800 px-4 py-2 flex items-center gap-2">
-        {icon}
-        <h2 className="text-sm font-bold text-white uppercase tracking-wide">{title}</h2>
-      </div>
-      <div className="p-4">{children}</div>
-    </div>
-  );
-}
-
-function StatCard({ icon, title, value, color, link }: { 
+function StatCard({ icon, title, value, color, href }: { 
   icon: React.ReactNode; 
   title: string; 
   value: number; 
-  color: string;
-  link: string;
+  color: "red" | "blue" | "purple" | "green";
+  href: string;
 }) {
-  const colorMap = {
-    cyan: "border-cyan-500/30 bg-cyan-500/5 hover:bg-cyan-500/10 shadow-cyan-500/10",
-    blue: "border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 shadow-blue-500/10",
-    purple: "border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10 shadow-purple-500/10",
-    green: "border-green-500/30 bg-green-500/5 hover:bg-green-500/10 shadow-green-500/10",
-  };
-  
-  const textColorMap = {
-    cyan: "text-cyan-400",
-    blue: "text-blue-400",
-    purple: "text-purple-400",
-    green: "text-green-400",
+  const colorClasses = {
+    red: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20",
+    blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20",
+    purple: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20",
+    green: "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20",
   };
 
   return (
-    <a href={link} className={`bg-slate-900 border ${colorMap[color as keyof typeof colorMap]} rounded-lg p-3 transition-all hover:shadow-lg group`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-slate-400 text-xs mb-0.5">{title}</p>
-          <p className={`text-2xl font-bold ${textColorMap[color as keyof typeof textColorMap]}`}>{value}</p>
-        </div>
-        <div className={`${textColorMap[color as keyof typeof textColorMap]} opacity-50 group-hover:opacity-100 transition-opacity`}>
-          {icon}
+    <Link href={href} className="card-hover group">
+      <div className="card-body">
+        <div className="flex items-start justify-between">
+          <div className="flex-1">
+            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{title}</p>
+            <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">{value}</p>
+          </div>
+          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
+            {icon}
+          </div>
         </div>
       </div>
-    </a>
-  );
-}
-
-function QuickLink({ href, title, icon }: { href: string; title: string; icon: string }) {
-  return (
-    <a
-      href={href}
-      className="flex items-center gap-3 p-3 border border-slate-800 rounded-lg hover:border-cyan-500/50 hover:bg-slate-800/50 transition-all group"
-    >
-      <div className="text-xl">{icon}</div>
-      <div className="flex-1">
-        <h3 className="font-semibold text-sm text-white group-hover:text-cyan-400 transition-colors">{title}</h3>
-      </div>
-      <div className="text-cyan-400 opacity-0 group-hover:opacity-100 transition-opacity">→</div>
-    </a>
-  );
-}
-
-function InfoRow({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="flex items-center justify-between py-2 border-b border-slate-800 last:border-0">
-      <span className="text-slate-400 text-sm">{label}</span>
-      <span className="text-xl font-bold text-cyan-400">{value}</span>
-    </div>
+    </Link>
   );
 }
 
@@ -324,56 +268,49 @@ function MiniStatCard({ icon, title, value, color }: {
   icon: React.ReactNode;
   title: string;
   value: number;
-  color: string;
+  color: "red" | "blue" | "purple" | "green";
 }) {
-  const colorMap = {
-    cyan: "border-cyan-500/30 bg-cyan-500/5",
-    blue: "border-blue-500/30 bg-blue-500/5",
-    purple: "border-purple-500/30 bg-purple-500/5",
-    green: "border-green-500/30 bg-green-500/5",
-    red: "border-red-500/30 bg-red-500/5",
-  };
-  
-  const textColorMap = {
-    cyan: "text-cyan-400",
-    blue: "text-blue-400",
-    purple: "text-purple-400",
-    green: "text-green-400",
-    red: "text-red-400",
+  const colorClasses = {
+    red: "text-red-600 dark:text-red-400",
+    blue: "text-blue-600 dark:text-blue-400",
+    purple: "text-purple-600 dark:text-purple-400",
+    green: "text-green-600 dark:text-green-400",
   };
 
   return (
-    <div className={`bg-slate-900 border ${colorMap[color as keyof typeof colorMap]} rounded-lg p-3`}>
-      <div className="flex items-center gap-2 mb-1">
-        <div className={`${textColorMap[color as keyof typeof textColorMap]}`}>
-          {icon}
+    <div className="card">
+      <div className="card-body">
+        <div className="flex items-center gap-3 mb-2">
+          <div className={colorClasses[color]}>
+            {icon}
+          </div>
+          <p className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wide font-medium">
+            {title}
+          </p>
         </div>
-        <p className="text-slate-400 text-xs uppercase tracking-wide">{title}</p>
+        <p className={`text-2xl font-bold ${colorClasses[color]}`}>{value}</p>
       </div>
-      <p className={`text-2xl font-bold ${textColorMap[color as keyof typeof textColorMap]}`}>{value}</p>
     </div>
   );
 }
 
-function TeamStatRow({ team }: { team: any }) {
-  const maxMembers = 20; // Annahme für die Fortschrittsbalken-Berechnung
-  const percentage = Math.min((team.member_count / maxMembers) * 100, 100);
-  
+function QuickLink({ href, title }: { href: string; title: string }) {
   return (
-    <div className="py-2 border-b border-slate-800 last:border-0">
-      <div className="flex items-center justify-between mb-1">
-        <div>
-          <span className="text-white text-sm font-semibold">{team.team_name}</span>
-          <span className="text-slate-500 text-xs ml-2">Level {team.level}</span>
-        </div>
-        <span className="text-cyan-400 font-bold text-sm">{team.member_count}</span>
-      </div>
-      <div className="w-full bg-slate-800 rounded-full h-1.5">
-        <div 
-          className="bg-gradient-to-r from-cyan-500 to-blue-500 h-1.5 rounded-full transition-all"
-          style={{ width: `${percentage}%` }}
-        />
-      </div>
+    <Link
+      href={href}
+      className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+    >
+      <span className="text-slate-900 dark:text-slate-50 font-medium">{title}</span>
+      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:translate-x-1 transition-all" />
+    </Link>
+  );
+}
+
+function InfoRow({ label, value }: { label: string; value: number }) {
+  return (
+    <div className="flex items-center justify-between py-2 border-b border-slate-200 dark:border-slate-700 last:border-0">
+      <span className="text-slate-600 dark:text-slate-400">{label}</span>
+      <span className="text-lg font-semibold text-slate-900 dark:text-slate-50">{value}</span>
     </div>
   );
 }
