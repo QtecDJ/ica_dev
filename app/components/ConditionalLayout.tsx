@@ -20,10 +20,13 @@ export default function ConditionalLayout({
 
   if (showSidebar) {
     return (
-      <div className="flex h-screen bg-slate-950 overflow-hidden">
+      <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
         <ResponsiveSidebar />
-        <main className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 lg:ml-0 pt-16 lg:pt-0 px-4 lg:px-6">
-          <div className="max-w-7xl mx-auto py-6">
+        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 lg:ml-0">
+          <a href="#main-content" className="skip-to-content">
+            Skip to main content
+          </a>
+          <div id="main-content" className="container-page">
             {children}
           </div>
         </main>
@@ -33,7 +36,7 @@ export default function ConditionalLayout({
 
   // For login page or unauthenticated users, show content without sidebar
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
       {children}
     </div>
   );

@@ -137,98 +137,91 @@ export default function EditUserModal({ user, members, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-slate-900 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-700">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="sticky top-0 bg-slate-900 border-b border-slate-700 p-4 lg:p-6 flex items-center justify-between">
+        <div className="sticky top-0 card-header bg-white dark:bg-slate-800 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
               <Users className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">Benutzer bearbeiten</h2>
-              <p className="text-sm text-gray-400">{user.name}</p>
+              <h2 className="text-xl font-bold">Benutzer bearbeiten</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-400">{user.name}</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-lg hover:bg-slate-800 flex items-center justify-center transition-colors"
+            className="btn-ghost w-10 h-10 !p-0"
+            aria-label="Schließen"
           >
-            <X className="w-5 h-5 text-gray-400" />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="p-4 lg:p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="card-body space-y-6">
           {error && (
-            <div className="p-4 bg-red-500/10 border border-red-500 rounded-lg text-red-400 text-sm">
+            <div className="alert-error">
               {error}
             </div>
           )}
           {success && (
-            <div className="p-4 bg-green-500/10 border border-green-500 rounded-lg text-green-400 text-sm">
+            <div className="alert-success">
               {success}
             </div>
           )}
 
           {/* Basis-Informationen */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
               <Shield className="w-4 h-4" />
               Basis-Informationen
             </h3>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Name *
-              </label>
+              <label className="label">Name *</label>
               <input
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="input w-full"
+                className="input"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Benutzername *
-              </label>
+              <label className="label">Benutzername *</label>
               <input
                 type="text"
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                className="input w-full"
+                className="input"
                 required
                 pattern="[a-z0-9_]+"
                 title="Nur Kleinbuchstaben, Zahlen und Unterstriche"
               />
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Wird für den Login verwendet (nur a-z, 0-9, _)
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                E-Mail (optional)
-              </label>
+              <label className="label">E-Mail (optional)</label>
               <input
                 type="email"
                 value={formData.email || ""}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="input w-full"
+                className="input"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Rolle *
-              </label>
+              <label className="label">Rolle *</label>
               <select
                 value={formData.role}
                 onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-                className="input w-full"
+                className="input"
                 required
               >
                 <option value="admin">Administrator</option>
@@ -239,15 +232,13 @@ export default function EditUserModal({ user, members, onClose }: Props) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Verknüpftes Mitglied (optional)
-              </label>
+              <label className="label">Verknüpftes Mitglied (optional)</label>
               <select
                 value={formData.member_id}
                 onChange={(e) =>
                   setFormData({ ...formData, member_id: e.target.value })
                 }
-                className="input w-full"
+                className="input"
               >
                 <option value="">Kein Mitglied verknüpft</option>
                 {members.map((member) => (
@@ -257,58 +248,54 @@ export default function EditUserModal({ user, members, onClose }: Props) {
                   </option>
                 ))}
               </select>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                 Verknüpfe diesen Benutzer mit einem Mitglied für erweiterte Funktionen
               </p>
             </div>
           </div>
 
           {/* Passwort ändern */}
-          <div className="space-y-4 pt-6 border-t border-slate-700">
-            <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+          <div className="space-y-4 pt-6 border-t border-slate-200 dark:border-slate-700">
+            <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center gap-2">
               <Key className="w-4 h-4" />
               Passwort ändern (optional)
             </h3>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Neues Passwort
-              </label>
+              <label className="label">Neues Passwort</label>
               <input
                 type="password"
                 value={formData.newPassword}
                 onChange={(e) =>
                   setFormData({ ...formData, newPassword: e.target.value })
                 }
-                className="input w-full"
+                className="input"
                 placeholder="Mindestens 6 Zeichen"
                 minLength={6}
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Passwort bestätigen
-              </label>
+              <label className="label">Passwort bestätigen</label>
               <input
                 type="password"
                 value={formData.confirmPassword}
                 onChange={(e) =>
                   setFormData({ ...formData, confirmPassword: e.target.value })
                 }
-                className="input w-full"
+                className="input"
                 placeholder="Passwort wiederholen"
               />
             </div>
           </div>
 
           {/* Aktionen */}
-          <div className="flex flex-col-reverse lg:flex-row gap-3 pt-6 border-t border-slate-700">
+          <div className="card-footer flex flex-col-reverse sm:flex-row gap-3">
             <button
               type="button"
               onClick={handleDelete}
               disabled={loading}
-              className="btn-secondary flex items-center gap-2 justify-center text-red-400 hover:text-red-300 hover:bg-red-500/10"
+              className="btn-secondary text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/10"
             >
               <Trash2 className="w-4 h-4" />
               Löschen
@@ -318,14 +305,14 @@ export default function EditUserModal({ user, members, onClose }: Props) {
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="btn-secondary flex items-center gap-2 justify-center"
+              className="btn-secondary"
             >
               Abbrechen
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="btn-primary flex items-center gap-2 justify-center"
+              className="btn-primary"
             >
               <Save className="w-4 h-4" />
               {loading ? "Wird gespeichert..." : "Speichern"}
