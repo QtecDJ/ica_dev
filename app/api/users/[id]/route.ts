@@ -126,7 +126,14 @@ export async function DELETE(
       );
     }
 
-    // Lösche Benutzer
+    // Lösche abhängige Einträge in der richtigen Reihenfolge
+    // 1. Lösche Kommentare des Benutzers
+    await sql`DELETE FROM comments WHERE author_id = ${userId}`;
+    
+    // 2. Lösche Eltern-Kind-Beziehungen
+    await sql`DELETE FROM parent_children WHERE parent_user_id = ${userId}`;
+    
+    // 3. Lösche den Benutzer
     await sql`DELETE FROM users WHERE id = ${userId}`;
 
     return NextResponse.json({

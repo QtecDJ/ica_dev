@@ -138,7 +138,15 @@ export async function getMembers() {
 
 export async function getMember(id: number) {
   try {
-    const data = await sql`SELECT * FROM members WHERE id = ${id}`;
+    const data = await sql`
+      SELECT 
+        m.*,
+        u.role as user_role,
+        u.username
+      FROM members m
+      LEFT JOIN users u ON u.member_id = m.id
+      WHERE m.id = ${id}
+    `;
     return data[0];
   } catch (error) {
     console.error("Error fetching member:", error);

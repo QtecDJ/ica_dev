@@ -31,8 +31,10 @@ export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }
   const [formData, setFormData] = useState({
     username: "",
     name: "",
+    email: "",
     password: "",
     role: "member" as "admin" | "coach" | "member" | "parent",
+    createMemberProfile: true,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -75,8 +77,10 @@ export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }
       setFormData({
         username: "",
         name: "",
+        email: "",
         password: "",
         role: "member",
+        createMemberProfile: true,
       });
       
       // Callback aufrufen falls vorhanden
@@ -143,6 +147,24 @@ export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }
             className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-all"
             placeholder="Max Mustermann"
             required
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          E-Mail (optional)
+        </label>
+        <div className="relative">
+          <UserCircle className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <input
+            type="email"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData({ ...formData, email: e.target.value })
+            }
+            className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-all"
+            placeholder="max@example.com"
           />
         </div>
       </div>
@@ -220,6 +242,30 @@ export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }
           </select>
         </div>
       </div>
+
+      {(formData.role === "member" || formData.role === "coach") && (
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <label className="flex items-start gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={formData.createMemberProfile}
+              onChange={(e) =>
+                setFormData({ ...formData, createMemberProfile: e.target.checked })
+              }
+              className="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 mt-0.5"
+            />
+            <div>
+              <p className="text-sm font-medium text-gray-900">
+                Mitgliederprofil erstellen
+              </p>
+              <p className="text-xs text-gray-600 mt-1">
+                Erstellt automatisch ein Profil auf der Mitglieder-Seite mit Vor- und Nachname aus dem vollständigen Namen.
+                {formData.role === "coach" && " Coaches werden auch als Mitglieder angezeigt."}
+              </p>
+            </div>
+          </label>
+        </div>
+      )}
 
       <button
         type="submit"

@@ -23,7 +23,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const { username, name, password, role } = await request.json();
+    const { username, name, password, role, email, createMemberProfile } = await request.json();
 
     // Validate input
     if (!username || !name || !password || !role) {
@@ -63,11 +63,29 @@ export async function POST(request: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    let memberId = null;
+
+    // Wenn Member- oder Coach-Profil erstellt werden soll
+    if (createMemberProfile && (role === "member" || role === "coach")) {
+      // Extrahiere Vor- und Nachname aus dem vollständigen Namen
+      const nameParts = name.trim().split(" ");
+      const firstName = nameParts[0];
+      const lastName = nameParts.slice(1).join(" ") || firstName;
+
+      // Erstelle Member-Profil
+      const memberResult = await sql`
+        INSERT INTO members (first_name, last_name, email, birth_date)
+        VALUES (${firstName}, ${lastName}, ${email || null}, CURRENT_DATE)
+        RETURNING id
+      `;
+      memberId = memberResult[0].id;
+    }
+
     // Create user
     const result = await sql`
-      INSERT INTO users (username, name, password_hash, role)
-      VALUES (${username}, ${name}, ${hashedPassword}, ${role})
-      RETURNING id, username, name, role
+      INSERT INTO users (username, name, password_hash, role, email, member_id)
+      VALUES (${username}, ${name}, ${hashedPassword}, ${role}, ${email || null}, ${memberId})
+      RETURNING id, username, name, role, member_id
     `;
 
     return NextResponse.json({

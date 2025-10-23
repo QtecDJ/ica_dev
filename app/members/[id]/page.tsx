@@ -90,13 +90,33 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
             <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
               {member.first_name} {member.last_name}
             </h1>
-            {team && (
-              <div className="inline-flex items-center gap-2 badge badge-blue">
-                <Users className="w-4 h-4" />
-                <span>{team.name}</span>
-                <span>•</span>
-                <span>{team.level}</span>
-              </div>
+            <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
+              {team && (
+                <div className="inline-flex items-center gap-2 badge badge-blue">
+                  <Users className="w-4 h-4" />
+                  <span>{team.name}</span>
+                  <span>•</span>
+                  <span>{team.level}</span>
+                </div>
+              )}
+              {member.user_role && (
+                <span className={
+                  member.user_role === "admin" ? "badge badge-red" :
+                  member.user_role === "coach" ? "badge badge-blue" :
+                  member.user_role === "member" ? "badge badge-green" :
+                  "badge badge-purple"
+                }>
+                  {member.user_role === "admin" ? "Administrator" :
+                   member.user_role === "coach" ? "Coach" :
+                   member.user_role === "member" ? "Mitglied" :
+                   "Elternteil"}
+                </span>
+              )}
+            </div>
+            {member.username && (
+              <p className="text-slate-600 dark:text-slate-400 text-sm">
+                @{member.username}
+              </p>
             )}
           </div>
         </div>
