@@ -33,6 +33,7 @@ export default function ResponsiveSidebar() {
       { href: "/teams", label: "Teams", iconName: "Trophy" },
       { href: "/members", label: "Mitglieder", iconName: "Users" },
       { href: "/events", label: "Events", iconName: "Calendar" },
+      { href: "/calendar", label: "Kalender", iconName: "Calendar" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
     ];
   }

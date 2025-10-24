@@ -22,6 +22,12 @@ export default async function EditEventPage({ params }: { params: { id: string }
 
   const event = events[0];
 
+  // Konvertiere event_date zu string
+  const formattedEvent = {
+    ...event,
+    event_date: event.event_date.toISOString().split('T')[0]
+  };
+
   // Hole alle Teams
   const teams = await sql`
     SELECT id, name, level FROM teams ORDER BY name
@@ -60,8 +66,8 @@ export default async function EditEventPage({ params }: { params: { id: string }
           </div>
           <div className="card-body">
             <EditEventForm 
-              event={event} 
-              teams={teams}
+              event={formattedEvent as any}
+              teams={teams as any}
               selectedTeamIds={selectedTeamIds}
             />
           </div>

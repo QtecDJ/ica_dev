@@ -241,7 +241,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
       {participants.length > 0 && (
         <EventParticipants 
           eventId={parseInt(params.id)}
-          participants={participants} 
+          participants={participants as any}
           userRole={session?.user?.role}
           userId={session?.user?.id}
         />

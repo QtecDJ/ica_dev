@@ -38,7 +38,7 @@ export default async function NewEventPage() {
       </div>
 
       <div className="max-w-3xl">
-        <CreateEventForm teams={teams} />
+        <CreateEventForm teams={teams as any} />
       </div>
     </div>
   );
