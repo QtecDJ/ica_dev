@@ -8,11 +8,11 @@
    ============================================ */
 
 :root {
-  /* Color Palette */
-  --color-primary: 220 38 38;      /* Red-600 */
-  --color-primary-hover: 185 28 28; /* Red-700 */
+  /* Modern Purple Theme */
+  --color-primary: 139 92 246;      /* Purple-600 */
+  --color-primary-hover: 124 58 237; /* Purple-700 */
   --color-secondary: 15 23 42;      /* Slate-900 */
-  --color-accent: 6 182 212;        /* Cyan-500 */
+  --color-accent: 168 139 250;      /* Purple-400 */
   
   /* Backgrounds */
   --bg-base: 255 255 255;           /* White */
@@ -32,6 +32,7 @@
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-glass: 0 8px 32px 0 rgba(139, 92, 246, 0.15);
   
   /* Spacing Scale (8px base) */
   --spacing-xs: 0.5rem;   /* 8px */
@@ -96,8 +97,8 @@ body {
   }
   
   .btn-primary {
-    @apply btn bg-red-600 text-white hover:bg-red-700 active:bg-red-800;
-    @apply focus:ring-red-500 shadow-sm hover:shadow-md;
+    @apply btn bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800;
+    @apply focus:ring-purple-500 shadow-sm hover:shadow-md;
   }
   
   .btn-secondary {
@@ -129,6 +130,12 @@ body {
   
   .card-hover {
     @apply card hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600;
+  }
+  
+  .card-glass {
+    @apply backdrop-blur-md bg-white/80 dark:bg-slate-800/80 rounded-xl;
+    @apply border border-slate-200/50 dark:border-slate-700/50;
+    box-shadow: var(--shadow-glass);
   }
   
   .card-header {
