@@ -115,23 +115,37 @@ export default function EditUserModal({ user, members, onClose }: Props) {
 
     setLoading(true);
     setError("");
+    setSuccess("");
 
     try {
+      console.log(`Attempting to delete user ${user.id}...`);
+      
       const response = await fetch(`/api/users/${user.id}`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
 
       const data = await response.json();
+      console.log("Delete response:", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Fehler beim Löschen");
       }
 
-      router.refresh();
-      onClose();
+      setSuccess("Benutzer erfolgreich gelöscht!");
+      
+      // Warte kurz, dann schließe Modal und aktualisiere
+      setTimeout(() => {
+        onClose();
+        router.refresh();
+        // Erzwinge Seiten-Reload für sofortige Aktualisierung
+        window.location.reload();
+      }, 1000);
     } catch (err) {
+      console.error("Delete error:", err);
       setError(err instanceof Error ? err.message : "Ein Fehler ist aufgetreten");
-    } finally {
       setLoading(false);
     }
   };

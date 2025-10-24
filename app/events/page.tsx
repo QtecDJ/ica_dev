@@ -56,12 +56,15 @@ export default async function EventsPage() {
                   {events.map((event) => (
                     <tr key={event.id}>
                       <td>
-                        <div className="flex items-center gap-2">
+                        <Link 
+                          href={`/events/${event.id}`}
+                          className="flex items-center gap-2 hover:text-purple-600 dark:hover:text-purple-400 transition-colors"
+                        >
                           <div className="w-8 h-8 rounded-lg bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center">
                             <Calendar className="w-4 h-4" />
                           </div>
                           <span className="font-medium">{event.title}</span>
-                        </div>
+                        </Link>
                       </td>
                       <td className="text-slate-600 dark:text-slate-400">
                         {new Date(event.event_date).toLocaleDateString("de-DE")}
@@ -95,7 +98,7 @@ export default async function EventsPage() {
           {/* Mobile Cards */}
           <div className="md:hidden space-y-4">
             {events.map((event) => (
-              <div key={event.id} className="card-hover">
+              <Link key={event.id} href={`/events/${event.id}`} className="card-hover block">
                 <div className="card-body">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3 flex-1">
@@ -110,15 +113,6 @@ export default async function EventsPage() {
                           {event.event_type}
                         </span>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/events/${event.id}/edit`}
-                        className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Link>
-                      <DeleteButton id={event.id} action={deleteEvent} />
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
@@ -136,7 +130,7 @@ export default async function EventsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </>
