@@ -1,16 +1,18 @@
 import { neon } from "@neondatabase/serverless";
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-utils";
+import { redirect } from "next/navigation";
 import Calendar from "@/app/components/Calendar";
 
 export const dynamic = 'force-dynamic';
 
 export default async function CalendarPage() {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   
   if (!session) {
-    return <div>Bitte anmelden</div>;
+    redirect("/login");
   }
 
   const sql = neon(process.env.DATABASE_URL!);

@@ -2,7 +2,6 @@ import { neon } from "@neondatabase/serverless";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { auth } from "@/auth";
 import { requireRole } from "@/lib/auth-utils";
 import EditEventForm from "@/app/components/EditEventForm";
 

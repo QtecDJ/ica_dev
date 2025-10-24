@@ -2,11 +2,12 @@ import { neon } from "@neondatabase/serverless";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Edit, FileText, Tag, AlertCircle } from "lucide-react";
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-utils";
 import EventParticipants from "@/app/components/EventParticipants";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
-  const session = await auth();
+  const session = await getServerSession(authOptions);
   const sql = neon(process.env.DATABASE_URL!);
   
   // Hole Event-Daten
