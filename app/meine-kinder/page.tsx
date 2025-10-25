@@ -15,7 +15,23 @@ async function getChildrenData(parentId: string) {
   try {
     const sql = getSafeDb();
     
-    // Get children from members table
+    // Vereinfachte Abfrage - schaue nach members die zur parent email gehören könnten
+    // Statt parent_id verwenden wir parent_email Vergleich
+    const user = await sql`
+      SELECT email FROM users WHERE id = ${parentId}
+    `;
+    
+    if (!user || user.length === 0) {
+      return {
+        children: [],
+        upcomingEvents: [],
+        upcomingTrainings: []
+      };
+    }
+
+    const parentEmail = user[0].email;
+    
+    // Get children based on parent_email match
     const children = await sql`
       SELECT 
         m.id,
@@ -23,35 +39,42 @@ async function getChildrenData(parentId: string) {
         m.last_name,
         m.email,
         m.phone,
-        m.created_at
+        m.created_at,
+        m.parent_email,
+        t.name as team_name
       FROM members m
-      WHERE m.parent_id = ${parentId}
+      LEFT JOIN teams t ON m.team_id = t.id
+      WHERE m.parent_email = ${parentEmail}
       ORDER BY m.first_name ASC
     `;
 
-    // Get upcoming events (simplified - all events)
+    // Get upcoming events (all events for now)
     const upcomingEvents = await sql`
       SELECT 
         e.id,
         e.title,
         e.description,
         e.event_date as date,
-        e.location
+        e.location,
+        e.event_type
       FROM events e
       WHERE e.event_date >= CURRENT_DATE
       ORDER BY e.event_date ASC
       LIMIT 5
     `;
 
-    // Get upcoming trainings (simplified - all trainings)
+    // Get upcoming trainings (all trainings for now)
     const upcomingTrainings = await sql`
       SELECT 
         tr.id,
-        tr.title,
-        tr.description,
         tr.training_date as date,
-        tr.location
+        tr.start_time,
+        tr.end_time,
+        tr.location,
+        tr.notes,
+        t.name as team_name
       FROM trainings tr
+      LEFT JOIN teams t ON tr.team_id = t.id
       WHERE tr.training_date >= CURRENT_DATE
       ORDER BY tr.training_date ASC
       LIMIT 5
@@ -117,6 +140,9 @@ export default async function MeineKinderPage() {
                           {child.first_name} {child.last_name}
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
+                          {child.team_name ? `Team: ${child.team_name}` : 'Kein Team zugewiesen'}
+                        </p>
+                        <p className="text-xs text-slate-400">
                           Mitglied seit {new Date(child.created_at).toLocaleDateString('de-DE')}
                         </p>
                       </div>
@@ -163,10 +189,10 @@ export default async function MeineKinderPage() {
                       <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                         <Users className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto mb-1" />
                         <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                          {child.team_id ? 1 : 0}
+                          {child.team_name ? 1 : 0}
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
-                          Teams
+                          Team
                         </div>
                       </div>
                     </div>

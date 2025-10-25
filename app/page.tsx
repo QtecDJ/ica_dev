@@ -83,45 +83,39 @@ export default async function Home() {
 
 async function ParentDashboard({ userId, userName }: { userId: string; userName?: string | null }) {
   try {
-    // Get children (members with this parent_id)
-    const children = await sql`
-      SELECT 
-        m.id,
-        m.first_name,
-        m.last_name,
-        m.email,
-        m.created_at
-      FROM members m
-      WHERE m.parent_id = ${userId}
-      ORDER BY m.first_name ASC
-    `;
-
-    // Get upcoming events (all events)
+    // Vereinfachtes Dashboard ohne Kind-Verknüpfungen
+    // Zeige nur allgemeine Events und Trainings an
+    
+    // Get all upcoming events (not child-specific)
     const upcomingEvents = await sql`
       SELECT 
         e.id,
         e.title,
         e.description,
         e.event_date as date,
-        e.location
+        e.location,
+        e.event_type
       FROM events e
       WHERE e.event_date >= CURRENT_DATE
       ORDER BY e.event_date ASC
-      LIMIT 8
+      LIMIT 6
     `;
 
-    // Get upcoming trainings (all trainings)
+    // Get all upcoming trainings (not child-specific)
     const upcomingTrainings = await sql`
       SELECT 
         tr.id,
-        tr.title,
-        tr.description,
         tr.training_date as date,
-        tr.location
+        tr.start_time,
+        tr.end_time,
+        tr.location,
+        tr.notes,
+        t.name as team_name
       FROM trainings tr
+      LEFT JOIN teams t ON tr.team_id = t.id
       WHERE tr.training_date >= CURRENT_DATE
       ORDER BY tr.training_date ASC
-      LIMIT 8
+      LIMIT 6
     `;
 
     return (
@@ -133,235 +127,183 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
               Willkommen zurück
             </h1>
             <p className="text-slate-600 dark:text-slate-400 mt-1">
-              {userName}, hier ist eine Übersicht über die Aktivitäten deiner Kinder
+              {userName}, hier ist eine Übersicht über aktuelle Events und Trainings
             </p>
           </div>
           <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
-            <Users className="w-4 h-4" />
-            {children.length} {children.length === 1 ? 'Kind' : 'Kinder'}
+            <Calendar className="w-4 h-4" />
+            Eltern-Ansicht
           </div>
         </div>
 
-        {/* Children Overview */}
-        {children.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {children.map((child: any) => (
-              <div key={child.id} className="card">
-                <div className="card-body">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-                      <User className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-slate-900 dark:text-slate-50">
-                        {child.first_name} {child.last_name}
-                      </h3>
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Dein Kind
-                      </p>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded">
-                      <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                        {upcomingEvents.length}
-                      </div>
-                      <div className="text-xs text-slate-600 dark:text-slate-400">
-                        Events
-                      </div>
-                    </div>
-                    <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded">
-                      <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                        {upcomingTrainings.length}
-                      </div>
-                      <div className="text-xs text-slate-600 dark:text-slate-400">
-                        Trainings
-                      </div>
-                    </div>
-                  </div>
-                </div>
+        {/* Info-Banner für Eltern */}
+        <div className="card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+          <div className="card-body">
+            <h3 className="font-semibold text-red-900 dark:text-red-100 mb-3">
+              👋 Herzlich willkommen im Elternbereich!
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+              <div>
+                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Verfügbare Funktionen</h4>
+                <ul className="space-y-1 text-red-700 dark:text-red-300">
+                  <li>• 📅 Events - Alle Vereinsveranstaltungen einsehen</li>
+                  <li>• 📆 Kalender - Termine im Überblick</li>
+                  <li>• 🏋️ Trainings - Trainingszeiten aller Teams</li>
+                  <li>• 👨‍👩‍👧‍👦 Meine Kinder - Informationen zu den Kindern</li>
+                </ul>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="card">
-            <div className="card-body text-center py-12">
-              <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
-                <Users className="w-8 h-8 text-slate-400" />
+              <div>
+                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Hinweise</h4>
+                <ul className="space-y-1 text-red-700 dark:text-red-300">
+                  <li>• Als Elternteil haben Sie Lesezugriff auf alle Informationen</li>
+                  <li>• Für Fragen wenden Sie sich an den jeweiligen Trainer</li>
+                  <li>• Wichtige Änderungen werden per E-Mail mitgeteilt</li>
+                </ul>
               </div>
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
-                Noch keine Kinder registriert
-              </h3>
-              <p className="text-slate-600 dark:text-slate-400">
-                Wende dich an die Vereinsleitung, um deine Kinder zu registrieren.
-              </p>
             </div>
           </div>
-        )}
+        </div>
 
         {/* Quick Access Grid */}
-        {children.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Upcoming Events */}
-            <div className="card">
-              <div className="card-header">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                    <h2 className="text-lg font-semibold">Kommende Events</h2>
-                  </div>
-                  <Link href="/events" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
-                    Alle anzeigen
-                  </Link>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <QuickActionCard
+            href="/events"
+            icon={<Calendar className="w-6 h-6" />}
+            title="Events"
+            description="Alle Veranstaltungen"
+            color="blue"
+          />
+          <QuickActionCard
+            href="/calendar"
+            icon={<Calendar className="w-6 h-6" />}
+            title="Kalender"
+            description="Terminübersicht"
+            color="green"
+          />
+          <QuickActionCard
+            href="/trainings"
+            icon={<Dumbbell className="w-6 h-6" />}
+            title="Trainings"
+            description="Trainingszeiten"
+            color="yellow"
+          />
+          <QuickActionCard
+            href="/meine-kinder"
+            icon={<Users className="w-6 h-6" />}
+            title="Meine Kinder"
+            description="Informationen"
+            color="red"
+          />
+        </div>
+
+        {/* Upcoming Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Upcoming Events */}
+          <div className="card">
+            <div className="card-header">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <h2 className="text-lg font-semibold">Kommende Events</h2>
                 </div>
-              </div>
-              <div className="card-body">
-                {upcomingEvents.length > 0 ? (
-                  <div className="space-y-3">
-                    {upcomingEvents.slice(0, 4).map((event: any) => (
-                      <div key={event.id} className="border-l-4 border-blue-200 dark:border-blue-800 pl-3 py-2">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
-                              {event.title}
-                            </h4>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {new Date(event.date).toLocaleDateString('de-DE')}
-                              </div>
-                              {event.location && (
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  {event.location}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">
-                    Keine kommenden Events
-                  </p>
-                )}
+                <Link href="/events" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                  Alle anzeigen
+                </Link>
               </div>
             </div>
-
-            {/* Upcoming Trainings */}
-            <div className="card">
-              <div className="card-header">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Dumbbell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
-                    <h2 className="text-lg font-semibold">Kommende Trainings</h2>
-                  </div>
-                  <Link href="/trainings" className="text-sm text-yellow-600 dark:text-yellow-400 hover:underline">
-                    Alle anzeigen
-                  </Link>
-                </div>
-              </div>
-              <div className="card-body">
-                {upcomingTrainings.length > 0 ? (
-                  <div className="space-y-3">
-                    {upcomingTrainings.slice(0, 4).map((training: any) => (
-                      <div key={training.id} className="border-l-4 border-yellow-200 dark:border-yellow-800 pl-3 py-2">
-                        <div className="flex justify-between items-start">
-                          <div className="flex-1">
-                            <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
-                              {training.title}
-                            </h4>
-                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-3 h-3" />
-                                {new Date(training.date).toLocaleDateString('de-DE')}
-                              </div>
-                              {training.location && (
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="w-3 h-3" />
-                                  {training.location}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">
-                    Keine kommenden Trainings
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Quick Links for Parents */}
-        {children.length > 0 && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <QuickActionCard
-              href="/meine-kinder"
-              icon={<Users className="w-6 h-6" />}
-              title="Meine Kinder"
-              description="Detailübersicht"
-              color="red"
-            />
-            <QuickActionCard
-              href="/events"
-              icon={<Calendar className="w-6 h-6" />}
-              title="Events"
-              description="Alle Veranstaltungen"
-              color="blue"
-            />
-            <QuickActionCard
-              href="/trainings"
-              icon={<Dumbbell className="w-6 h-6" />}
-              title="Trainings"
-              description="Trainingsplan"
-              color="yellow"
-            />
-            <QuickActionCard
-              href="/calendar"
-              icon={<Calendar className="w-6 h-6" />}
-              title="Kalender"
-              description="Terminübersicht"
-              color="green"
-            />
-          </div>
-        )}
-
-        {/* Important Info */}
-        {children.length > 0 && (
-          <div className="card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
             <div className="card-body">
-              <h3 className="font-semibold text-red-900 dark:text-red-100 mb-4">
-                📢 Wichtige Hinweise für Eltern
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                <div>
-                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Kommunikation</h4>
-                  <ul className="space-y-1 text-red-700 dark:text-red-300">
-                    <li>• Alle Termine werden automatisch hier angezeigt</li>
-                    <li>• Wichtige Änderungen erhältst du per E-Mail</li>
-                    <li>• Bei Fragen wende dich an den jeweiligen Coach</li>
-                  </ul>
+              {upcomingEvents.length > 0 ? (
+                <div className="space-y-3">
+                  {upcomingEvents.slice(0, 4).map((event: any) => (
+                    <div key={event.id} className="border-l-4 border-blue-200 dark:border-blue-800 pl-3 py-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                            {event.title}
+                          </h4>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {new Date(event.date).toLocaleDateString('de-DE')}
+                            </div>
+                            {event.location && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {event.location}
+                              </div>
+                            )}
+                            {event.event_type && (
+                              <span className="px-2 py-1 text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200 rounded">
+                                {event.event_type}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div>
-                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Termine</h4>
-                  <ul className="space-y-1 text-red-700 dark:text-red-300">
-                    <li>• Bitte sorge für pünktliches Erscheinen</li>
-                    <li>• Bei Krankheit rechtzeitig abmelden</li>
-                    <li>• Trainingszeiten können sich kurzfristig ändern</li>
-                  </ul>
-                </div>
-              </div>
+              ) : (
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  Keine kommenden Events
+                </p>
+              )}
             </div>
           </div>
-        )}
+
+          {/* Upcoming Trainings */}
+          <div className="card">
+            <div className="card-header">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Dumbbell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                  <h2 className="text-lg font-semibold">Kommende Trainings</h2>
+                </div>
+                <Link href="/trainings" className="text-sm text-yellow-600 dark:text-yellow-400 hover:underline">
+                  Alle anzeigen
+                </Link>
+              </div>
+            </div>
+            <div className="card-body">
+              {upcomingTrainings.length > 0 ? (
+                <div className="space-y-3">
+                  {upcomingTrainings.slice(0, 4).map((training: any) => (
+                    <div key={training.id} className="border-l-4 border-yellow-200 dark:border-yellow-800 pl-3 py-2">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                            {training.team_name || 'Training'}
+                          </h4>
+                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                            <div className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {new Date(training.date).toLocaleDateString('de-DE')}
+                            </div>
+                            {training.start_time && (
+                              <span className="text-xs">
+                                {training.start_time} - {training.end_time}
+                              </span>
+                            )}
+                            {training.location && (
+                              <div className="flex items-center gap-1">
+                                <MapPin className="w-3 h-3" />
+                                {training.location}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                  Keine kommenden Trainings
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     );
   } catch (error) {
@@ -376,13 +318,13 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
             Willkommen zurück, {userName}
           </p>
         </div>
-        <div className="card">
+        <div className="card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
           <div className="card-body text-center py-12">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
-              Fehler beim Laden des Dashboards
+            <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
+              👋 Willkommen im Elternbereich!
             </h3>
-            <p className="text-slate-600 dark:text-slate-400">
-              Bitte versuche es später erneut oder wende dich an den Support.
+            <p className="text-red-700 dark:text-red-300">
+              Nutzen Sie die Navigation, um Events, Kalender und Trainings anzuzeigen.
             </p>
           </div>
         </div>
