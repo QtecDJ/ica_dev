@@ -26,9 +26,15 @@ export default function ConditionalLayout({
           <a href="#main-content" className="skip-to-content">
             Skip to main content
           </a>
-          <div id="main-content" className="container-page">
+          {/* Mobile top spacing for fixed header */}
+          <div className="lg:hidden h-16" />
+          
+          <div id="main-content" className="container-page mobile-container pb-20 lg:pb-6">
             {children}
           </div>
+          
+          {/* Mobile bottom spacing for bottom navigation */}
+          <div className="lg:hidden h-20" />
         </main>
       </div>
     );
