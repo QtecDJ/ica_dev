@@ -60,7 +60,10 @@ export default async function TrainingsPage() {
                   {trainings.map((training: any) => (
                     <tr key={training.id}>
                       <td>
-                        <div className="flex items-center gap-2">
+                        <Link 
+                          href={`/trainings/${training.id}`}
+                          className="flex items-center gap-2 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        >
                           <div className="w-8 h-8 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 flex items-center justify-center">
                             <Dumbbell className="w-4 h-4" />
                           </div>
@@ -71,7 +74,7 @@ export default async function TrainingsPage() {
                               <span className="text-slate-400">Allgemein</span>
                             )}
                           </span>
-                        </div>
+                        </Link>
                       </td>
                       <td className="text-slate-600 dark:text-slate-400">
                         <div className="font-medium">
@@ -126,7 +129,7 @@ export default async function TrainingsPage() {
           {/* Mobile Cards */}
           <div className="md:hidden space-y-4">
             {trainings.map((training: any) => (
-              <div key={training.id} className="card-hover">
+              <Link key={training.id} href={`/trainings/${training.id}`} className="card-hover block">
                 <div className="card-body">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3 flex-1">
@@ -143,23 +146,12 @@ export default async function TrainingsPage() {
                           </span>
                         )}
                         {userRole === "parent" && training.notes && (
-                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
+                          <p className="text-sm text-slate-600 dark:text-slate-400 mt-2 line-clamp-2">
                             {training.notes}
                           </p>
                         )}
                       </div>
                     </div>
-                    {canManageTrainings && (
-                      <div className="flex gap-2">
-                        <Link
-                          href={`/trainings/${training.id}/edit`}
-                          className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                        <DeleteButton id={training.id} action={deleteTraining} />
-                      </div>
-                    )}
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
@@ -188,7 +180,7 @@ export default async function TrainingsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
         </>

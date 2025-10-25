@@ -392,10 +392,23 @@ export async function createTraining(formData: FormData) {
     const location = formData.get("location") as string;
     const notes = formData.get("notes") as string;
 
-    await sql`
+    const result = await sql`
       INSERT INTO trainings (team_id, training_date, start_time, end_time, location, notes)
       VALUES (${teamId}, ${trainingDate}, ${startTime}, ${endTime}, ${location}, ${notes || null})
+      RETURNING id
     `;
+    
+    const trainingId = result[0].id;
+    
+    // Create attendance records for all team members if team is specified
+    if (teamId) {
+      await sql`
+        INSERT INTO training_attendance (training_id, member_id, status)
+        SELECT ${trainingId}, id, 'pending'
+        FROM members
+        WHERE team_id = ${teamId}
+      `;
+    }
     
     revalidatePath("/trainings");
     return { success: true };
