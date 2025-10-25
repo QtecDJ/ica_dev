@@ -16,6 +16,12 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
   const userRole = session.user.role;
   const userId = session.user.id;
   
+  // Validiere und parse ID
+  const trainingId = parseInt(params.id);
+  if (isNaN(trainingId)) {
+    redirect("/trainings");
+  }
+  
   // Hole Training-Daten
   const trainings = await sql`
     SELECT 
@@ -24,7 +30,7 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
       teams.level as team_level
     FROM trainings t
     LEFT JOIN teams ON t.team_id = teams.id
-    WHERE t.id = ${parseInt(params.id)}
+    WHERE t.id = ${trainingId}
   `;
 
   if (trainings.length === 0) {
@@ -34,7 +40,7 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
   const training = trainings[0];
 
   // Hole Teilnehmer-Status
-  const attendance = await getTrainingAttendance(parseInt(params.id));
+  const attendance = await getTrainingAttendance(trainingId);
 
   // Zähle Teilnehmer-Status
   const acceptedCount = attendance.filter((a: any) => a.status === 'accepted').length;
@@ -200,7 +206,7 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
       {/* Teilnahme-Buttons für Parents/Members */}
       {(userRole === "parent" || userRole === "member") && currentUserMemberId && (
         <TrainingAttendanceButtons
-          trainingId={parseInt(params.id)}
+          trainingId={trainingId}
           memberId={currentUserMemberId}
           currentStatus={currentUserAttendance?.status || "pending"}
         />
