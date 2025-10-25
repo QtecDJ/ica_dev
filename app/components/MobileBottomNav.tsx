@@ -31,7 +31,7 @@ export default function MobileBottomNav() {
   } else if (userRole === "parent") {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
-      { href: "/profil", label: "Profil", icon: <UserIcon className="w-5 h-5" />, isActive: false },
+      { href: "/profil", label: "Kind", icon: <UserIcon className="w-5 h-5" />, isActive: false },
       { href: "/events", label: "Events", icon: <Calendar className="w-5 h-5" />, isActive: false },
       { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
     ];

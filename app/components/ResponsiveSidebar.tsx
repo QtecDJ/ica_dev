@@ -25,7 +25,7 @@ export default function ResponsiveSidebar() {
   } else if (userRole === "parent") {
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
-      { href: "/profil", label: "Mein Profil", iconName: "UserIcon" },
+      { href: "/profil", label: "Mein Kind", iconName: "UserIcon" },
       { href: "/events", label: "Events", iconName: "Calendar" },
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
