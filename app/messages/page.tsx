@@ -13,50 +13,26 @@ export default async function MessagesPage() {
   const userId = parseInt(session.user.id);
   const userRole = session.user.role;
 
-  // Hole verfügbare Coaches (für Parents und Members - nur eigener Team-Coach)
+  // Hole verfügbare Coaches (für Parents und Members)
   let availableCoaches: any[] = [];
-  if (userRole === "parent") {
-    // Parent kann nur seinem Kind's Team-Coach schreiben
+  if (userRole === "parent" || userRole === "member") {
+    // Parents und Members können alle Coaches/Admins schreiben
+    // (Da teams.coach nur ein VARCHAR ist, können wir keine team-basierte Filterung machen)
     availableCoaches = await sql`
-      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
+      SELECT u.id, u.name, u.email
       FROM users u
-      JOIN teams t ON t.coach_id = u.id
-      JOIN members m ON m.team_id = t.id
-      JOIN parent_children pc ON pc.child_id = m.id
-      WHERE pc.parent_id = ${userId}
-        AND u.role IN ('coach', 'admin')
+      WHERE u.role IN ('coach', 'admin')
       ORDER BY u.name ASC
-    `;
-  } else if (userRole === "member") {
-    // Member kann nur seinem eigenen Team-Coach schreiben
-    availableCoaches = await sql`
-      SELECT u.id, u.name, u.email, t.name as team_name
-      FROM users u
-      JOIN members m ON u.id = m.user_id
-      JOIN teams t ON m.team_id = t.id
-      JOIN users coach ON t.coach_id = coach.id
-      WHERE m.user_id = ${userId}
-      UNION
-      SELECT coach.id, coach.name, coach.email, t.name as team_name
-      FROM users coach
-      JOIN teams t ON coach.id = t.coach_id
-      JOIN members m ON m.team_id = t.id
-      WHERE m.user_id = ${userId}
-        AND coach.role IN ('coach', 'admin')
     `;
   }
 
-  // Hole alle Parents (für Coaches/Admins - nur von eigenen Teams)
+  // Hole alle Parents (für Coaches/Admins)
   let availableParents: any[] = [];
   if (userRole === "coach" || userRole === "admin") {
     availableParents = await sql`
-      SELECT DISTINCT u.id, u.name, u.email
+      SELECT u.id, u.name, u.email
       FROM users u
-      JOIN parent_children pc ON pc.parent_id = u.id
-      JOIN members m ON pc.child_id = m.id
-      JOIN teams t ON m.team_id = t.id
-      WHERE t.coach_id = ${userId}
-        AND u.role = 'parent'
+      WHERE u.role = 'parent'
       ORDER BY u.name ASC
     `;
   }
