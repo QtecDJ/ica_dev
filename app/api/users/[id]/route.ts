@@ -118,7 +118,7 @@ export async function DELETE(
     }
 
     // Prüfe ob Benutzer existiert
-    const user = await sql`SELECT id FROM users WHERE id = ${userId}`;
+    const user = await sql`SELECT id, member_id FROM users WHERE id = ${userId}`;
     if (user.length === 0) {
       return NextResponse.json(
         { error: "Benutzer nicht gefunden" },
@@ -126,32 +126,60 @@ export async function DELETE(
       );
     }
 
-    // Lösche abhängige Einträge in der richtigen Reihenfolge
     console.log(`Deleting user ${userId}...`);
     
-    // 1. Lösche Kommentare des Benutzers
-    const deletedComments = await sql`DELETE FROM comments WHERE author_id = ${userId} RETURNING id`;
-    console.log(`Deleted ${deletedComments.length} comments`);
-    
-    // 2. Lösche Eltern-Kind-Beziehungen
-    const deletedRelations = await sql`DELETE FROM parent_children WHERE parent_user_id = ${userId} RETURNING id`;
-    console.log(`Deleted ${deletedRelations.length} parent_children relations`);
-    
-    // 3. Lösche den Benutzer
-    const deletedUser = await sql`DELETE FROM users WHERE id = ${userId} RETURNING id`;
-    console.log(`Deleted ${deletedUser.length} user`);
+    // Lösche alle abhängigen Daten systematisch
+    try {
+      // 1. Lösche Training Attendance falls der User ein verknüpftes Member hat
+      if (user[0].member_id) {
+        const deletedAttendance = await sql`DELETE FROM training_attendance WHERE member_id = ${user[0].member_id} RETURNING id`;
+        console.log(`Deleted ${deletedAttendance.length} training attendance records`);
+        
+        // 2. Lösche Event Participants falls der User ein verknüpftes Member hat  
+        const deletedParticipants = await sql`DELETE FROM event_participants WHERE member_id = ${user[0].member_id} RETURNING id`;
+        console.log(`Deleted ${deletedParticipants.length} event participant records`);
+      }
+      
+      // 3. Lösche Kommentare des Benutzers
+      const deletedComments = await sql`DELETE FROM comments WHERE author_id = ${userId} RETURNING id`;
+      console.log(`Deleted ${deletedComments.length} comments`);
+      
+      // 4. Lösche Calendar Events des Benutzers
+      const deletedCalendarEvents = await sql`DELETE FROM calendar_events WHERE created_by = ${userId} RETURNING id`;
+      console.log(`Deleted ${deletedCalendarEvents.length} calendar events`);
+      
+      // 5. Lösche Eltern-Kind-Beziehungen
+      const deletedRelations = await sql`DELETE FROM parent_children WHERE parent_user_id = ${userId} RETURNING id`;
+      console.log(`Deleted ${deletedRelations.length} parent_children relations`);
+      
+      // 6. Lösche das verknüpfte Member falls vorhanden (optional, je nach Business Logic)
+      // VORSICHT: Das könnte ungewünscht sein wenn das Member unabhängig existieren soll
+      // if (user[0].member_id) {
+      //   const deletedMember = await sql`DELETE FROM members WHERE id = ${user[0].member_id} RETURNING id`;
+      //   console.log(`Deleted ${deletedMember.length} linked member`);
+      // }
+      
+      // 7. Lösche den Benutzer
+      const deletedUser = await sql`DELETE FROM users WHERE id = ${userId} RETURNING id`;
+      console.log(`Deleted ${deletedUser.length} user`);
 
-    if (deletedUser.length === 0) {
-      return NextResponse.json(
-        { error: "Benutzer konnte nicht gelöscht werden" },
-        { status: 500 }
-      );
+      if (deletedUser.length === 0) {
+        return NextResponse.json(
+          { error: "Benutzer konnte nicht gelöscht werden" },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        message: "Benutzer und alle verknüpften Daten erfolgreich gelöscht",
+      });
+      
+    } catch (deleteError) {
+      console.error("Error during cascading delete:", deleteError);
+      throw new Error(`Fehler beim Löschen der verknüpften Daten: ${deleteError instanceof Error ? deleteError.message : 'Unbekannter Fehler'}`);
     }
-
-    return NextResponse.json({
-      success: true,
-      message: "Benutzer erfolgreich gelöscht",
-    });
+    
   } catch (error) {
     console.error("Error deleting user:", error);
     const errorMessage = error instanceof Error ? error.message : "Unbekannter Fehler";
