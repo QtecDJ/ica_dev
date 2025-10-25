@@ -1,29 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon, Menu, X, Bell, Settings } from "lucide-react";
+import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
 import MobileBottomNav from "./MobileBottomNav";
+import AdminFloatingButton from "./AdminFloatingButton";
 
 export default function ResponsiveSidebar() {
   const { data: session } = useSession();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
   const pathname = usePathname();
   const userRole = session?.user?.role;
   const memberId = session?.user?.memberId;
-  
-  // Scroll effect for header
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   // Different navigation based on role
   let navItems: Array<{ href: string; label: string; iconName: string }> = [];
@@ -53,8 +42,6 @@ export default function ResponsiveSidebar() {
     navItems.push({ href: "/users", label: "Benutzerverwaltung", iconName: "UserCog" });
   }
 
-  const closeMobileMenu = () => setIsMobileMenuOpen(false);
-
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
@@ -62,66 +49,10 @@ export default function ResponsiveSidebar() {
 
   return (
     <>
-      {/* Mobile Header with floating menu button */}
-      <header className={`lg:hidden fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-slate-200/50 dark:border-slate-700/50' 
-          : 'bg-transparent'
-      }`}>
-        <div className="flex items-center justify-between px-4 py-3">
-          <button
-            className={`w-11 h-11 rounded-xl flex items-center justify-center shadow-lg transition-all duration-300 active:scale-95 ${
-              isScrolled 
-                ? 'bg-red-600 hover:bg-red-700' 
-                : 'bg-red-600/90 hover:bg-red-700/90 backdrop-blur-sm'
-            }`}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Menu öffnen"
-          >
-            <Menu className="w-5 h-5 text-white" />
-          </button>
-          
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center font-bold text-sm shadow-sm">
-              <span className="text-white">∞</span>
-            </div>
-            <div>
-              <h1 className="text-sm font-bold text-slate-900 dark:text-slate-50">ICA</h1>
-            </div>
-          </div>
-          
-          <div className="w-11 h-11 flex items-center justify-center">
-            <Bell className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-          </div>
-        </div>
-      </header>
-
-      {/* Mobile Overlay with smooth backdrop */}
-      {isMobileMenuOpen && (
-        <div
-          className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-all duration-300"
-          onClick={closeMobileMenu}
-        />
-      )}
-
-      {/* Enhanced Sidebar with modern design */}
-      <aside
-        className={`w-80 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 border-r border-slate-200 dark:border-slate-700 flex flex-col h-full
-                   fixed lg:static inset-y-0 left-0 z-40 transition-all duration-300 ease-out ${
-                     isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-                   }`}
-      >
-        {/* Modern close button */}
-        <button
-          className="lg:hidden absolute top-4 right-4 w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-slate-700 transition-all duration-200 active:scale-95"
-          onClick={closeMobileMenu}
-          aria-label="Menu schließen"
-        >
-          <X className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-        </button>
-
+      {/* Desktop-only Sidebar */}
+      <aside className="hidden lg:flex w-80 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 border-r border-slate-200 dark:border-slate-700 flex-col h-full">
         {/* Enhanced Logo section */}
-        <div className="p-6 mt-8 lg:mt-0">
+        <div className="p-6">
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200/50 dark:border-red-700/50">
             <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center font-bold text-xl shadow-lg">
               <span className="text-white">∞</span>
@@ -149,7 +80,6 @@ export default function ResponsiveSidebar() {
                         ? "bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 text-red-600 dark:text-red-400 font-semibold shadow-sm"
                         : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-50"
                     }`}
-                    onClick={closeMobileMenu}
                   >
                     {/* Active indicator */}
                     {active && (
@@ -214,6 +144,9 @@ export default function ResponsiveSidebar() {
 
       {/* Mobile Bottom Navigation */}
       <MobileBottomNav />
+      
+      {/* Admin Floating Button */}
+      <AdminFloatingButton />
     </>
   );
 }

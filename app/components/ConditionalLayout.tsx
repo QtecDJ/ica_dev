@@ -22,12 +22,10 @@ export default function ConditionalLayout({
     return (
       <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
         <ResponsiveSidebar />
-        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900 lg:ml-0">
+        <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
           <a href="#main-content" className="skip-to-content">
             Skip to main content
           </a>
-          {/* Mobile top spacing for fixed header */}
-          <div className="lg:hidden h-16" />
           
           <div id="main-content" className="container-page mobile-container pb-20 lg:pb-6">
             {children}

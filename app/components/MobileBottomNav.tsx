@@ -43,9 +43,7 @@ export default function MobileBottomNav() {
     ];
   }
 
-  if (userRole === "admin" && navItems.length < 5) {
-    navItems.push({ href: "/users", label: "Admin", icon: <UserCog className="w-5 h-5" />, isActive: false });
-  }
+  // Admin-Funktionen werden über die floating Admin-Schaltfläche bereitgestellt
 
   // Update active states
   const isActive = (href: string) => {
