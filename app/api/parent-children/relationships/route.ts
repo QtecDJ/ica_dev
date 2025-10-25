@@ -17,12 +17,13 @@ export async function GET() {
     if (tableExists[0].exists) {
       // Verwende parent_children Tabelle plus email matches
       relationships = await sql`
-        SELECT DISTINCT
+        SELECT DISTINCT ON (u.id, m.id)
           u.id as parent_id,
           u.name as parent_name,
           u.email as parent_email,
           m.id as child_id,
           m.first_name || ' ' || m.last_name as child_name,
+          m.first_name,
           CASE 
             WHEN pc.parent_user_id IS NOT NULL THEN 'direct_link'
             ELSE 'email_match'
@@ -37,7 +38,7 @@ export async function GET() {
         )
         LEFT JOIN parent_children pc ON pc.parent_user_id = u.id AND pc.child_member_id = m.id
         WHERE u.role = 'parent'
-        ORDER BY u.name, m.first_name;
+        ORDER BY u.id, m.id, u.name, m.first_name;
       `;
     } else {
       // Fallback: Nur email matches
@@ -56,7 +57,10 @@ export async function GET() {
       `;
     }
 
-    return new Response(JSON.stringify({ relationships }), { status: 200 });
+    // Entferne die temporäre first_name Spalte aus dem Result
+    const cleanedRelationships = relationships.map(({ first_name, ...rest }) => rest);
+
+    return new Response(JSON.stringify({ relationships: cleanedRelationships }), { status: 200 });
   } catch (error) {
     console.error('Error getting relationships:', error);
     return new Response(JSON.stringify({ error: 'Failed to get relationships' }), { status: 500 });
