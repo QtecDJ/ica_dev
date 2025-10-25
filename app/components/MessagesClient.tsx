@@ -289,12 +289,18 @@ export default function MessagesClient({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Konversationen-Liste */}
-      <div className="lg:col-span-1">
+    <div className={`${(userRole === "parent" || userRole === "member") ? "space-y-4" : "grid grid-cols-1 lg:grid-cols-3 gap-6"}`}>
+      {/* Konversationen-Liste - versteckt wenn Chat offen (für Parents/Members) */}
+      <div className={`${
+        (userRole === "parent" || userRole === "member") 
+          ? (selectedPartnerId || showNewMessageForm ? "hidden" : "block")
+          : "lg:col-span-1"
+      }`}>
         <div className="card">
           <div className="card-header">
-            <h2 className="text-lg font-semibold">Konversationen</h2>
+            <h2 className="text-lg font-semibold">
+              {(userRole === "parent" || userRole === "member") ? "Deine Nachrichten" : "Konversationen"}
+            </h2>
           </div>
           
           {/* Prominenter "Coach schreiben" Button für Parents/Members */}
@@ -309,7 +315,7 @@ export default function MessagesClient({
               </button>
               {availableCoaches.length === 1 && (
                 <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-2">
-                  Dein Coach: {availableCoaches[0].name}
+                  💬 Dein Coach: {availableCoaches[0].name}
                 </p>
               )}
             </div>
@@ -376,8 +382,8 @@ export default function MessagesClient({
         </div>
       </div>
 
-      {/* Nachrichten-Bereich */}
-      <div className="lg:col-span-2">
+      {/* Nachrichten-Bereich - Vollbild für Parents/Members */}
+      <div className={`${(userRole === "parent" || userRole === "member") ? "block" : "lg:col-span-2"}`}>
         {showNewMessageForm ? (
           /* Neue Nachricht Form */
           <div className="card">
@@ -608,8 +614,8 @@ export default function MessagesClient({
               </button>
             </form>
           </div>
-        ) : (
-          /* Keine Konversation ausgewählt */
+        ) : !selectedPartnerId && (userRole === "coach" || userRole === "admin") ? (
+          /* Keine Konversation ausgewählt - nur für Coaches/Admins */
           <div className="card">
             <div className="card-body text-center py-20">
               <div className="max-w-md mx-auto">
@@ -617,28 +623,15 @@ export default function MessagesClient({
                   <MessageCircle className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-3">
-                  {(userRole === "parent" || userRole === "member")
-                    ? "Kontaktiere deinen Coach"
-                    : "Keine Konversation ausgewählt"}
+                  Keine Konversation ausgewählt
                 </h3>
                 <p className="text-slate-600 dark:text-slate-400 mb-6">
-                  {(userRole === "parent" || userRole === "member")
-                    ? "Hast du Fragen zum Training, zu Wettkämpfen oder anderen Themen? Schreibe deinem Coach eine Nachricht."
-                    : "Wähle eine Konversation aus der Liste, um Nachrichten zu sehen"}
+                  Wähle eine Konversation aus der Liste, um Nachrichten zu sehen
                 </p>
-                {(userRole === "parent" || userRole === "member") && availableCoaches.length > 0 && (
-                  <button 
-                    onClick={startNewConversation} 
-                    className="btn-primary inline-flex items-center gap-2"
-                  >
-                    <Send className="w-5 h-5" />
-                    Coach eine Nachricht schreiben
-                  </button>
-                )}
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
