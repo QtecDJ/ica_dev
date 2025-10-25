@@ -3,6 +3,7 @@ import { Plus, Pencil, Dumbbell, Clock, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
 import { requireAuth } from "@/lib/auth-utils";
+import { neon } from "@neondatabase/serverless";
 
 export const dynamic = 'force-dynamic';
 
@@ -10,8 +11,64 @@ export default async function TrainingsPage() {
   // Allow all authenticated users to view trainings
   const session = await requireAuth();
   const userRole = session.user.role;
+  const userId = session.user.id;
   
-  const trainings = await getTrainings();
+  const sql = neon(process.env.DATABASE_URL!);
+  
+  // Hole Trainings basierend auf Benutzerrolle
+  let trainings: any[] = [];
+  let userTeamId = null;
+  
+  if (userRole === "admin" || userRole === "coach") {
+    // Admins und Coaches sehen alle Trainings
+    trainings = await getTrainings();
+  } else if (userRole === "parent") {
+    // Parents sehen nur Trainings des Teams ihres Kindes
+    const children = await sql`
+      SELECT DISTINCT m.team_id
+      FROM parent_children pc
+      JOIN members m ON pc.child_member_id = m.id
+      WHERE pc.parent_user_id = ${userId}
+      AND m.team_id IS NOT NULL
+    `;
+    
+    if (children.length > 0) {
+      userTeamId = children[0].team_id;
+      trainings = await sql`
+        SELECT t.*, teams.name as team_name
+        FROM trainings t
+        LEFT JOIN teams ON t.team_id = teams.id
+        WHERE t.team_id = ${userTeamId}
+        ORDER BY t.training_date DESC, t.start_time
+      `;
+    } else {
+      trainings = [];
+    }
+  } else if (userRole === "member") {
+    // Members sehen nur Trainings ihres eigenen Teams
+    const userMember = await sql`
+      SELECT m.team_id
+      FROM users u
+      JOIN members m ON u.member_id = m.id
+      WHERE u.id = ${userId}
+      AND m.team_id IS NOT NULL
+    `;
+    
+    if (userMember.length > 0 && userMember[0].team_id) {
+      userTeamId = userMember[0].team_id;
+      trainings = await sql`
+        SELECT t.*, teams.name as team_name
+        FROM trainings t
+        LEFT JOIN teams ON t.team_id = teams.id
+        WHERE t.team_id = ${userTeamId}
+        ORDER BY t.training_date DESC, t.start_time
+      `;
+    } else {
+      trainings = [];
+    }
+  } else {
+    trainings = [];
+  }
 
   // Determine permissions
   const canManageTrainings = userRole === "admin" || userRole === "coach";
@@ -191,11 +248,13 @@ export default async function TrainingsPage() {
               <Dumbbell className="w-8 h-8 text-slate-400" />
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
-              {userRole === "parent" ? "Noch keine Trainings" : "Noch keine Trainings"}
+              {userRole === "parent" || userRole === "member" ? "Noch keine Trainings" : "Noch keine Trainings"}
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
               {userRole === "parent" 
-                ? "Sobald Trainings für dein Kind angesetzt sind, werden sie hier angezeigt."
+                ? "Sobald Trainings für das Team deines Kindes angesetzt sind, werden sie hier angezeigt."
+                : userRole === "member"
+                ? "Sobald Trainings für dein Team angesetzt sind, werden sie hier angezeigt."
                 : "Erstelle dein erstes Training, um loszulegen!"
               }
             </p>
