@@ -5,8 +5,6 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import type { Session } from "next-auth";
 
-const sql = neon(process.env.DATABASE_URL!);
-
 export async function POST(request: Request) {
   const session = (await getServerSession(authOptions)) as Session | null;
 
@@ -23,6 +21,7 @@ export async function POST(request: Request) {
   }
 
   try {
+    const sql = neon(process.env.DATABASE_URL!);
     const { username, name, password, role, email, createMemberProfile } = await request.json();
 
     // Validate input
