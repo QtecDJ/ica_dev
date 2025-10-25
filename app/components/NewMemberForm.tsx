@@ -120,6 +120,12 @@ export default function NewMemberForm({ teams }: { teams: any[] }) {
 
       <div className="border-t pt-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Elterninformationen</h3>
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <p className="text-sm text-blue-800">
+            <strong>💡 Tipp:</strong> Wenn Sie eine Eltern-Email eingeben, wird automatisch ein Parent-Account erstellt. 
+            Dadurch können Eltern sich später einloggen und ihre Kinder verwalten.
+          </p>
+        </div>
         
         <div className="space-y-4">
           <div>
@@ -137,14 +143,18 @@ export default function NewMemberForm({ teams }: { teams: any[] }) {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="parent_email" className="block text-sm font-medium text-gray-700 mb-2">
-                Eltern Email
+                Eltern Email *
               </label>
               <input
                 type="email"
                 id="parent_email"
                 name="parent_email"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                placeholder="eltern@email.de"
               />
+              <p className="text-xs text-gray-500 mt-1">
+                Wird für Parent-Account verwendet
+              </p>
             </div>
 
             <div>

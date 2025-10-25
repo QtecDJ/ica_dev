@@ -15,8 +15,7 @@ async function getChildrenData(parentId: string) {
   try {
     const sql = getSafeDb();
     
-    // Vereinfachte Abfrage - schaue nach members die zur parent email gehören könnten
-    // Statt parent_id verwenden wir parent_email Vergleich
+    // Hole Parent User Email
     const user = await sql`
       SELECT email FROM users WHERE id = ${parentId}
     `;
@@ -31,22 +30,72 @@ async function getChildrenData(parentId: string) {
 
     const parentEmail = user[0].email;
     
-    // Get children based on parent_email match
-    const children = await sql`
-      SELECT 
-        m.id,
-        m.first_name,
-        m.last_name,
-        m.email,
-        m.phone,
-        m.created_at,
-        m.parent_email,
-        t.name as team_name
-      FROM members m
-      LEFT JOIN teams t ON m.team_id = t.id
-      WHERE m.parent_email = ${parentEmail}
-      ORDER BY m.first_name ASC
+    // Prüfe ob parent_children Tabelle existiert
+    const tableExists = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'parent_children'
+      );
     `;
+
+    let children;
+    if (tableExists[0].exists) {
+      // Verwende parent_children Tabelle mit Fallback auf parent_email
+      children = await sql`
+        SELECT DISTINCT
+          m.id,
+          m.first_name,
+          m.last_name,
+          m.birth_date,
+          m.email,
+          m.phone,
+          m.parent_email,
+          m.parent_name,
+          m.parent_phone,
+          m.team_id,
+          m.avatar_url,
+          m.created_at,
+          t.name as team_name,
+          t.level as team_level,
+          t.coach,
+          CASE 
+            WHEN pc.parent_user_id IS NOT NULL THEN 'direct_link'
+            ELSE 'email_match'
+          END as link_type
+        FROM members m
+        LEFT JOIN teams t ON m.team_id = t.id
+        LEFT JOIN parent_children pc ON pc.child_member_id = m.id AND pc.parent_user_id = ${parentId}
+        WHERE pc.parent_user_id = ${parentId} 
+           OR m.parent_email = ${parentEmail}
+        ORDER BY m.first_name, m.last_name;
+      `;
+    } else {
+      // Fallback: Nur parent_email
+      children = await sql`
+        SELECT 
+          m.id,
+          m.first_name,
+          m.last_name,
+          m.birth_date,
+          m.email,
+          m.phone,
+          m.parent_email,
+          m.parent_name,
+          m.parent_phone,
+          m.team_id,
+          m.avatar_url,
+          m.created_at,
+          t.name as team_name,
+          t.level as team_level,
+          t.coach,
+          'email_match' as link_type
+        FROM members m
+        LEFT JOIN teams t ON m.team_id = t.id
+        WHERE m.parent_email = ${parentEmail}
+        ORDER BY m.first_name, m.last_name;
+      `;
+    }
 
     // Get upcoming events (all events for now)
     const upcomingEvents = await sql`

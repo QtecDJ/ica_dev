@@ -168,10 +168,67 @@ export async function createMember(formData: FormData) {
     const parentPhone = formData.get("parent_phone") as string;
     const avatarUrl = formData.get("avatar_url") as string;
 
-    await sql`
+    // Erstelle das Member
+    const newMember = await sql`
       INSERT INTO members (first_name, last_name, birth_date, team_id, email, phone, parent_name, parent_email, parent_phone, avatar_url)
       VALUES (${firstName}, ${lastName}, ${birthDate}, ${teamId}, ${email || null}, ${phone || null}, ${parentName || null}, ${parentEmail || null}, ${parentPhone || null}, ${avatarUrl || null})
+      RETURNING id
     `;
+
+    const memberId = newMember[0].id;
+
+    // Wenn parent_email angegeben ist, prüfe/erstelle Parent User
+    if (parentEmail && parentEmail.trim() !== '') {
+      try {
+        // Prüfe ob Parent User bereits existiert
+        const existingParent = await sql`
+          SELECT id FROM users WHERE email = ${parentEmail} AND role = 'parent'
+        `;
+
+        let parentUserId;
+        if (existingParent.length === 0) {
+          // Erstelle neuen Parent User
+          const username = parentEmail.split('@')[0].replace(/[^a-zA-Z0-9]/g, '');
+          const newParent = await sql`
+            INSERT INTO users (username, password_hash, role, name, email)
+            VALUES (
+              ${username}, 
+              '$2a$10$dummy.hash.needs.password.reset', 
+              'parent', 
+              ${parentName || `${firstName}s Elternteil`}, 
+              ${parentEmail}
+            ) RETURNING id
+          `;
+          parentUserId = newParent[0].id;
+          console.log(`✅ Created new parent user: ${parentEmail}`);
+        } else {
+          parentUserId = existingParent[0].id;
+        }
+
+        // Verknüpfe Parent mit Child
+        // Prüfe ob parent_children Tabelle existiert
+        const tableExists = await sql`
+          SELECT EXISTS (
+            SELECT FROM information_schema.tables 
+            WHERE table_schema = 'public' 
+            AND table_name = 'parent_children'
+          );
+        `;
+
+        if (tableExists[0].exists) {
+          await sql`
+            INSERT INTO parent_children (parent_user_id, child_member_id, relationship_type)
+            VALUES (${parentUserId}, ${memberId}, 'parent')
+            ON CONFLICT (parent_user_id, child_member_id) DO NOTHING
+          `;
+          console.log(`✅ Linked parent ${parentEmail} to child ${firstName} ${lastName}`);
+        }
+
+      } catch (parentError) {
+        console.error("Error creating/linking parent:", parentError);
+        // Fehler bei Parent-Erstellung soll Member-Erstellung nicht blockieren
+      }
+    }
     
     revalidatePath("/members");
     return { success: true };
