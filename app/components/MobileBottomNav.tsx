@@ -39,9 +39,8 @@ export default function MobileBottomNav() {
   } else {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
       { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
-      { href: "/members", label: "Mitglieder", icon: <Users className="w-5 h-5" />, isActive: false },
-      { href: "/events", label: "Events", icon: <Calendar className="w-5 h-5" />, isActive: false },
       { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
     ];
   }
