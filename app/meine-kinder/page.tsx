@@ -1,6 +1,6 @@
 import { Metadata } from "next"
 import { requireAuth } from "@/lib/auth-utils"
-import { db } from "@/lib/db"
+import { getSafeDb } from "@/lib/db"
 import { User, Plus, Mail, Phone, Calendar, Trophy, TrendingUp, Clock, MapPin, Users } from "lucide-react"
 import Link from "next/link"
 
@@ -11,8 +11,10 @@ export const metadata: Metadata = {
 
 async function getChildrenData(parentId: string) {
   try {
+    const sql = getSafeDb();
+    
     // Get children and their related data
-    const children = await db.query(`
+    const children = await sql`
       SELECT 
         u.id,
         u.name,
@@ -27,13 +29,13 @@ async function getChildrenData(parentId: string) {
       LEFT JOIN training_members tm ON u.id = tm.user_id
       LEFT JOIN team_members tms ON u.id = tms.user_id
       LEFT JOIN teams t ON tms.team_id = t.id
-      WHERE u.parent_id = $1
+      WHERE u.parent_id = ${parentId}
       GROUP BY u.id, u.name, u.email, u.phone, u.created_at
       ORDER BY u.name ASC
-    `, [parentId])
+    `;
 
     // Get upcoming events for children
-    const upcomingEvents = await db.query(`
+    const upcomingEvents = await sql`
       SELECT 
         e.id,
         e.title,
@@ -45,14 +47,14 @@ async function getChildrenData(parentId: string) {
       FROM events e
       JOIN event_members em ON e.id = em.event_id
       JOIN users u ON em.user_id = u.id
-      WHERE u.parent_id = $1 
+      WHERE u.parent_id = ${parentId}
         AND e.date >= CURRENT_DATE
       ORDER BY e.date ASC
       LIMIT 5
-    `, [parentId])
+    `;
 
     // Get upcoming trainings for children
-    const upcomingTrainings = await db.query(`
+    const upcomingTrainings = await sql`
       SELECT 
         tr.id,
         tr.title,
@@ -64,16 +66,16 @@ async function getChildrenData(parentId: string) {
       FROM trainings tr
       JOIN training_members tm ON tr.id = tm.training_id
       JOIN users u ON tm.user_id = u.id
-      WHERE u.parent_id = $1 
+      WHERE u.parent_id = ${parentId}
         AND tr.date >= CURRENT_DATE
       ORDER BY tr.date ASC
       LIMIT 5
-    `, [parentId])
+    `;
 
     return {
-      children: children.rows,
-      upcomingEvents: upcomingEvents.rows,
-      upcomingTrainings: upcomingTrainings.rows
+      children,
+      upcomingEvents,
+      upcomingTrainings
     }
   } catch (error) {
     console.error("Error fetching children data:", error)
@@ -158,7 +160,7 @@ export default async function MeineKinderPage() {
                       <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                         <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400 mx-auto mb-1" />
                         <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                          {child.event_count}
+                          {Number(child.event_count) || 0}
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
                           Events
@@ -167,7 +169,7 @@ export default async function MeineKinderPage() {
                       <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                         <Trophy className="w-6 h-6 text-yellow-600 dark:text-yellow-400 mx-auto mb-1" />
                         <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                          {child.training_count}
+                          {Number(child.training_count) || 0}
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
                           Trainings
@@ -176,7 +178,7 @@ export default async function MeineKinderPage() {
                       <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                         <Users className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto mb-1" />
                         <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                          {child.team_count}
+                          {Number(child.team_count) || 0}
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
                           Teams
