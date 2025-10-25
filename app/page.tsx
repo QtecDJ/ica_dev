@@ -7,6 +7,8 @@ import { neon } from "@neondatabase/serverless";
 import type { Session } from "next-auth";
 import Link from "next/link";
 
+export const dynamic = 'force-dynamic';
+
 const sql = neon(process.env.DATABASE_URL!);
 
 export default async function Home() {

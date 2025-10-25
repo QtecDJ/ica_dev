@@ -4,6 +4,8 @@ import { getSafeDb } from "@/lib/db"
 import { User, Plus, Mail, Phone, Calendar, Trophy, TrendingUp, Clock, MapPin, Users } from "lucide-react"
 import Link from "next/link"
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: "Meine Kinder | ICA",
   description: "Übersicht über deine Kinder und deren Fortschritte",

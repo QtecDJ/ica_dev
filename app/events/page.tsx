@@ -6,6 +6,8 @@ import { requireAuth } from "@/lib/auth-utils";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 
+export const dynamic = 'force-dynamic';
+
 export default async function EventsPage() {
   // Allow all authenticated users to view events
   const session = await requireAuth();

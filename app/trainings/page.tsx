@@ -4,6 +4,8 @@ import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
 import { requireAuth } from "@/lib/auth-utils";
 
+export const dynamic = 'force-dynamic';
+
 export default async function TrainingsPage() {
   // Allow all authenticated users to view trainings
   const session = await requireAuth();
