@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
-import { auth } from "@/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-utils";
 import bcrypt from "bcryptjs";
 
 // PATCH - Benutzer aktualisieren
@@ -9,13 +10,28 @@ export async function PATCH(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const sql = neon(process.env.DATABASE_URL!);
+    if (!process.env.DATABASE_URL) {
+      console.error("DATABASE_URL not configured");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
+    const sql = neon(process.env.DATABASE_URL);
     const userId = parseInt(params.id);
+
+    if (!userId || isNaN(userId)) {
+      return NextResponse.json(
+        { error: "Ungültige Benutzer-ID" },
+        { status: 400 }
+      );
+    }
     const data = await request.json();
 
     // Validierung
@@ -101,16 +117,32 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session || session.user.role !== "admin") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const sql = neon(process.env.DATABASE_URL!);
+    if (!process.env.DATABASE_URL) {
+      console.error("DATABASE_URL not configured");
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      );
+    }
+
+    const sql = neon(process.env.DATABASE_URL);
     const userId = parseInt(params.id);
 
+    if (!userId || isNaN(userId)) {
+      return NextResponse.json(
+        { error: "Ungültige Benutzer-ID" },
+        { status: 400 }
+      );
+    }
+
     // Verhindere das Löschen des eigenen Accounts
-    if (parseInt(session.user.id) === userId) {
+    const currentUserId = session.user?.id ? parseInt(session.user.id) : null;
+    if (currentUserId && currentUserId === userId) {
       return NextResponse.json(
         { error: "Du kannst deinen eigenen Account nicht löschen" },
         { status: 400 }

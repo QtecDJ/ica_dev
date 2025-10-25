@@ -22,7 +22,12 @@ export const authOptions = {
         if (!username || !password) return null;
 
         try {
-          const sql = neon(process.env.DATABASE_URL!);
+          if (!process.env.DATABASE_URL) {
+            console.error("DATABASE_URL not found");
+            return null;
+          }
+          
+          const sql = neon(process.env.DATABASE_URL);
           const result = await sql`
             SELECT id, username, password_hash, role, member_id, name
             FROM users
