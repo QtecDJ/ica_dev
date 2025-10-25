@@ -13,26 +13,44 @@ export default async function MessagesPage() {
   const userId = parseInt(session.user.id);
   const userRole = session.user.role;
 
-  // Hole verfügbare Coaches (für Parents und Members)
+  // Hole verfügbare Coaches (für Parents und Members - nur eigener Team-Coach)
   let availableCoaches: any[] = [];
-  if (userRole === "parent" || userRole === "member") {
-    // Parents und Members können alle Coaches/Admins schreiben
-    // (Da teams.coach nur ein VARCHAR ist, können wir keine team-basierte Filterung machen)
+  if (userRole === "parent") {
+    // Parent kann nur seinem Kind's Team-Coach schreiben
     availableCoaches = await sql`
-      SELECT u.id, u.name, u.email
+      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
       FROM users u
-      WHERE u.role IN ('coach', 'admin')
+      JOIN teams t ON t.coach_id = u.id
+      JOIN members m ON m.team_id = t.id
+      JOIN parent_children pc ON pc.child_id = m.id
+      WHERE pc.parent_id = ${userId}
+        AND u.role IN ('coach', 'admin')
+      ORDER BY u.name ASC
+    `;
+  } else if (userRole === "member") {
+    // Member kann nur seinem eigenen Team-Coach schreiben
+    availableCoaches = await sql`
+      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
+      FROM members m
+      JOIN teams t ON m.team_id = t.id
+      JOIN users u ON t.coach_id = u.id
+      WHERE m.user_id = ${userId}
+        AND u.role IN ('coach', 'admin')
       ORDER BY u.name ASC
     `;
   }
 
-  // Hole alle Parents (für Coaches/Admins)
+  // Hole alle Parents (für Coaches/Admins - nur von eigenen Teams)
   let availableParents: any[] = [];
   if (userRole === "coach" || userRole === "admin") {
     availableParents = await sql`
-      SELECT u.id, u.name, u.email
+      SELECT DISTINCT u.id, u.name, u.email
       FROM users u
-      WHERE u.role = 'parent'
+      JOIN parent_children pc ON pc.parent_id = u.id
+      JOIN members m ON pc.child_id = m.id
+      JOIN teams t ON m.team_id = t.id
+      WHERE t.coach_id = ${userId}
+        AND u.role = 'parent'
       ORDER BY u.name ASC
     `;
   }
