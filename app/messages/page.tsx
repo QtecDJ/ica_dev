@@ -22,8 +22,8 @@ export default async function MessagesPage() {
       FROM users u
       JOIN teams t ON t.coach_id = u.id
       JOIN members m ON m.team_id = t.id
-      JOIN parent_children pc ON pc.child_id = m.id
-      WHERE pc.parent_id = ${userId}
+      JOIN parent_children pc ON pc.child_member_id = m.id
+      WHERE pc.parent_user_id = ${userId}
         AND u.role IN ('coach', 'admin')
       ORDER BY u.name ASC
     `;
@@ -46,8 +46,8 @@ export default async function MessagesPage() {
     availableParents = await sql`
       SELECT DISTINCT u.id, u.name, u.email
       FROM users u
-      JOIN parent_children pc ON pc.parent_id = u.id
-      JOIN members m ON pc.child_id = m.id
+      JOIN parent_children pc ON pc.parent_user_id = u.id
+      JOIN members m ON pc.child_member_id = m.id
       JOIN teams t ON m.team_id = t.id
       WHERE t.coach_id = ${userId}
         AND u.role = 'parent'
