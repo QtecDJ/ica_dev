@@ -1,5 +1,5 @@
 import { getStats, getMember, getTeam } from "./actions";
-import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, XCircle, Bell, ArrowRight } from "lucide-react";
+import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, XCircle, Bell, ArrowRight, User, Clock, MapPin } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import MemberDashboard from "./components/MemberDashboard";
@@ -13,6 +13,11 @@ export default async function Home() {
   const session = (await getServerSession(authOptions)) as Session | null;
   const userRole = session?.user?.role;
   const memberId = session?.user?.memberId;
+
+  // If user is a parent, show parent dashboard
+  if (userRole === "parent" && session?.user?.id) {
+    return <ParentDashboard userId={session.user.id} userName={session.user.name} />;
+  }
 
   // If user is a member, show member dashboard
   if (userRole === "member" && memberId) {
@@ -72,7 +77,367 @@ export default async function Home() {
         />
       );
     }
+}
+
+async function ParentDashboard({ userId, userName }: { userId: string; userName?: string | null }) {
+  try {
+    // Get children and their upcoming activities
+    const children = await sql`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        COUNT(DISTINCT em.id) as event_count,
+        COUNT(DISTINCT tm.id) as training_count
+      FROM users u
+      LEFT JOIN event_members em ON u.id = em.user_id
+      LEFT JOIN training_members tm ON u.id = tm.user_id
+      WHERE u.parent_id = ${userId}
+      GROUP BY u.id, u.name, u.email
+      ORDER BY u.name ASC
+    `;
+
+    // Get upcoming events for all children
+    const upcomingEvents = await sql`
+      SELECT 
+        e.id,
+        e.title,
+        e.description,
+        e.date,
+        e.location,
+        u.name as child_name,
+        u.id as child_id
+      FROM events e
+      JOIN event_members em ON e.id = em.event_id
+      JOIN users u ON em.user_id = u.id
+      WHERE u.parent_id = ${userId} 
+        AND e.date >= CURRENT_DATE
+      ORDER BY e.date ASC
+      LIMIT 8
+    `;
+
+    // Get upcoming trainings for all children
+    const upcomingTrainings = await sql`
+      SELECT 
+        tr.id,
+        tr.title,
+        tr.description,
+        tr.date,
+        tr.location,
+        u.name as child_name,
+        u.id as child_id
+      FROM trainings tr
+      JOIN training_members tm ON tr.id = tm.training_id
+      JOIN users u ON tm.user_id = u.id
+      WHERE u.parent_id = ${userId} 
+        AND tr.date >= CURRENT_DATE
+      ORDER BY tr.date ASC
+      LIMIT 8
+    `;
+
+    return (
+      <div className="space-y-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+              Willkommen zurück
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">
+              {userName}, hier ist eine Übersicht über die Aktivitäten deiner Kinder
+            </p>
+          </div>
+          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+            <Users className="w-4 h-4" />
+            {children.length} {children.length === 1 ? 'Kind' : 'Kinder'}
+          </div>
+        </div>
+
+        {/* Children Overview */}
+        {children.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {children.map((child: any) => (
+              <div key={child.id} className="card">
+                <div className="card-body">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
+                      <User className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-slate-900 dark:text-slate-50">
+                        {child.name}
+                      </h3>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Dein Kind
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded">
+                      <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                        {child.event_count}
+                      </div>
+                      <div className="text-xs text-slate-600 dark:text-slate-400">
+                        Events
+                      </div>
+                    </div>
+                    <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded">
+                      <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                        {child.training_count}
+                      </div>
+                      <div className="text-xs text-slate-600 dark:text-slate-400">
+                        Trainings
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="card">
+            <div className="card-body text-center py-12">
+              <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-slate-400" />
+              </div>
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+                Noch keine Kinder registriert
+              </h3>
+              <p className="text-slate-600 dark:text-slate-400">
+                Wende dich an die Vereinsleitung, um deine Kinder zu registrieren.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Access Grid */}
+        {children.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Upcoming Events */}
+            <div className="card">
+              <div className="card-header">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                    <h2 className="text-lg font-semibold">Kommende Events</h2>
+                  </div>
+                  <Link href="/events" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                    Alle anzeigen
+                  </Link>
+                </div>
+              </div>
+              <div className="card-body">
+                {upcomingEvents.length > 0 ? (
+                  <div className="space-y-3">
+                    {upcomingEvents.slice(0, 4).map((event: any) => (
+                      <div key={event.id} className="border-l-4 border-blue-200 dark:border-blue-800 pl-3 py-2">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                              {event.title}
+                            </h4>
+                            <p className="text-xs text-slate-600 dark:text-slate-400">
+                              {event.child_name}
+                            </p>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {new Date(event.date).toLocaleDateString('de-DE')}
+                              </div>
+                              {event.location && (
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {event.location}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">
+                    Keine kommenden Events
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Upcoming Trainings */}
+            <div className="card">
+              <div className="card-header">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Dumbbell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                    <h2 className="text-lg font-semibold">Kommende Trainings</h2>
+                  </div>
+                  <Link href="/trainings" className="text-sm text-yellow-600 dark:text-yellow-400 hover:underline">
+                    Alle anzeigen
+                  </Link>
+                </div>
+              </div>
+              <div className="card-body">
+                {upcomingTrainings.length > 0 ? (
+                  <div className="space-y-3">
+                    {upcomingTrainings.slice(0, 4).map((training: any) => (
+                      <div key={training.id} className="border-l-4 border-yellow-200 dark:border-yellow-800 pl-3 py-2">
+                        <div className="flex justify-between items-start">
+                          <div className="flex-1">
+                            <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                              {training.title}
+                            </h4>
+                            <p className="text-xs text-slate-600 dark:text-slate-400">
+                              {training.child_name}
+                            </p>
+                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                              <div className="flex items-center gap-1">
+                                <Clock className="w-3 h-3" />
+                                {new Date(training.date).toLocaleDateString('de-DE')}
+                              </div>
+                              {training.location && (
+                                <div className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3" />
+                                  {training.location}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">
+                    Keine kommenden Trainings
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Links for Parents */}
+        {children.length > 0 && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <QuickActionCard
+              href="/meine-kinder"
+              icon={<Users className="w-6 h-6" />}
+              title="Meine Kinder"
+              description="Detailübersicht"
+              color="red"
+            />
+            <QuickActionCard
+              href="/events"
+              icon={<Calendar className="w-6 h-6" />}
+              title="Events"
+              description="Alle Veranstaltungen"
+              color="blue"
+            />
+            <QuickActionCard
+              href="/trainings"
+              icon={<Dumbbell className="w-6 h-6" />}
+              title="Trainings"
+              description="Trainingsplan"
+              color="yellow"
+            />
+            <QuickActionCard
+              href="/calendar"
+              icon={<Calendar className="w-6 h-6" />}
+              title="Kalender"
+              description="Terminübersicht"
+              color="green"
+            />
+          </div>
+        )}
+
+        {/* Important Info */}
+        {children.length > 0 && (
+          <div className="card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+            <div className="card-body">
+              <h3 className="font-semibold text-red-900 dark:text-red-100 mb-4">
+                📢 Wichtige Hinweise für Eltern
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
+                <div>
+                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Kommunikation</h4>
+                  <ul className="space-y-1 text-red-700 dark:text-red-300">
+                    <li>• Alle Termine werden automatisch hier angezeigt</li>
+                    <li>• Wichtige Änderungen erhältst du per E-Mail</li>
+                    <li>• Bei Fragen wende dich an den jeweiligen Coach</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Termine</h4>
+                  <ul className="space-y-1 text-red-700 dark:text-red-300">
+                    <li>• Bitte sorge für pünktliches Erscheinen</li>
+                    <li>• Bei Krankheit rechtzeitig abmelden</li>
+                    <li>• Trainingszeiten können sich kurzfristig ändern</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  } catch (error) {
+    console.error("Error in ParentDashboard:", error);
+    return (
+      <div className="space-y-8">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+            Dashboard
+          </h1>
+          <p className="text-slate-600 dark:text-slate-400 mt-1">
+            Willkommen zurück, {userName}
+          </p>
+        </div>
+        <div className="card">
+          <div className="card-body text-center py-12">
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+              Fehler beim Laden des Dashboards
+            </h3>
+            <p className="text-slate-600 dark:text-slate-400">
+              Bitte versuche es später erneut oder wende dich an den Support.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
   }
+}
+
+function QuickActionCard({ href, icon, title, description, color }: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  color: "red" | "blue" | "yellow" | "green";
+}) {
+  const colorClasses = {
+    red: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20",
+    blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20",
+    yellow: "text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20",
+    green: "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20",
+  };
+
+  return (
+    <Link href={href} className="card-hover group">
+      <div className="card-body text-center">
+        <div className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3 ${colorClasses[color]}`}>
+          {icon}
+        </div>
+        <h4 className="font-semibold text-slate-900 dark:text-slate-50 mb-1">
+          {title}
+        </h4>
+        <p className="text-xs text-slate-600 dark:text-slate-400">
+          {description}
+        </p>
+      </div>
+    </Link>
+  );
+}
 
   // Admin/Coach Dashboard
   const stats = await getStats();
