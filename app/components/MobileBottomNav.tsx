@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon } from "lucide-react";
+import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon, MessageCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -32,7 +32,7 @@ export default function MobileBottomNav() {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/profil", label: "Kind", icon: <UserIcon className="w-5 h-5" />, isActive: false },
-      { href: "/events", label: "Events", icon: <Calendar className="w-5 h-5" />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
       { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
     ];
   } else {

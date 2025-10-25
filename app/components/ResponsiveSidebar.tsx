@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon, Link2 } from "lucide-react";
+import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon, Link2, MessageCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
@@ -26,6 +26,7 @@ export default function ResponsiveSidebar() {
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/profil", label: "Mein Kind", iconName: "UserIcon" },
+      { href: "/messages", label: "Nachrichten", iconName: "MessageCircle" },
       { href: "/events", label: "Events", iconName: "Calendar" },
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
@@ -35,6 +36,7 @@ export default function ResponsiveSidebar() {
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/teams", label: "Teams", iconName: "Trophy" },
       { href: "/members", label: "Mitglieder", iconName: "Users" },
+      { href: "/messages", label: "Nachrichten", iconName: "MessageCircle" },
       { href: "/events", label: "Events", iconName: "Calendar" },
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
@@ -108,6 +110,7 @@ export default function ResponsiveSidebar() {
                       {item.iconName === "UserCog" && <UserCog className="w-5 h-5" />}
                       {item.iconName === "UserIcon" && <UserIcon className="w-5 h-5" />}
                       {item.iconName === "Link2" && <Link2 className="w-5 h-5" />}
+                      {item.iconName === "MessageCircle" && <MessageCircle className="w-5 h-5" />}
                     </div>
                     <span className="text-sm font-medium">{item.label}</span>
                     
