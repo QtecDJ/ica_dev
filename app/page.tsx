@@ -367,16 +367,17 @@ function QuickActionCard({ href, icon, title, description, color }: {
   // Admin/Coach Dashboard
   const stats = await getStats();
   
-  // Extended Admin Stats
+  // Extended Stats für Admin/Coach mit Training-Statistiken
   const extendedStats = await sql`
-    WITH attendance_stats AS (
+    WITH training_stats AS (
       SELECT 
-        COUNT(DISTINCT ta.member_id) as total_attendees,
-        COUNT(CASE WHEN ta.status = 'accepted' THEN 1 END) as accepted_count,
-        COUNT(CASE WHEN ta.status = 'declined' THEN 1 END) as declined_count
-      FROM training_attendance ta
-      JOIN trainings t ON ta.training_id = t.id
-      WHERE t.training_date >= CURRENT_DATE - INTERVAL '30 days'
+        COUNT(DISTINCT t.id) as upcoming_trainings,
+        COUNT(CASE WHEN ta.status = 'accepted' THEN 1 END) as total_accepted,
+        COUNT(CASE WHEN ta.status = 'declined' THEN 1 END) as total_declined,
+        COUNT(CASE WHEN ta.status = 'pending' THEN 1 END) as total_pending
+      FROM trainings t
+      LEFT JOIN training_attendance ta ON t.id = ta.training_id
+      WHERE t.training_date >= CURRENT_DATE
     ),
     upcoming_events AS (
       SELECT COUNT(*) as upcoming_events_count
@@ -388,24 +389,19 @@ function QuickActionCard({ href, icon, title, description, color }: {
       FROM members
       WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
     ),
-    team_distribution AS (
-      SELECT 
-        t.name,
-        t.level,
-        COUNT(m.id) as member_count
-      FROM teams t
-      LEFT JOIN members m ON t.id = m.team_id
-      GROUP BY t.id, t.name, t.level
-      ORDER BY member_count DESC
-      LIMIT 5
+    comment_stats AS (
+      SELECT COUNT(*) as unread_comments
+      FROM comments
+      WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
     )
     SELECT 
-      (SELECT total_attendees FROM attendance_stats) as total_attendees,
-      (SELECT accepted_count FROM attendance_stats) as accepted_count,
-      (SELECT declined_count FROM attendance_stats) as declined_count,
+      (SELECT upcoming_trainings FROM training_stats) as upcoming_trainings,
+      (SELECT total_accepted FROM training_stats) as training_accepted,
+      (SELECT total_declined FROM training_stats) as training_declined,
+      (SELECT total_pending FROM training_stats) as training_pending,
       (SELECT upcoming_events_count FROM upcoming_events) as upcoming_events,
       (SELECT new_members_30d FROM recent_members) as new_members,
-      (SELECT json_agg(team_distribution.*) FROM team_distribution) as team_stats
+      (SELECT unread_comments FROM comment_stats) as unread_comments
   `;
 
   const adminStats = extendedStats[0];
@@ -466,13 +462,13 @@ function QuickActionCard({ href, icon, title, description, color }: {
           <MiniStatCard
             icon={<CheckCircle className="w-5 h-5" />}
             title="Zusagen"
-            value={adminStats.accepted_count || 0}
+            value={adminStats.training_accepted || 0}
             color="blue"
           />
           <MiniStatCard
             icon={<XCircle className="w-5 h-5" />}
             title="Absagen"
-            value={adminStats.declined_count || 0}
+            value={adminStats.training_declined || 0}
             color="red"
           />
           <MiniStatCard
@@ -484,38 +480,108 @@ function QuickActionCard({ href, icon, title, description, color }: {
         </div>
       )}
 
-      {/* Quick Actions */}
+      {/* Quick Actions & System Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="card">
-          <div className="card-header">
-            <div className="flex items-center gap-3">
-              <TrendingUp className="w-5 h-5" />
-              <h2 className="text-lg font-semibold">Schnellzugriff</h2>
+        {/* Schnellzugriff - nur für Admins */}
+        {userRole === "admin" && (
+          <div className="card">
+            <div className="card-header">
+              <div className="flex items-center gap-3">
+                <TrendingUp className="w-5 h-5" />
+                <h2 className="text-lg font-semibold">Schnellzugriff</h2>
+              </div>
+            </div>
+            <div className="card-body space-y-2">
+              <QuickLink href="/teams" title="Teams verwalten" />
+              <QuickLink href="/members" title="Mitglieder verwalten" />
+              <QuickLink href="/events" title="Events planen" />
+              <QuickLink href="/trainings" title="Trainings planen" />
+              <QuickLink href="/users" title="Benutzerverwaltung" />
             </div>
           </div>
-          <div className="card-body space-y-2">
-            <QuickLink href="/teams" title="Teams verwalten" />
-            <QuickLink href="/members" title="Mitglieder verwalten" />
-            <QuickLink href="/events" title="Events planen" />
-            <QuickLink href="/trainings" title="Trainings planen" />
-            {userRole === "admin" && (
-              <QuickLink href="/users" title="Benutzerverwaltung" />
-            )}
-          </div>
-        </div>
+        )}
 
-        <div className="card">
+        {/* System-Übersicht mit Training-Statistiken */}
+        <div className={`card ${userRole === "coach" ? "lg:col-span-2" : ""}`}>
           <div className="card-header">
             <div className="flex items-center gap-3">
               <Trophy className="w-5 h-5" />
               <h2 className="text-lg font-semibold">System-Übersicht</h2>
             </div>
           </div>
-          <div className="card-body space-y-3">
-            <InfoRow label="Teams" value={stats.teams} />
-            <InfoRow label="Mitglieder" value={stats.members} />
-            <InfoRow label="Events" value={stats.events} />
-            <InfoRow label="Trainings" value={stats.trainings} />
+          <div className="card-body">
+            {/* Basis-Statistiken */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="space-y-3">
+                <InfoRow label="Teams" value={stats.teams} />
+                <InfoRow label="Mitglieder" value={stats.members} />
+              </div>
+              <div className="space-y-3">
+                <InfoRow label="Events" value={stats.events} />
+                <InfoRow label="Trainings" value={stats.trainings} />
+              </div>
+            </div>
+
+            {/* Training-Statistiken */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4 flex items-center gap-2">
+                <Dumbbell className="w-4 h-4" />
+                Training-Teilnahme (kommende Trainings)
+              </h3>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                    {adminStats.training_accepted || 0}
+                  </p>
+                  <p className="text-xs text-green-700 dark:text-green-300 font-medium">Zusagen</p>
+                </div>
+                <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                    {adminStats.training_declined || 0}
+                  </p>
+                  <p className="text-xs text-red-700 dark:text-red-300 font-medium">Absagen</p>
+                </div>
+                <div className="text-center p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Clock className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                  </div>
+                  <p className="text-2xl font-bold text-slate-600 dark:text-slate-400">
+                    {adminStats.training_pending || 0}
+                  </p>
+                  <p className="text-xs text-slate-700 dark:text-slate-300 font-medium">Ausstehend</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Nachrichten-Statistik */}
+            <div className="pt-6 border-t border-slate-200 dark:border-slate-700 mt-6">
+              <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                      Neue Kommentare
+                    </p>
+                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                      Letzte 7 Tage
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                    {adminStats.unread_comments || 0}
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
