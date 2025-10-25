@@ -31,6 +31,7 @@ interface Coach {
   id: number;
   name: string;
   email: string;
+  team_name?: string;
 }
 
 interface MessagesClientProps {
@@ -209,6 +210,13 @@ export default function MessagesClient({
     setMessages([]);
     setSubject("");
     setNewMessage("");
+    
+    // Wenn nur ein Coach verfügbar ist, automatisch auswählen
+    if (availableCoaches.length === 1) {
+      setSelectedCoach(availableCoaches[0].id);
+    } else {
+      setSelectedCoach(null);
+    }
   };
 
   // Nachricht an ausgewählten Coach senden
@@ -286,19 +294,27 @@ export default function MessagesClient({
       <div className="lg:col-span-1">
         <div className="card">
           <div className="card-header">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Konversationen</h2>
-              {userRole === "parent" && (
-                <button
-                  onClick={startNewConversation}
-                  className="btn-sm btn-primary"
-                >
-                  <Send className="w-4 h-4" />
-                  Neue
-                </button>
+            <h2 className="text-lg font-semibold">Konversationen</h2>
+          </div>
+          
+          {/* Prominenter "Coach schreiben" Button für Parents/Members */}
+          {(userRole === "parent" || userRole === "member") && availableCoaches.length > 0 && (
+            <div className="p-4 border-b border-slate-200 dark:border-slate-700">
+              <button
+                onClick={startNewConversation}
+                className="w-full btn-primary flex items-center justify-center gap-2 py-3"
+              >
+                <Send className="w-5 h-5" />
+                <span className="font-semibold">Coach eine Nachricht schreiben</span>
+              </button>
+              {availableCoaches.length === 1 && (
+                <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-2">
+                  Dein Coach: {availableCoaches[0].name}
+                </p>
               )}
             </div>
-          </div>
+          )}
+          
           <div className="divide-y divide-slate-200 dark:divide-slate-700">
             {conversations.length === 0 ? (
               <div className="p-8 text-center">
@@ -306,13 +322,10 @@ export default function MessagesClient({
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
                   Noch keine Nachrichten
                 </p>
-                {userRole === "parent" && (
-                  <button
-                    onClick={startNewConversation}
-                    className="btn-sm btn-primary mt-4"
-                  >
-                    Erste Nachricht senden
-                  </button>
+                {(userRole === "parent" || userRole === "member") && (
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
+                    Klicke oben auf den Button um eine Nachricht zu senden
+                  </p>
                 )}
               </div>
             ) : (
@@ -322,7 +335,7 @@ export default function MessagesClient({
                   onClick={() => loadConversation(conv.partner_id)}
                   className={`w-full p-4 text-left hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors ${
                     selectedPartnerId === conv.partner_id
-                      ? "bg-blue-50 dark:bg-blue-900/20"
+                      ? "bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500"
                       : ""
                   }`}
                 >
@@ -336,7 +349,7 @@ export default function MessagesClient({
                           {conv.partner_name}
                         </h3>
                         {conv.unread_count > 0 && (
-                          <span className="w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0">
+                          <span className="w-6 h-6 rounded-full bg-red-500 text-white text-xs flex items-center justify-center font-bold flex-shrink-0 animate-pulse">
                             {conv.unread_count}
                           </span>
                         )}
@@ -376,63 +389,109 @@ export default function MessagesClient({
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </button>
-                <h2 className="text-lg font-semibold">Neue Nachricht</h2>
+                <div>
+                  <h2 className="text-lg font-semibold">Nachricht an Coach</h2>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Stelle eine Frage oder teile Informationen
+                  </p>
+                </div>
               </div>
             </div>
             <form onSubmit={sendNewMessage} className="card-body space-y-4">
-              <div>
-                <label className="label">Coach auswählen *</label>
-                <select
-                  value={selectedCoach || ""}
-                  onChange={(e) => setSelectedCoach(parseInt(e.target.value))}
-                  className="input"
-                  required
-                >
-                  <option value="">Bitte wählen...</option>
-                  {availableCoaches.map((coach) => (
-                    <option key={coach.id} value={coach.id}>
-                      {coach.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {availableCoaches.length > 1 ? (
+                <div>
+                  <label className="label">
+                    Coach auswählen * 
+                    <span className="text-xs font-normal text-slate-500 ml-2">
+                      ({availableCoaches.length} verfügbar)
+                    </span>
+                  </label>
+                  <select
+                    value={selectedCoach || ""}
+                    onChange={(e) => setSelectedCoach(parseInt(e.target.value))}
+                    className="input"
+                    required
+                  >
+                    <option value="">Bitte wählen...</option>
+                    {availableCoaches.map((coach) => (
+                      <option key={coach.id} value={coach.id}>
+                        {coach.name} {coach.team_name && `(${coach.team_name})`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ) : availableCoaches.length === 1 ? (
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                      {getInitials(availableCoaches[0].name)}
+                    </div>
+                    <div>
+                      <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+                        {availableCoaches[0].name}
+                      </p>
+                      <p className="text-xs text-blue-700 dark:text-blue-300">
+                        🏋️ Dein Coach {availableCoaches[0].team_name && `• ${availableCoaches[0].team_name}`}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
 
               <div>
-                <label className="label">Betreff (optional)</label>
+                <label className="label">
+                  Betreff (optional)
+                  <span className="text-xs font-normal text-slate-500 ml-2">
+                    Worum geht es?
+                  </span>
+                </label>
                 <input
                   type="text"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   className="input"
-                  placeholder="z.B. Frage zum Training"
+                  placeholder="z.B. Frage zum Training am Montag"
                 />
               </div>
 
               <div>
-                <label className="label">Nachricht *</label>
+                <label className="label">Deine Nachricht *</label>
                 <textarea
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   className="input min-h-[200px]"
-                  placeholder="Deine Nachricht..."
+                  placeholder="Schreibe deine Nachricht hier..."
                   required
                 />
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Dein Coach wird benachrichtigt und kann dir antworten
+                </p>
               </div>
 
               <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowNewMessageForm(false)}
-                  className="btn-secondary"
+                  className="btn-secondary flex-1"
                 >
                   Abbrechen
                 </button>
                 <button
                   type="submit"
                   disabled={isSending || !selectedCoach}
-                  className="btn-primary"
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
                 >
-                  {isSending ? "Wird gesendet..." : "Nachricht senden"}
+                  {isSending ? (
+                    <>
+                      <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                      Wird gesendet...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Nachricht senden
+                    </>
+                  )}
                 </button>
               </div>
             </form>
@@ -553,21 +612,30 @@ export default function MessagesClient({
           /* Keine Konversation ausgewählt */
           <div className="card">
             <div className="card-body text-center py-20">
-              <MessageCircle className="w-16 h-16 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
-                Keine Konversation ausgewählt
-              </h3>
-              <p className="text-slate-600 dark:text-slate-400 mb-6">
-                {userRole === "parent"
-                  ? "Wähle eine Konversation aus oder starte eine neue Nachricht"
-                  : "Wähle eine Konversation aus der Liste"}
-              </p>
-              {userRole === "parent" && (
-                <button onClick={startNewConversation} className="btn-primary">
-                  <Send className="w-5 h-5" />
-                  Neue Nachricht
-                </button>
-              )}
+              <div className="max-w-md mx-auto">
+                <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <MessageCircle className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-3">
+                  {(userRole === "parent" || userRole === "member")
+                    ? "Kontaktiere deinen Coach"
+                    : "Keine Konversation ausgewählt"}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 mb-6">
+                  {(userRole === "parent" || userRole === "member")
+                    ? "Hast du Fragen zum Training, zu Wettkämpfen oder anderen Themen? Schreibe deinem Coach eine Nachricht."
+                    : "Wähle eine Konversation aus der Liste, um Nachrichten zu sehen"}
+                </p>
+                {(userRole === "parent" || userRole === "member") && availableCoaches.length > 0 && (
+                  <button 
+                    onClick={startNewConversation} 
+                    className="btn-primary inline-flex items-center gap-2"
+                  >
+                    <Send className="w-5 h-5" />
+                    Coach eine Nachricht schreiben
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         )}
