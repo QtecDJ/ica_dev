@@ -3,6 +3,7 @@ import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, X
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import MemberDashboard from "./components/MemberDashboard";
+import DynamicDashboardContent from "./components/DynamicDashboardContent";
 import { neon } from "@neondatabase/serverless";
 import type { Session } from "next-auth";
 import Link from "next/link";
@@ -136,33 +137,8 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
           </div>
         </div>
 
-        {/* Info-Banner für Eltern */}
-        <div className="card bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
-          <div className="card-body">
-            <h3 className="font-semibold text-red-900 dark:text-red-100 mb-3">
-              👋 Herzlich willkommen im Elternbereich!
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div>
-                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Verfügbare Funktionen</h4>
-                <ul className="space-y-1 text-red-700 dark:text-red-300">
-                  <li>• 📅 Events - Alle Vereinsveranstaltungen einsehen</li>
-                  <li>• 📆 Kalender - Termine im Überblick</li>
-                  <li>• 🏋️ Trainings - Trainingszeiten aller Teams</li>
-                  <li>• 👨‍👩‍👧‍👦 Meine Kinder - Informationen zu den Kindern</li>
-                </ul>
-              </div>
-              <div>
-                <h4 className="font-medium text-red-800 dark:text-red-200 mb-2">Hinweise</h4>
-                <ul className="space-y-1 text-red-700 dark:text-red-300">
-                  <li>• Als Elternteil haben Sie Lesezugriff auf alle Informationen</li>
-                  <li>• Für Fragen wenden Sie sich an den jeweiligen Trainer</li>
-                  <li>• Wichtige Änderungen werden per E-Mail mitgeteilt</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Info-Banner für Eltern - Dynamisch aus CMS */}
+        <DynamicDashboardContent />
 
         {/* Quick Access Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -47,6 +47,7 @@ export default function ResponsiveSidebar() {
   if (userRole === "admin") {
     navItems.push({ href: "/users", label: "Benutzerverwaltung", iconName: "UserCog" });
     navItems.push({ href: "/admin/parent-children", label: "Parent-Child Verwaltung", iconName: "Link2" });
+    navItems.push({ href: "/admin/dashboard-content", label: "Dashboard-Inhalte", iconName: "FileText" });
   }
 
   const isActive = (href: string) => {
