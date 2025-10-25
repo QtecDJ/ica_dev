@@ -57,13 +57,84 @@ export default function MessagesClient({
   const [showNewMessageForm, setShowNewMessageForm] = useState(false);
   const [selectedCoach, setSelectedCoach] = useState<number | null>(null);
   const [subject, setSubject] = useState("");
+  const [totalUnread, setTotalUnread] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
 
   // Auto-scroll zu neuen Nachrichten
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Berechne total unread count
+  useEffect(() => {
+    const total = conversations.reduce((sum, conv) => sum + conv.unread_count, 0);
+    setTotalUnread(total);
+  }, [conversations]);
+
+  // Polling für neue Nachrichten (alle 10 Sekunden)
+  useEffect(() => {
+    const pollMessages = async () => {
+      try {
+        // Lade aktualisierte Konversationsliste
+        const response = await fetch("/api/messages");
+        if (response.ok) {
+          const data = await response.json();
+          const newConversations = data.conversations || [];
+          
+          // Prüfe ob neue ungelesene Nachrichten da sind
+          const oldUnread = conversations.reduce((sum, c) => sum + c.unread_count, 0);
+          const newUnread = newConversations.reduce((sum: number, c: Conversation) => sum + c.unread_count, 0);
+          
+          if (newUnread > oldUnread) {
+            // Neue Nachricht! - Zeige Browser-Benachrichtigung
+            if ("Notification" in window && Notification.permission === "granted") {
+              new Notification("Neue Nachricht", {
+                body: "Du hast eine neue Nachricht erhalten",
+                icon: "/icons/icon-192x192.png"
+              });
+            }
+          }
+          
+          setConversations(newConversations);
+          
+          // Wenn aktuell eine Konversation geöffnet ist, lade neue Nachrichten
+          if (selectedPartnerId) {
+            const convResponse = await fetch(`/api/messages/${selectedPartnerId}`);
+            if (convResponse.ok) {
+              const convData = await convResponse.json();
+              const newMessages = convData.messages || [];
+              
+              // Nur updaten wenn neue Nachrichten da sind
+              if (newMessages.length !== messages.length) {
+                setMessages(newMessages);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Polling error:", error);
+      }
+    };
+
+    // Starte Polling
+    pollingIntervalRef.current = setInterval(pollMessages, 10000); // Alle 10 Sekunden
+
+    // Cleanup
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, [conversations, messages, selectedPartnerId]);
+
+  // Request notification permission beim Mount
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   // Lade Konversation
   const loadConversation = async (partnerId: number) => {

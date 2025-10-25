@@ -5,6 +5,7 @@ import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon, Mes
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
+import UnreadMessagesBadge from "./UnreadMessagesBadge";
 
 interface NavItem {
   href: string;
@@ -136,6 +137,13 @@ export default function MobileBottomNav() {
                 }
               `}>
                 {item.icon}
+                
+                {/* Badge für ungelesene Nachrichten */}
+                {item.label === "Chat" && (
+                  <div className="absolute -top-1 -right-1">
+                    <UnreadMessagesBadge />
+                  </div>
+                )}
               </div>
               
               {/* Label with smooth opacity */}

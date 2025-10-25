@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
 import MobileBottomNav from "./MobileBottomNav";
 import AdminFloatingButton from "./AdminFloatingButton";
+import UnreadMessagesBadge from "./UnreadMessagesBadge";
 
 export default function ResponsiveSidebar() {
   const { data: session } = useSession();
@@ -113,6 +114,9 @@ export default function ResponsiveSidebar() {
                       {item.iconName === "MessageCircle" && <MessageCircle className="w-5 h-5" />}
                     </div>
                     <span className="text-sm font-medium">{item.label}</span>
+                    
+                    {/* Badge für ungelesene Nachrichten */}
+                    {item.iconName === "MessageCircle" && <UnreadMessagesBadge className="ml-2" />}
                     
                     {/* Hover effect */}
                     <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/5 to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl" />
