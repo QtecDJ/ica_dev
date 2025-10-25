@@ -15,62 +15,45 @@ async function getChildrenData(parentId: string) {
   try {
     const sql = getSafeDb();
     
-    // Get children and their related data
+    // Get children from members table
     const children = await sql`
       SELECT 
-        u.id,
-        u.name,
-        u.email,
-        u.phone,
-        u.created_at,
-        COUNT(DISTINCT em.id) as event_count,
-        COUNT(DISTINCT tm.id) as training_count,
-        COUNT(DISTINCT t.id) as team_count
-      FROM users u
-      LEFT JOIN event_members em ON u.id = em.user_id
-      LEFT JOIN training_members tm ON u.id = tm.user_id
-      LEFT JOIN team_members tms ON u.id = tms.user_id
-      LEFT JOIN teams t ON tms.team_id = t.id
-      WHERE u.parent_id = ${parentId}
-      GROUP BY u.id, u.name, u.email, u.phone, u.created_at
-      ORDER BY u.name ASC
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.phone,
+        m.created_at
+      FROM members m
+      WHERE m.parent_id = ${parentId}
+      ORDER BY m.first_name ASC
     `;
 
-    // Get upcoming events for children
+    // Get upcoming events (simplified - all events)
     const upcomingEvents = await sql`
       SELECT 
         e.id,
         e.title,
         e.description,
-        e.date,
-        e.location,
-        u.name as child_name,
-        u.id as child_id
+        e.event_date as date,
+        e.location
       FROM events e
-      JOIN event_members em ON e.id = em.event_id
-      JOIN users u ON em.user_id = u.id
-      WHERE u.parent_id = ${parentId}
-        AND e.date >= CURRENT_DATE
-      ORDER BY e.date ASC
+      WHERE e.event_date >= CURRENT_DATE
+      ORDER BY e.event_date ASC
       LIMIT 5
     `;
 
-    // Get upcoming trainings for children
+    // Get upcoming trainings (simplified - all trainings)
     const upcomingTrainings = await sql`
       SELECT 
         tr.id,
         tr.title,
         tr.description,
-        tr.date,
-        tr.location,
-        u.name as child_name,
-        u.id as child_id
+        tr.training_date as date,
+        tr.location
       FROM trainings tr
-      JOIN training_members tm ON tr.id = tm.training_id
-      JOIN users u ON tm.user_id = u.id
-      WHERE u.parent_id = ${parentId}
-        AND tr.date >= CURRENT_DATE
-      ORDER BY tr.date ASC
+      WHERE tr.training_date >= CURRENT_DATE
+      ORDER BY tr.training_date ASC
       LIMIT 5
     `;
 
@@ -131,7 +114,7 @@ export default async function MeineKinderPage() {
                       </div>
                       <div>
                         <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-50">
-                          {child.name}
+                          {child.first_name} {child.last_name}
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400">
                           Mitglied seit {new Date(child.created_at).toLocaleDateString('de-DE')}
@@ -162,7 +145,7 @@ export default async function MeineKinderPage() {
                       <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                         <Calendar className="w-6 h-6 text-blue-600 dark:text-blue-400 mx-auto mb-1" />
                         <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                          {Number(child.event_count) || 0}
+                          {upcomingEvents.length}
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
                           Events
@@ -171,7 +154,7 @@ export default async function MeineKinderPage() {
                       <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                         <Trophy className="w-6 h-6 text-yellow-600 dark:text-yellow-400 mx-auto mb-1" />
                         <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                          {Number(child.training_count) || 0}
+                          {upcomingTrainings.length}
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
                           Trainings
@@ -180,7 +163,7 @@ export default async function MeineKinderPage() {
                       <div className="text-center p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                         <Users className="w-6 h-6 text-green-600 dark:text-green-400 mx-auto mb-1" />
                         <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                          {Number(child.team_count) || 0}
+                          {child.team_id ? 1 : 0}
                         </div>
                         <div className="text-xs text-slate-600 dark:text-slate-400">
                           Teams
@@ -231,9 +214,6 @@ export default async function MeineKinderPage() {
                           <h4 className="font-medium text-slate-900 dark:text-slate-50">
                             {event.title}
                           </h4>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
-                            {event.child_name}
-                          </p>
                           <div className="flex items-center gap-4 mt-1 text-xs text-slate-500 dark:text-slate-400">
                             <div className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
@@ -281,9 +261,6 @@ export default async function MeineKinderPage() {
                           <h4 className="font-medium text-slate-900 dark:text-slate-50">
                             {training.title}
                           </h4>
-                          <p className="text-sm text-slate-600 dark:text-slate-400">
-                            {training.child_name}
-                          </p>
                           <div className="flex items-center gap-4 mt-1 text-xs text-slate-500 dark:text-slate-400">
                             <div className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />

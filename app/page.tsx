@@ -83,57 +83,44 @@ export default async function Home() {
 
 async function ParentDashboard({ userId, userName }: { userId: string; userName?: string | null }) {
   try {
-    // Get children and their upcoming activities
+    // Get children (members with this parent_id)
     const children = await sql`
       SELECT 
-        u.id,
-        u.name,
-        u.email,
-        COUNT(DISTINCT em.id) as event_count,
-        COUNT(DISTINCT tm.id) as training_count
-      FROM users u
-      LEFT JOIN event_members em ON u.id = em.user_id
-      LEFT JOIN training_members tm ON u.id = tm.user_id
-      WHERE u.parent_id = ${userId}
-      GROUP BY u.id, u.name, u.email
-      ORDER BY u.name ASC
+        m.id,
+        m.first_name,
+        m.last_name,
+        m.email,
+        m.created_at
+      FROM members m
+      WHERE m.parent_id = ${userId}
+      ORDER BY m.first_name ASC
     `;
 
-    // Get upcoming events for all children
+    // Get upcoming events (all events)
     const upcomingEvents = await sql`
       SELECT 
         e.id,
         e.title,
         e.description,
-        e.date,
-        e.location,
-        u.name as child_name,
-        u.id as child_id
+        e.event_date as date,
+        e.location
       FROM events e
-      JOIN event_members em ON e.id = em.event_id
-      JOIN users u ON em.user_id = u.id
-      WHERE u.parent_id = ${userId} 
-        AND e.date >= CURRENT_DATE
-      ORDER BY e.date ASC
+      WHERE e.event_date >= CURRENT_DATE
+      ORDER BY e.event_date ASC
       LIMIT 8
     `;
 
-    // Get upcoming trainings for all children
+    // Get upcoming trainings (all trainings)
     const upcomingTrainings = await sql`
       SELECT 
         tr.id,
         tr.title,
         tr.description,
-        tr.date,
-        tr.location,
-        u.name as child_name,
-        u.id as child_id
+        tr.training_date as date,
+        tr.location
       FROM trainings tr
-      JOIN training_members tm ON tr.id = tm.training_id
-      JOIN users u ON tm.user_id = u.id
-      WHERE u.parent_id = ${userId} 
-        AND tr.date >= CURRENT_DATE
-      ORDER BY tr.date ASC
+      WHERE tr.training_date >= CURRENT_DATE
+      ORDER BY tr.training_date ASC
       LIMIT 8
     `;
 
@@ -167,7 +154,7 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-900 dark:text-slate-50">
-                        {child.name}
+                        {child.first_name} {child.last_name}
                       </h3>
                       <p className="text-sm text-slate-500 dark:text-slate-400">
                         Dein Kind
@@ -177,7 +164,7 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
                   <div className="grid grid-cols-2 gap-3">
                     <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded">
                       <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                        {child.event_count}
+                        {upcomingEvents.length}
                       </div>
                       <div className="text-xs text-slate-600 dark:text-slate-400">
                         Events
@@ -185,7 +172,7 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
                     </div>
                     <div className="text-center p-2 bg-slate-50 dark:bg-slate-800 rounded">
                       <div className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                        {child.training_count}
+                        {upcomingTrainings.length}
                       </div>
                       <div className="text-xs text-slate-600 dark:text-slate-400">
                         Trainings
@@ -238,9 +225,6 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
                             <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
                               {event.title}
                             </h4>
-                            <p className="text-xs text-slate-600 dark:text-slate-400">
-                              {event.child_name}
-                            </p>
                             <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
@@ -289,9 +273,6 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
                             <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
                               {training.title}
                             </h4>
-                            <p className="text-xs text-slate-600 dark:text-slate-400">
-                              {training.child_name}
-                            </p>
                             <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
                               <div className="flex items-center gap-1">
                                 <Clock className="w-3 h-3" />
