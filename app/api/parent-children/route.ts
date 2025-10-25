@@ -59,8 +59,8 @@ async function linkChildToParent(parentUserId: number, childMemberId: number) {
     if (tableExists[0].exists) {
       // Verwende parent_children Tabelle
       await sql`
-        INSERT INTO parent_children (parent_user_id, child_member_id, relationship_type)
-        VALUES (${parentUserId}, ${childMemberId}, 'parent')
+        INSERT INTO parent_children (parent_user_id, child_member_id)
+        VALUES (${parentUserId}, ${childMemberId})
         ON CONFLICT (parent_user_id, child_member_id) DO NOTHING;
       `;
     } else {
