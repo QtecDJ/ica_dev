@@ -36,7 +36,7 @@ export default async function MessagesPage() {
   }
 
   // Hole Konversationen
-  const conversations = await sql`
+  const conversationsRaw = await sql`
     WITH message_threads AS (
       SELECT 
         m.*,
@@ -79,6 +79,17 @@ export default async function MessagesPage() {
     GROUP BY partner_id, partner_name, partner_role
     ORDER BY last_message_date DESC
   `;
+
+  // Type casting für TypeScript
+  const conversations = conversationsRaw.map((conv: any) => ({
+    partner_id: Number(conv.partner_id),
+    partner_name: String(conv.partner_name),
+    partner_role: String(conv.partner_role),
+    message_count: Number(conv.message_count),
+    unread_count: Number(conv.unread_count),
+    last_message_date: String(conv.last_message_date),
+    last_message_content: conv.last_message_content ? String(conv.last_message_content) : undefined,
+  }));
 
   return (
     <div className="space-y-6">
