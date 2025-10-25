@@ -6,16 +6,18 @@ import Image from "next/image";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import type { Session } from "next-auth";
+import { redirect } from "next/navigation";
 
 export default async function MembersPage() {
   const session = (await getServerSession(authOptions)) as Session | null;
   const userRole = session?.user?.role;
   
   // Only admin and coach can see all members
-  const members = await getMembers();
+  if (userRole !== "admin" && userRole !== "coach") {
+    redirect("/profil");
+  }
   
-  // Hide create button for non-admin/coach
-  const canCreate = userRole === "admin" || userRole === "coach";
+  const members = await getMembers();
 
   return (
     <div className="space-y-6">
@@ -27,12 +29,10 @@ export default async function MembersPage() {
             {members.length} {members.length === 1 ? 'Mitglied' : 'Mitglieder'} insgesamt
           </p>
         </div>
-        {canCreate && (
-          <Link href="/members/new" className="btn btn-primary">
-            <Plus className="w-5 h-5" />
-            Neues Mitglied
-          </Link>
-        )}
+        <Link href="/members/new" className="btn btn-primary">
+          <Plus className="w-5 h-5" />
+          Neues Mitglied
+        </Link>
       </div>
 
       {/* Members Grid/Table */}
@@ -104,18 +104,14 @@ export default async function MembersPage() {
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
-                          {canCreate && (
-                            <>
-                              <Link
-                                href={`/members/${member.id}/edit`}
-                                className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
-                                title="Bearbeiten"
-                              >
-                                <Pencil className="w-4 h-4" />
-                              </Link>
-                              <DeleteButton id={member.id} action={deleteMember} />
-                            </>
-                          )}
+                          <Link
+                            href={`/members/${member.id}/edit`}
+                            className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                            title="Bearbeiten"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </Link>
+                          <DeleteButton id={member.id} action={deleteMember} />
                         </div>
                       </td>
                     </tr>
@@ -168,17 +164,13 @@ export default async function MembersPage() {
                       >
                         <Eye className="w-5 h-5" />
                       </Link>
-                      {canCreate && (
-                        <>
-                          <Link
-                            href={`/members/${member.id}/edit`}
-                            className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
-                          >
-                            <Pencil className="w-5 h-5" />
-                          </Link>
-                          <DeleteButton id={member.id} action={deleteMember} />
-                        </>
-                      )}
+                      <Link
+                        href={`/members/${member.id}/edit`}
+                        className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                      >
+                        <Pencil className="w-5 h-5" />
+                      </Link>
+                      <DeleteButton id={member.id} action={deleteMember} />
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">
@@ -214,12 +206,10 @@ export default async function MembersPage() {
             <p className="text-slate-600 dark:text-slate-400 mb-6">
               Füge dein erstes Mitglied hinzu, um loszulegen!
             </p>
-            {canCreate && (
-              <Link href="/members/new" className="btn btn-primary inline-flex">
-                <Plus className="w-5 h-5" />
-                Neues Mitglied erstellen
-              </Link>
-            )}
+            <Link href="/members/new" className="btn btn-primary inline-flex">
+              <Plus className="w-5 h-5" />
+              Neues Mitglied erstellen
+            </Link>
           </div>
         </div>
       )}
