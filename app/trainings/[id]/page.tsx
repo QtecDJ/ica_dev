@@ -39,6 +39,17 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
 
   const training = trainings[0];
 
+  // Zugriffskontrolle für Coaches - nur eigenes Team
+  if (userRole === "coach") {
+    const coachTeam = await sql`
+      SELECT id FROM teams WHERE coach_id = ${userId}
+    `;
+    
+    if (coachTeam.length === 0 || training.team_id !== coachTeam[0].id) {
+      redirect("/trainings");
+    }
+  }
+
   // Hole Teilnehmer-Status
   const attendance = await getTrainingAttendance(trainingId);
 

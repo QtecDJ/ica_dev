@@ -5,16 +5,31 @@ import { neon } from "@neondatabase/serverless";
 import CreateTrainingForm from "@/app/components/CreateTrainingForm";
 
 export default async function NewTrainingPage() {
-  await requireRole(["admin", "coach"]);
+  const session = await requireRole(["admin", "coach"]);
+  const userRole = session.user.role;
+  const userId = session.user.id;
 
   const sql = neon(process.env.DATABASE_URL!);
   
-  // Hole alle Teams für Auswahl
-  const teams = await sql`
-    SELECT id, name, level 
-    FROM teams 
-    ORDER BY name
-  `;
+  // Hole Teams basierend auf Benutzerrolle
+  let teams: any[] = [];
+  
+  if (userRole === "admin") {
+    // Admins sehen alle Teams
+    teams = await sql`
+      SELECT id, name, level 
+      FROM teams 
+      ORDER BY name
+    `;
+  } else if (userRole === "coach") {
+    // Coaches sehen nur ihr eigenes Team
+    teams = await sql`
+      SELECT id, name, level 
+      FROM teams 
+      WHERE coach_id = ${userId}
+      ORDER BY name
+    `;
+  }
 
   return (
     <div className="space-y-6">

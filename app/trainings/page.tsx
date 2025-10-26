@@ -19,9 +19,27 @@ export default async function TrainingsPage() {
   let trainings: any[] = [];
   let userTeamId = null;
   
-  if (userRole === "admin" || userRole === "coach") {
-    // Admins und Coaches sehen alle Trainings
+  if (userRole === "admin") {
+    // Admins sehen alle Trainings
     trainings = await getTrainings();
+  } else if (userRole === "coach") {
+    // Coaches sehen nur Trainings ihres eigenen Teams
+    const coachTeam = await sql`
+      SELECT id FROM teams WHERE coach_id = ${userId}
+    `;
+    
+    if (coachTeam.length > 0) {
+      userTeamId = coachTeam[0].id;
+      trainings = await sql`
+        SELECT t.*, teams.name as team_name
+        FROM trainings t
+        LEFT JOIN teams ON t.team_id = teams.id
+        WHERE t.team_id = ${userTeamId}
+        ORDER BY t.training_date DESC, t.start_time
+      `;
+    } else {
+      trainings = [];
+    }
   } else if (userRole === "parent") {
     // Parents sehen nur Trainings des Teams ihres Kindes
     const children = await sql`
