@@ -24,13 +24,20 @@ interface Member {
   team_name: string | null;
 }
 
+interface Team {
+  id: number;
+  name: string;
+  coach_id: number | null;
+}
+
 interface Props {
   user: User;
   members: Member[];
+  teams: Team[];
   onClose: () => void;
 }
 
-export default function EditUserModal({ user, members, onClose }: Props) {
+export default function EditUserModal({ user, members, teams, onClose }: Props) {
   const router = useRouter();
   const [formData, setFormData] = useState({
     name: user.name,
@@ -38,6 +45,7 @@ export default function EditUserModal({ user, members, onClose }: Props) {
     email: user.email || "",
     role: user.role,
     member_id: user.member_id?.toString() || "",
+    teamId: teams.find(t => t.coach_id === user.id)?.id?.toString() || "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -82,6 +90,7 @@ export default function EditUserModal({ user, members, onClose }: Props) {
           email: formData.email || null,
           role: formData.role,
           member_id: formData.member_id ? parseInt(formData.member_id) : null,
+          teamId: formData.teamId || null,
           newPassword: formData.newPassword || undefined,
         }),
       });
@@ -244,6 +253,31 @@ export default function EditUserModal({ user, members, onClose }: Props) {
                 <option value="parent">Elternteil</option>
               </select>
             </div>
+
+            {/* Team-Zuweisung für Coaches */}
+            {formData.role === "coach" && teams.length > 0 && (
+              <div>
+                <label className="label">Team zuweisen</label>
+                <select
+                  value={formData.teamId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, teamId: e.target.value })
+                  }
+                  className="input"
+                >
+                  <option value="">Kein Team</option>
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                      {team.coach_id && team.coach_id !== user.id && " (bereits vergeben)"}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                  Der Coach wird diesem Team zugewiesen und kann die Team-Mitglieder verwalten
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="label">Verknüpftes Mitglied (optional)</label>

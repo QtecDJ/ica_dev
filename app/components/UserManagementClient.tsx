@@ -28,6 +28,7 @@ interface Member {
 interface Team {
   id: number;
   name: string;
+  coach_id: number | null;
 }
 
 interface Props {
@@ -270,6 +271,7 @@ export default function UserManagementClient({ users, members, teams }: Props) {
         <EditUserModal
           user={editingUser}
           members={members}
+          teams={teams}
           onClose={() => setEditingUser(null)}
         />
       )}

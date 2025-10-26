@@ -25,6 +25,7 @@ interface Member {
 interface Team {
   id: number;
   name: string;
+  coach_id: number | null;
 }
 
 export default async function UsersManagementPage() {
@@ -65,7 +66,7 @@ export default async function UsersManagementPage() {
 
   // Hole alle Teams für Coach-Zuweisung
   const teams = await sql`
-    SELECT id, name FROM teams ORDER BY name
+    SELECT id, name, coach_id FROM teams ORDER BY name
   ` as unknown as Team[];
 
   return <UserManagementClient users={users} members={members} teams={teams} />;

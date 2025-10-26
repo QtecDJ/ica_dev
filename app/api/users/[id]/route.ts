@@ -97,6 +97,25 @@ export async function PATCH(
       );
     }
 
+    // Team-Zuweisung für Coaches aktualisieren
+    if (data.role === "coach") {
+      // Erst alle bestehenden Zuweisungen dieses Coaches entfernen
+      await sql`
+        UPDATE teams 
+        SET coach_id = NULL 
+        WHERE coach_id = ${userId}
+      `;
+      
+      // Dann neue Zuweisung setzen, falls ein Team ausgewählt wurde
+      if (data.teamId) {
+        await sql`
+          UPDATE teams 
+          SET coach_id = ${userId} 
+          WHERE id = ${parseInt(data.teamId)}
+        `;
+      }
+    }
+
     return NextResponse.json({
       success: true,
       user: result[0],
