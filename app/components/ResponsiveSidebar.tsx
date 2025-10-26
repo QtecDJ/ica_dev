@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon, Link2, MessageCircle } from "lucide-react";
+import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
@@ -45,9 +45,7 @@ export default function ResponsiveSidebar() {
   }
   
   if (userRole === "admin") {
-    navItems.push({ href: "/users", label: "Benutzerverwaltung", iconName: "UserCog" });
-    navItems.push({ href: "/admin/parent-children", label: "Parent-Child Verwaltung", iconName: "Link2" });
-    navItems.push({ href: "/admin/dashboard-content", label: "Dashboard-Inhalte", iconName: "FileText" });
+    navItems.push({ href: "/administration", label: "Administration", iconName: "Shield" });
   }
 
   const isActive = (href: string) => {
@@ -109,9 +107,8 @@ export default function ResponsiveSidebar() {
                       {item.iconName === "Trophy" && <Trophy className="w-5 h-5" />}
                       {item.iconName === "Calendar" && <Calendar className="w-5 h-5" />}
                       {item.iconName === "Dumbbell" && <Dumbbell className="w-5 h-5" />}
-                      {item.iconName === "UserCog" && <UserCog className="w-5 h-5" />}
+                      {item.iconName === "Shield" && <Shield className="w-5 h-5" />}
                       {item.iconName === "UserIcon" && <UserIcon className="w-5 h-5" />}
-                      {item.iconName === "Link2" && <Link2 className="w-5 h-5" />}
                       {item.iconName === "MessageCircle" && <MessageCircle className="w-5 h-5" />}
                     </div>
                     <span className="text-sm font-medium">{item.label}</span>
