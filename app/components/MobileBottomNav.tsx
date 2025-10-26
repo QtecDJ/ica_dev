@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, UserCog, User as UserIcon, MessageCircle } from "lucide-react";
+import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -36,7 +36,16 @@ export default function MobileBottomNav() {
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
       { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
     ];
+  } else if (userRole === "admin") {
+    navItems = [
+      { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
+      { href: "/events", label: "Events", icon: <Calendar className="w-5 h-5" />, isActive: false },
+      { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
+      { href: "/administration", label: "Admin", icon: <Shield className="w-5 h-5" />, isActive: false },
+    ];
   } else {
+    // Coach
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
@@ -45,8 +54,6 @@ export default function MobileBottomNav() {
       { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
     ];
   }
-
-  // Admin-Funktionen werden über die floating Admin-Schaltfläche bereitgestellt
 
   // Update active states
   const isActive = (href: string) => {
