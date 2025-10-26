@@ -2,13 +2,48 @@ import { getTeams, deleteTeam } from "../actions";
 import { Plus, Pencil, Trash2, Trophy } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
-import { requireRole } from "@/lib/auth-utils";
+import { requireAuth } from "@/lib/auth-utils";
+import { neon } from "@neondatabase/serverless";
 
 export default async function TeamsPage() {
   // Only admin and coach can access this page
-  await requireRole(["admin", "coach"]);
+  const session = await requireAuth();
+  const userRole = session.user.role;
+  const userId = session.user.id;
+
+  // Restrict access
+  if (userRole !== "admin" && userRole !== "coach") {
+    throw new Error("Unauthorized");
+  }
+
+  const sql = neon(process.env.DATABASE_URL!);
   
-  const teams = await getTeams();
+  // Get teams based on role
+  let teams: any[];
+  
+  if (userRole === "admin") {
+    // Admins see all teams
+    teams = await getTeams();
+  } else if (userRole === "coach") {
+    // Coaches only see their own team
+    teams = await sql`
+      SELECT 
+        t.id,
+        t.name,
+        t.level,
+        t.created_at,
+        COALESCE(u.name, 'Kein Coach') as coach
+      FROM teams t
+      LEFT JOIN users u ON t.coach_id = u.id
+      WHERE t.coach_id = ${userId}
+      ORDER BY t.name
+    `;
+  } else {
+    teams = [];
+  }
+
+  // Only admins can create new teams
+  const canCreateTeam = userRole === "admin";
 
   return (
     <div className="space-y-6">
@@ -17,13 +52,15 @@ export default async function TeamsPage() {
         <div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">Teams</h1>
           <p className="text-slate-600 dark:text-slate-400 mt-1">
-            {teams.length} {teams.length === 1 ? 'Team' : 'Teams'} insgesamt
+            {teams.length} {teams.length === 1 ? 'Team' : 'Teams'} {userRole === "coach" ? "unter deiner Leitung" : "insgesamt"}
           </p>
         </div>
-        <Link href="/teams/new" className="btn btn-primary">
-          <Plus className="w-5 h-5" />
-          Neues Team
-        </Link>
+        {canCreateTeam && (
+          <Link href="/teams/new" className="btn btn-primary">
+            <Plus className="w-5 h-5" />
+            Neues Team
+          </Link>
+        )}
       </div>
 
       {/* Teams Grid - Desktop: Table, Mobile: Cards */}
@@ -39,7 +76,7 @@ export default async function TeamsPage() {
                     <th>Level</th>
                     <th>Coach</th>
                     <th>Erstellt</th>
-                    <th className="text-right">Aktionen</th>
+                    {userRole === "admin" && <th className="text-right">Aktionen</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -60,17 +97,19 @@ export default async function TeamsPage() {
                       <td className="text-slate-600 dark:text-slate-400">
                         {new Date(team.created_at).toLocaleDateString("de-DE")}
                       </td>
-                      <td>
-                        <div className="flex justify-end gap-2">
-                          <Link
-                            href={`/teams/${team.id}/edit`}
-                            className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Link>
-                          <DeleteButton id={team.id} action={deleteTeam} />
-                        </div>
-                      </td>
+                      {userRole === "admin" && (
+                        <td>
+                          <div className="flex justify-end gap-2">
+                            <Link
+                              href={`/teams/${team.id}/edit`}
+                              className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </Link>
+                            <DeleteButton id={team.id} action={deleteTeam} />
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>
@@ -97,15 +136,17 @@ export default async function TeamsPage() {
                         </span>
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Link
-                        href={`/teams/${team.id}/edit`}
-                        className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
-                      >
-                        <Pencil className="w-4 h-4" />
-                      </Link>
-                      <DeleteButton id={team.id} action={deleteTeam} />
-                    </div>
+                    {userRole === "admin" && (
+                      <div className="flex gap-2">
+                        <Link
+                          href={`/teams/${team.id}/edit`}
+                          className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Link>
+                        <DeleteButton id={team.id} action={deleteTeam} />
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
@@ -133,15 +174,20 @@ export default async function TeamsPage() {
               <Trophy className="w-8 h-8 text-slate-400" />
             </div>
             <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
-              Noch keine Teams
+              {userRole === "coach" ? "Dir wurde noch kein Team zugewiesen" : "Noch keine Teams"}
             </h3>
             <p className="text-slate-600 dark:text-slate-400 mb-6">
-              Erstelle dein erstes Team, um loszulegen!
+              {userRole === "coach" 
+                ? "Bitte wende dich an einen Administrator, um einem Team zugewiesen zu werden."
+                : "Erstelle dein erstes Team, um loszulegen!"
+              }
             </p>
-            <Link href="/teams/new" className="btn btn-primary inline-flex">
-              <Plus className="w-5 h-5" />
-              Neues Team erstellen
-            </Link>
+            {canCreateTeam && (
+              <Link href="/teams/new" className="btn btn-primary inline-flex">
+                <Plus className="w-5 h-5" />
+                Neues Team erstellen
+              </Link>
+            )}
           </div>
         </div>
       )}

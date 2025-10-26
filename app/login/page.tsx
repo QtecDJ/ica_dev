@@ -1,9 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { LogIn, User, Lock, AlertCircle } from "lucide-react";
+import { LogIn, User, Lock, AlertCircle, Download, Smartphone } from "lucide-react";
+import Image from "next/image";
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,6 +17,49 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [showInstallButton, setShowInstallButton] = useState(false);
+
+  useEffect(() => {
+    // Listen for the beforeinstallprompt event
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+      setShowInstallButton(true);
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    // Check if already installed
+    if (window.matchMedia("(display-mode: standalone)").matches) {
+      setShowInstallButton(false);
+    }
+
+    return () => {
+      window.removeEventListener("beforeinstallprompt", handler);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) {
+      // Fallback for iOS - show instructions
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        alert(
+          'Um diese App zu installieren, tippe auf das Teilen-Symbol und wähle "Zum Home-Bildschirm"'
+        );
+        return;
+      }
+      return;
+    }
+
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    
+    if (outcome === "accepted") {
+      setDeferredPrompt(null);
+      setShowInstallButton(false);
+    }
+  };
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -42,8 +91,15 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-red-600 rounded-2xl shadow-lg mb-4">
-            <span className="text-4xl text-white font-bold">∞</span>
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white dark:bg-slate-800 rounded-2xl shadow-lg mb-4 p-2">
+            <Image
+              src="/logo.png"
+              alt="Infinity Cheer Allstars Logo"
+              width={80}
+              height={80}
+              className="object-contain"
+              priority
+            />
           </div>
           <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-1">
             Infinity Cheer Allstars
@@ -52,6 +108,19 @@ export default function LoginPage() {
             Backoffice Login
           </p>
         </div>
+
+        {/* PWA Install Button */}
+        {showInstallButton && (
+          <div className="mb-4">
+            <button
+              onClick={handleInstallClick}
+              className="w-full btn btn-secondary flex items-center justify-center gap-2"
+            >
+              <Download className="w-5 h-5" />
+              <span>App installieren</span>
+            </button>
+          </div>
+        )}
 
         {/* Login Card */}
         <div className="card">
