@@ -22,6 +22,11 @@ interface Member {
   team_name: string | null;
 }
 
+interface Team {
+  id: number;
+  name: string;
+}
+
 export default async function UsersManagementPage() {
   // Nur Admins dürfen diese Seite sehen
   await requireRole(["admin"]);
@@ -58,5 +63,10 @@ export default async function UsersManagementPage() {
     ORDER BY m.first_name, m.last_name
   ` as unknown as Member[];
 
-  return <UserManagementClient users={users} members={members} />;
+  // Hole alle Teams für Coach-Zuweisung
+  const teams = await sql`
+    SELECT id, name FROM teams ORDER BY name
+  ` as unknown as Team[];
+
+  return <UserManagementClient users={users} members={members} teams={teams} />;
 }

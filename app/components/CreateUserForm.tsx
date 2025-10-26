@@ -27,7 +27,12 @@ function generatePassword(length: number = 12): string {
   return password.split('').sort(() => Math.random() - 0.5).join('');
 }
 
-export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }) {
+interface Team {
+  id: number;
+  name: string;
+}
+
+export default function CreateUserForm({ onSuccess, teams = [] }: { onSuccess?: () => void; teams?: Team[] }) {
   const [formData, setFormData] = useState({
     username: "",
     name: "",
@@ -35,6 +40,7 @@ export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }
     password: "",
     role: "member" as "admin" | "coach" | "member" | "parent",
     createMemberProfile: true,
+    teamId: "" as string,
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -81,6 +87,7 @@ export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }
         password: "",
         role: "member",
         createMemberProfile: true,
+        teamId: "",
       });
       
       // Callback aufrufen falls vorhanden
@@ -242,6 +249,34 @@ export default function CreateUserForm({ onSuccess }: { onSuccess?: () => void }
           </select>
         </div>
       </div>
+
+      {formData.role === "coach" && teams.length > 0 && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Team zuweisen
+          </label>
+          <div className="relative">
+            <Shield className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <select
+              value={formData.teamId}
+              onChange={(e) =>
+                setFormData({ ...formData, teamId: e.target.value })
+              }
+              className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-all appearance-none bg-white"
+            >
+              <option value="">Kein Team</option>
+              {teams.map((team) => (
+                <option key={team.id} value={team.id}>
+                  {team.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Der Coach wird diesem Team zugewiesen und kann mit den Eltern der Team-Mitglieder kommunizieren
+          </p>
+        </div>
+      )}
 
       {(formData.role === "member" || formData.role === "coach") && (
         <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">

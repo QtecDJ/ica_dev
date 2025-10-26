@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
   try {
     const sql = neon(process.env.DATABASE_URL!);
-    const { username, name, password, role, email, createMemberProfile } = await request.json();
+    const { username, name, password, role, email, createMemberProfile, teamId } = await request.json();
 
     // Validate input
     if (!username || !name || !password || !role) {
@@ -86,6 +86,17 @@ export async function POST(request: Request) {
       VALUES (${username}, ${name}, ${hashedPassword}, ${role}, ${email || null}, ${memberId})
       RETURNING id, username, name, role, member_id
     `;
+
+    const userId = result[0].id;
+
+    // Wenn es ein Coach ist und ein Team ausgewählt wurde, weise den Coach dem Team zu
+    if (role === "coach" && teamId) {
+      await sql`
+        UPDATE teams
+        SET coach_id = ${userId}
+        WHERE id = ${parseInt(teamId)}
+      `;
+    }
 
     return NextResponse.json({
       message: "Benutzer erfolgreich erstellt",

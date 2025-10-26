@@ -25,12 +25,18 @@ interface Member {
   team_name: string | null;
 }
 
+interface Team {
+  id: number;
+  name: string;
+}
+
 interface Props {
   users: User[];
   members: Member[];
+  teams: Team[];
 }
 
-export default function UserManagementClient({ users, members }: Props) {
+export default function UserManagementClient({ users, members, teams }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -125,7 +131,7 @@ export default function UserManagementClient({ users, members }: Props) {
             </div>
           </div>
           <div className="card-body">
-            <CreateUserForm onSuccess={() => setShowCreateForm(false)} />
+            <CreateUserForm onSuccess={() => setShowCreateForm(false)} teams={teams} />
           </div>
         </div>
       )}
