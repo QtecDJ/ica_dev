@@ -10,16 +10,40 @@ export async function GET(request: Request) {
     let query;
     if (role === 'parent') {
       query = sql`
-        SELECT id, username, name, email, role, created_at
-        FROM users 
-        WHERE role = 'parent'
-        ORDER BY name;
+        SELECT 
+          u.id,
+          u.username,
+          u.email,
+          u.name,
+          u.role,
+          u.member_id,
+          u.created_at,
+          m.first_name,
+          m.last_name,
+          t.name as team_name
+        FROM users u
+        LEFT JOIN members m ON u.member_id = m.id
+        LEFT JOIN teams t ON m.team_id = t.id
+        WHERE u.role = 'parent'
+        ORDER BY u.name;
       `;
     } else {
       query = sql`
-        SELECT id, username, name, email, role, created_at
-        FROM users 
-        ORDER BY role, name;
+        SELECT 
+          u.id,
+          u.username,
+          u.email,
+          u.name,
+          u.role,
+          u.member_id,
+          u.created_at,
+          m.first_name,
+          m.last_name,
+          t.name as team_name
+        FROM users u
+        LEFT JOIN members m ON u.member_id = m.id
+        LEFT JOIN teams t ON m.team_id = t.id
+        ORDER BY u.created_at DESC;
       `;
     }
 

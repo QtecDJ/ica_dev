@@ -1,6 +1,9 @@
-import { requireRole } from "@/lib/auth-utils";
+"use client";
+
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import UserManagementImproved from "@/app/components/UserManagementImproved";
-import { neon } from "@neondatabase/serverless";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: number;
@@ -28,46 +31,80 @@ interface Team {
   coach_id: number | null;
 }
 
-export default async function UsersManagementPage() {
-  // Nur Admins dürfen diese Seite sehen
-  await requireRole(["admin"]);
+export default function UsersManagementPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [users, setUsers] = useState<User[]>([]);
+  const [members, setMembers] = useState<Member[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Hole alle Benutzer mit ihren verknüpften Mitgliedern
-  const sql = neon(process.env.DATABASE_URL!);
-  const users = await sql`
-    SELECT 
-      u.id,
-      u.username,
-      u.email,
-      u.name,
-      u.role,
-      u.member_id,
-      u.created_at,
-      m.first_name,
-      m.last_name,
-      t.name as team_name
-    FROM users u
-    LEFT JOIN members m ON u.member_id = m.id
-    LEFT JOIN teams t ON m.team_id = t.id
-    ORDER BY u.created_at DESC
-  ` as unknown as User[];
+  // Überprüfe Berechtigung
+  useEffect(() => {
+    if (status === "loading") return;
+    
+    if (!session || session.user.role !== "admin") {
+      router.push("/dashboard");
+      return;
+    }
+  }, [session, status, router]);
 
-  // Hole alle Mitglieder für die Verknüpfung
-  const members = await sql`
-    SELECT 
-      m.id,
-      m.first_name,
-      m.last_name,
-      t.name as team_name
-    FROM members m
-    LEFT JOIN teams t ON m.team_id = t.id
-    ORDER BY m.first_name, m.last_name
-  ` as unknown as Member[];
+  // Lade Daten
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      
+      // Lade Benutzer
+      const usersResponse = await fetch('/api/users');
+      const usersData = await usersResponse.json();
+      
+      // Lade Mitglieder
+      const membersResponse = await fetch('/api/members');
+      const membersData = await membersResponse.json();
+      
+      // Lade Teams
+      const teamsResponse = await fetch('/api/teams');
+      const teamsData = await teamsResponse.json();
+      
+      setUsers(usersData.users || []);
+      setMembers(membersData.members || []);
+      setTeams(teamsData.teams || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Hole alle Teams für Coach-Zuweisung
-  const teams = await sql`
-    SELECT id, name, coach_id FROM teams ORDER BY name
-  ` as unknown as Team[];
+  useEffect(() => {
+    if (session?.user.role === "admin") {
+      fetchData();
+    }
+  }, [session]);
 
-  return <UserManagementImproved users={users} members={members} teams={teams} />;
+  // Callback für Updates - lädt Daten neu
+  const handleUserUpdate = () => {
+    fetchData();
+  };
+
+  if (status === "loading" || loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600"></div>
+      </div>
+    );
+  }
+
+  if (!session || session.user.role !== "admin") {
+    return null;
+  }
+
+  return (
+    <UserManagementImproved 
+      users={users} 
+      members={members} 
+      teams={teams} 
+      onUserUpdate={handleUserUpdate}
+    />
+  );
 }

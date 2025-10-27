@@ -44,9 +44,10 @@ interface Props {
   teams: Team[];
   availableRoles: Record<string, RoleConfig>;
   onClose: () => void;
+  onUserUpdate?: () => void; // Callback für Updates
 }
 
-export default function EditUserModalImproved({ user, members, teams, availableRoles, onClose }: Props) {
+export default function EditUserModalImproved({ user, members, teams, availableRoles, onClose, onUserUpdate }: Props) {
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email || "",
@@ -110,11 +111,16 @@ export default function EditUserModalImproved({ user, members, teams, availableR
         setSuccess("Benutzer erfolgreich aktualisiert!");
       }
 
-      // Nach 2 Sekunden schließen und Seite neu laden (falls kein neues Passwort angezeigt wird)
+      // Rufe Callback auf, um Parent-Component zu aktualisieren
+      if (onUserUpdate) {
+        onUserUpdate();
+      }
+
+      // Nach 2 Sekunden schließen (falls kein neues Passwort angezeigt wird)
       setTimeout(() => {
         // wenn ein Passwort angezeigt wird, lasse das Modal offen, damit Admin es kopieren kann
         if (!result.newPassword) {
-          window.location.reload();
+          onClose();
         }
       }, 2000);
 

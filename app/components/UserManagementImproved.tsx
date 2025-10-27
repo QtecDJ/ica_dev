@@ -628,6 +628,7 @@ export default function UserManagementImproved({ users, members, teams, onUserUp
           teams={teams}
           availableRoles={AVAILABLE_ROLES}
           onClose={() => setEditingUser(null)}
+          onUserUpdate={onUserUpdate}
         />
       )}
     </div>
