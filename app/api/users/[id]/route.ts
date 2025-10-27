@@ -35,12 +35,16 @@ export async function PATCH(
     const data = await request.json();
 
     // Validierung
-    if (!data.name || !data.username || !data.role) {
+    if (!data.name || !data.username || (!data.role && (!data.roles || data.roles.length === 0))) {
       return NextResponse.json(
-        { error: "Name, Benutzername und Rolle sind erforderlich" },
+        { error: "Name, Benutzername und mindestens eine Rolle sind erforderlich" },
         { status: 400 }
       );
     }
+
+    // Verarbeite Rollen - unterstütze sowohl einzelne Rolle als auch Multi-Rollen
+    const roles = data.roles && Array.isArray(data.roles) ? data.roles : [data.role];
+    const primaryRole = roles[0]; // Erste Rolle wird als Hauptrolle verwendet
 
     // Prüfe ob username bereits existiert (außer bei aktuellem Benutzer)
     const existingUser = await sql`
@@ -67,7 +71,7 @@ export async function PATCH(
           name = ${data.name},
           username = ${data.username},
           email = ${data.email || null},
-          role = ${data.role},
+          role = ${primaryRole},
           member_id = ${data.member_id || null},
           password_hash = ${hashedPassword},
           updated_at = CURRENT_TIMESTAMP
@@ -82,7 +86,7 @@ export async function PATCH(
           name = ${data.name},
           username = ${data.username},
           email = ${data.email || null},
-          role = ${data.role},
+          role = ${primaryRole},
           member_id = ${data.member_id || null},
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ${userId}
@@ -100,7 +104,7 @@ export async function PATCH(
     }
 
     // Coach-Team-Zuweisung mit Multi-Coach-System aktualisieren
-    if (data.role === "coach") {
+    if (primaryRole === "coach") {
       try {
         // Entferne alle bestehenden Coach-Zuweisungen für diesen User
         await sql`
