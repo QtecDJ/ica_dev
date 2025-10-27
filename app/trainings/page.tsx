@@ -207,10 +207,10 @@ export default async function TrainingsPage() {
           {/* Mobile Cards */}
           <div className="md:hidden space-y-4">
             {trainings.map((training: any) => (
-              <Link key={training.id} href={`/trainings/${training.id}`} className="card-hover block">
+              <div key={training.id} className="card">
                 <div className="card-body">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3 flex-1">
+                    <Link href={`/trainings/${training.id}`} className="flex items-center gap-3 flex-1">
                       <div className="w-10 h-10 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 flex items-center justify-center flex-shrink-0">
                         <Dumbbell className="w-5 h-5" />
                       </div>
@@ -229,7 +229,18 @@ export default async function TrainingsPage() {
                           </p>
                         )}
                       </div>
-                    </div>
+                    </Link>
+                    {canManageTrainings && (
+                      <div className="flex gap-2 ml-3">
+                        <Link
+                          href={`/trainings/${training.id}/edit`}
+                          className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Link>
+                        <DeleteButton id={training.id} action={deleteTraining} />
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
@@ -258,7 +269,7 @@ export default async function TrainingsPage() {
                     </div>
                   </div>
                 </div>
-              </Link>
+              </div>
             ))}
           </div>
         </>
