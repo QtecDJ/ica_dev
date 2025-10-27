@@ -93,6 +93,18 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
       currentUserMemberId = userMember[0].member_id;
       currentUserAttendance = attendance.find((a: any) => a.member_id === currentUserMemberId);
     }
+  } else if (userRole === "coach") {
+    // Coaches können auch Mitglieder sein und ihre eigene Teilnahme verwalten
+    const coachMember = await sql`
+      SELECT member_id 
+      FROM users 
+      WHERE id = ${userId}
+    `;
+    
+    if (coachMember.length > 0 && coachMember[0].member_id) {
+      currentUserMemberId = coachMember[0].member_id;
+      currentUserAttendance = attendance.find((a: any) => a.member_id === currentUserMemberId);
+    }
   }
 
   const formatDate = (date: string) => {
@@ -218,8 +230,8 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
         </div>
       </div>
 
-      {/* Teilnahme-Buttons für Parents/Members */}
-      {(userRole === "parent" || userRole === "member") && currentUserMemberId && (
+      {/* Teilnahme-Buttons für Parents/Members/Coaches */}
+      {(userRole === "parent" || userRole === "member" || userRole === "coach") && currentUserMemberId && (
         <TrainingAttendanceButtons
           trainingId={trainingId}
           memberId={currentUserMemberId}
