@@ -41,11 +41,15 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
 
   // Zugriffskontrolle für Coaches - nur eigenes Team
   if (userRole === "coach") {
-    const coachTeam = await sql`
-      SELECT id FROM teams WHERE coach_id = ${userId}
+    const coachTeams = await sql`
+      SELECT DISTINCT t.id 
+      FROM teams t
+      JOIN team_coaches tc ON t.id = tc.team_id
+      WHERE tc.coach_id = ${userId}
     `;
     
-    if (coachTeam.length === 0 || training.team_id !== coachTeam[0].id) {
+    const hasAccess = coachTeams.some(team => team.id === training.team_id);
+    if (!hasAccess) {
       redirect("/trainings");
     }
   }

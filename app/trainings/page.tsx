@@ -23,18 +23,21 @@ export default async function TrainingsPage() {
     // Admins sehen alle Trainings
     trainings = await getTrainings();
   } else if (userRole === "coach") {
-    // Coaches sehen nur Trainings ihres eigenen Teams
-    const coachTeam = await sql`
-      SELECT id FROM teams WHERE coach_id = ${userId}
+    // Coaches sehen nur Trainings ihrer eigenen Teams
+    const coachTeams = await sql`
+      SELECT DISTINCT t.id 
+      FROM teams t
+      JOIN team_coaches tc ON t.id = tc.team_id
+      WHERE tc.coach_id = ${userId}
     `;
     
-    if (coachTeam.length > 0) {
-      userTeamId = coachTeam[0].id;
+    if (coachTeams.length > 0) {
+      const teamIds = coachTeams.map(team => team.id);
       trainings = await sql`
         SELECT t.*, teams.name as team_name
         FROM trainings t
         LEFT JOIN teams ON t.team_id = teams.id
-        WHERE t.team_id = ${userTeamId}
+        WHERE t.team_id = ANY(${teamIds})
         ORDER BY t.training_date DESC, t.start_time
       `;
     } else {
