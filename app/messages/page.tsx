@@ -18,7 +18,7 @@ export default async function MessagesPage() {
   if (userRole === "parent") {
     // Parent kann allen Coaches seiner Kinder-Teams schreiben
     availableCoaches = await sql`
-      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
+      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name, tc.is_primary
       FROM users u
       JOIN team_coaches tc ON u.id = tc.coach_id
       JOIN teams t ON tc.team_id = t.id
@@ -31,7 +31,7 @@ export default async function MessagesPage() {
   } else if (userRole === "member") {
     // Member kann allen Coaches seines Teams schreiben
     availableCoaches = await sql`
-      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
+      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name, tc.is_primary
       FROM members m
       JOIN teams t ON m.team_id = t.id
       JOIN team_coaches tc ON t.id = tc.team_id
