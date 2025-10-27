@@ -13,46 +13,71 @@ export default async function MessagesPage() {
   const userId = parseInt(session.user.id);
   const userRole = session.user.role;
 
-  // Hole verfügbare Coaches (für Parents und Members - nur eigener Team-Coach)
+  // Hole verfügbare Coaches (für Parents und Members - alle Coaches ihrer Teams)
   let availableCoaches: any[] = [];
   if (userRole === "parent") {
-    // Parent kann nur seinem Kind's Team-Coach schreiben
+    // Parent kann allen Coaches seiner Kinder-Teams schreiben
     availableCoaches = await sql`
       SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
       FROM users u
-      JOIN teams t ON t.coach_id = u.id
+      JOIN team_coaches tc ON u.id = tc.coach_id
+      JOIN teams t ON tc.team_id = t.id
       JOIN members m ON m.team_id = t.id
       JOIN parent_children pc ON pc.child_member_id = m.id
       WHERE pc.parent_user_id = ${userId}
         AND u.role IN ('coach', 'admin')
-      ORDER BY u.name ASC
+      ORDER BY tc.is_primary DESC, u.name ASC
     `;
   } else if (userRole === "member") {
-    // Member kann nur seinem eigenen Team-Coach schreiben
+    // Member kann allen Coaches seines Teams schreiben
     availableCoaches = await sql`
       SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
       FROM members m
       JOIN teams t ON m.team_id = t.id
-      JOIN users u ON t.coach_id = u.id
+      JOIN team_coaches tc ON t.id = tc.team_id
+      JOIN users u ON tc.coach_id = u.id
       WHERE m.user_id = ${userId}
         AND u.role IN ('coach', 'admin')
-      ORDER BY u.name ASC
+      ORDER BY tc.is_primary DESC, u.name ASC
     `;
   }
 
-  // Hole alle Parents (für Coaches/Admins - nur von eigenen Teams)
+  // Hole Admin-Kontakte (für alle Benutzer verfügbar)
+  const adminContacts = await sql`
+    SELECT id, name, email, 'admin' as contact_type
+    FROM users 
+    WHERE role = 'admin'
+    ORDER BY name
+  `;
+
+  // Kombiniere Coaches und Admins für verfügbare Kontakte
+  const allAvailableContacts = [...availableCoaches, ...adminContacts];
+
+  // Hole alle Parents (für Coaches/Admins - alle Parents der Teams, die sie betreuen)
   let availableParents: any[] = [];
   if (userRole === "coach" || userRole === "admin") {
-    availableParents = await sql`
-      SELECT DISTINCT u.id, u.name, u.email
-      FROM users u
-      JOIN parent_children pc ON pc.parent_user_id = u.id
-      JOIN members m ON pc.child_member_id = m.id
-      JOIN teams t ON m.team_id = t.id
-      WHERE t.coach_id = ${userId}
-        AND u.role = 'parent'
-      ORDER BY u.name ASC
-    `;
+    if (userRole === "admin") {
+      // Admins sehen alle Parents
+      availableParents = await sql`
+        SELECT DISTINCT u.id, u.name, u.email
+        FROM users u
+        WHERE u.role = 'parent'
+        ORDER BY u.name ASC
+      `;
+    } else {
+      // Coaches sehen nur Parents ihrer Teams
+      availableParents = await sql`
+        SELECT DISTINCT u.id, u.name, u.email
+        FROM users u
+        JOIN parent_children pc ON pc.parent_user_id = u.id
+        JOIN members m ON pc.child_member_id = m.id
+        JOIN teams t ON m.team_id = t.id
+        JOIN team_coaches tc ON t.id = tc.team_id
+        WHERE tc.coach_id = ${userId}
+          AND u.role = 'parent'
+        ORDER BY u.name ASC
+      `;
+    }
   }
 
   // Hole Konversationen
@@ -120,40 +145,16 @@ export default async function MessagesPage() {
             <MessageCircle className="w-8 h-8 text-blue-600 dark:text-blue-400" />
             Private Nachrichten
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            {userRole === "parent" 
-              ? "Schreibe direkt mit den Coaches" 
-              : "Kommuniziere privat mit Eltern"
-            }
+                    <p className="text-slate-600 dark:text-slate-400 mt-1">
+            Kommuniziere direkt mit deinen Coaches und der Administration
           </p>
-        </div>
-      </div>
-
-      {/* Info Banner */}
-      <div className="card bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
-        <div className="card-body">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center flex-shrink-0">
-              <MessageCircle className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-            </div>
-            <div className="flex-1">
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                🔒 Private & Sichere Kommunikation
-              </h3>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                Alle Nachrichten sind privat und können nur von dir und deinem Gesprächspartner gelesen werden. 
-                {userRole === "parent" && " Nutze diesen Bereich um direkt mit den Coaches zu kommunizieren."}
-                {(userRole === "coach" || userRole === "admin") && " Hier kannst du auf Fragen von Eltern antworten."}
-              </p>
-            </div>
-          </div>
         </div>
       </div>
 
       {/* Messages Client Component */}
       <MessagesClient
         initialConversations={conversations}
-        availableCoaches={availableCoaches}
+        availableCoaches={allAvailableContacts}
         availableParents={availableParents}
         userRole={userRole}
         userId={userId}

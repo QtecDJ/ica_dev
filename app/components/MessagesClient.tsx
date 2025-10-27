@@ -32,6 +32,7 @@ interface Coach {
   name: string;
   email: string;
   team_name?: string;
+  contact_type?: string;
 }
 
 interface MessagesClientProps {
@@ -311,7 +312,7 @@ export default function MessagesClient({
                 className="w-full btn-primary flex items-center justify-center gap-2 py-3"
               >
                 <Send className="w-5 h-5" />
-                <span className="font-semibold">Coach eine Nachricht schreiben</span>
+                <span className="font-semibold">Nachricht schreiben</span>
               </button>
               {availableCoaches.length === 1 && (
                 <p className="text-xs text-center text-slate-500 dark:text-slate-400 mt-2">
@@ -396,18 +397,18 @@ export default function MessagesClient({
                   <ArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
-                  <h2 className="text-lg font-semibold">Nachricht an Coach</h2>
+                  <h2 className="text-lg font-semibold">Nachricht schreiben</h2>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Stelle eine Frage oder teile Informationen
+                    Wähle einen Empfänger und stelle deine Frage
                   </p>
                 </div>
               </div>
             </div>
             <form onSubmit={sendNewMessage} className="card-body space-y-4">
-              {availableCoaches.length > 1 ? (
+              <div className="grid grid-cols-1 gap-4">
                 <div>
                   <label className="label">
-                    Coach auswählen * 
+                    An wen möchtest du schreiben? *
                     <span className="text-xs font-normal text-slate-500 ml-2">
                       ({availableCoaches.length} verfügbar)
                     </span>
@@ -419,30 +420,38 @@ export default function MessagesClient({
                     required
                   >
                     <option value="">Bitte wählen...</option>
-                    {availableCoaches.map((coach) => (
-                      <option key={coach.id} value={coach.id}>
-                        {coach.name} {coach.team_name && `(${coach.team_name})`}
-                      </option>
-                    ))}
+                    
+                    {/* Coaches gruppiert anzeigen */}
+                    {availableCoaches.filter(coach => coach.contact_type !== 'admin').length > 0 && (
+                      <optgroup label="🏋️ Team-Coaches">
+                        {availableCoaches
+                          .filter(coach => coach.contact_type !== 'admin')
+                          .map((coach) => (
+                            <option key={coach.id} value={coach.id}>
+                              {coach.name} {coach.team_name && `(${coach.team_name})`}
+                            </option>
+                          ))}
+                      </optgroup>
+                    )}
+                    
+                    {/* Admins gruppiert anzeigen */}
+                    {availableCoaches.filter(coach => coach.contact_type === 'admin').length > 0 && (
+                      <optgroup label="👨‍💼 Administration">
+                        {availableCoaches
+                          .filter(coach => coach.contact_type === 'admin')
+                          .map((coach) => (
+                            <option key={coach.id} value={coach.id}>
+                              {coach.name} (Administrator)
+                            </option>
+                          ))}
+                      </optgroup>
+                    )}
                   </select>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Du kannst alle Coaches deines Teams und die Administration kontaktieren
+                  </p>
                 </div>
-              ) : availableCoaches.length === 1 ? (
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                      {getInitials(availableCoaches[0].name)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-                        {availableCoaches[0].name}
-                      </p>
-                      <p className="text-xs text-blue-700 dark:text-blue-300">
-                        🏋️ Dein Coach {availableCoaches[0].team_name && `• ${availableCoaches[0].team_name}`}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ) : null}
+              </div>
 
               <div>
                 <label className="label">
@@ -528,7 +537,7 @@ export default function MessagesClient({
                     {conversations.find((c) => c.partner_id === selectedPartnerId)
                       ?.partner_role === "coach" && "🏋️ Coach"}
                     {conversations.find((c) => c.partner_id === selectedPartnerId)
-                      ?.partner_role === "admin" && "👨‍💼 Admin"}
+                      ?.partner_role === "admin" && "👨‍💼 Administrator"}
                     {conversations.find((c) => c.partner_id === selectedPartnerId)
                       ?.partner_role === "parent" && "👨‍👩‍👧‍👦 Eltern"}
                   </p>

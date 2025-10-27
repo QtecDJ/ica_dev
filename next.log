@@ -1,0 +1,809 @@
+nohup: Eingabe wird ignoriert
+  ▲ Next.js 14.2.5
+  - Local:        http://localhost:3000
+  - Environments: .env.local
+
+ ✓ Starting...
+> [PWA] PWA support is disabled
+> [PWA] PWA support is disabled
+ ✓ Ready in 7.9s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 1217ms (172 modules)
+ ○ Compiling / ...
+ ✓ Compiled / in 17.2s (987 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ✓ Compiled in 2s (347 modules)
+ GET / 200 in 19987ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1200ms (659 modules)
+ ✓ Compiled (661 modules)
+ GET /api/dashboard-content 200 in 2698ms
+ GET /api/dashboard-content 200 in 2721ms
+ GET /api/auth/session 200 in 4407ms
+ GET /api/auth/session 200 in 4394ms
+ ○ Compiling /api/messages/unread-count ...
+ ✓ Compiled /api/messages/unread-count in 731ms (664 modules)
+ GET /api/dashboard-content 200 in 1910ms
+ GET /api/messages/unread-count 200 in 1944ms
+ GET /api/dashboard-content 200 in 1951ms
+ GET /api/messages/unread-count 200 in 1958ms
+ GET /api/messages/unread-count 200 in 1970ms
+ GET /api/messages/unread-count 200 in 1977ms
+ ○ Compiling /administration ...
+ ✓ Compiled /administration in 2s (1008 modules)
+ GET /api/messages/unread-count 200 in 2081ms
+ GET /api/messages/unread-count 200 in 2091ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration?_rsc=m8wvp 200 in 101ms
+ ○ Compiling /administration/users ...
+ ✓ Compiled /administration/users in 1425ms (1041 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=ts9f9 200 in 814ms
+ GET /api/messages/unread-count 200 in 111ms
+ GET /api/messages/unread-count 200 in 154ms
+ ○ Compiling /api/users/generate-credentials-pdf ...
+ ✓ Compiled /api/users/generate-credentials-pdf in 3.2s (890 modules)
+ POST /api/users/generate-credentials-pdf 200 in 3883ms
+ GET /api/messages/unread-count 200 in 417ms
+ GET /api/messages/unread-count 200 in 375ms
+ GET /api/messages/unread-count 200 in 340ms
+ GET /api/messages/unread-count 200 in 157ms
+ GET /api/messages/unread-count 200 in 265ms
+ GET /api/messages/unread-count 200 in 90ms
+ GET /api/messages/unread-count 200 in 321ms
+ GET /api/messages/unread-count 200 in 132ms
+ GET /api/messages/unread-count 200 in 360ms
+ GET /api/messages/unread-count 200 in 284ms
+ GET /api/messages/unread-count 200 in 304ms
+ GET /api/messages/unread-count 200 in 154ms
+ GET /api/auth/session 200 in 138ms
+ GET /api/messages/unread-count 200 in 657ms
+ POST /api/users/generate-credentials-pdf 200 in 697ms
+ GET /api/messages/unread-count 200 in 703ms
+ GET /api/auth/session 200 in 111ms
+ GET /api/messages/unread-count 200 in 315ms
+ GET /api/messages/unread-count 200 in 159ms
+ GET /api/messages/unread-count 200 in 309ms
+ GET /api/messages/unread-count 200 in 123ms
+ GET /api/messages/unread-count 200 in 355ms
+ GET /api/messages/unread-count 200 in 161ms
+ GET /api/messages/unread-count 200 in 377ms
+ GET /api/messages/unread-count 200 in 127ms
+ GET /api/messages/unread-count 200 in 305ms
+ GET /api/messages/unread-count 200 in 162ms
+ GET /api/messages/unread-count 200 in 369ms
+ GET /api/messages/unread-count 200 in 95ms
+ ○ Compiling /api/users/create ...
+ ✓ Compiled /api/users/create in 1830ms (692 modules)
+ GET /api/messages/unread-count 200 in 2503ms
+ GET /api/messages/unread-count 200 in 2283ms
+ POST /api/users/create 200 in 3327ms
+ GET /api/messages/unread-count 200 in 456ms
+ GET /api/messages/unread-count 200 in 67ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users 200 in 1025ms
+ GET /api/auth/session 200 in 113ms
+ GET /api/auth/session 200 in 129ms
+ GET /api/messages/unread-count 200 in 368ms
+ GET /api/messages/unread-count 200 in 335ms
+ GET /api/messages/unread-count 200 in 370ms
+ GET /api/messages/unread-count 200 in 498ms
+ ✓ Compiled /api/users/generate-credentials-pdf in 309ms (890 modules)
+ POST /api/users/generate-credentials-pdf 200 in 737ms
+ GET /api/messages/unread-count 200 in 377ms
+ GET /api/messages/unread-count 200 in 128ms
+ GET /api/messages/unread-count 200 in 343ms
+ GET /api/messages/unread-count 200 in 156ms
+ GET /api/messages/unread-count 200 in 360ms
+ GET /api/messages/unread-count 200 in 181ms
+ GET /api/messages/unread-count 200 in 298ms
+ GET /api/messages/unread-count 200 in 123ms
+ GET /api/messages/unread-count 200 in 341ms
+ GET /api/messages/unread-count 200 in 167ms
+ GET /api/messages/unread-count 200 in 286ms
+ GET /api/messages/unread-count 200 in 369ms
+ GET /api/messages/unread-count 200 in 336ms
+ GET /api/messages/unread-count 200 in 158ms
+ GET /api/messages/unread-count 200 in 382ms
+ GET /api/messages/unread-count 200 in 92ms
+ GET /api/messages/unread-count 200 in 157ms
+ GET /api/messages/unread-count 200 in 141ms
+ GET /api/messages/unread-count 200 in 147ms
+ GET /api/messages/unread-count 200 in 68ms
+ GET /api/messages/unread-count 200 in 152ms
+ GET /api/messages/unread-count 200 in 91ms
+ GET /api/messages/unread-count 200 in 129ms
+ GET /api/messages/unread-count 200 in 175ms
+ ✓ Compiled in 7.1s (1051 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /api/messages/unread-count 200 in 2352ms
+ GET /api/messages/unread-count 200 in 1373ms
+ GET /administration/users?_rsc=4scvl 200 in 682ms
+ GET /api/messages/unread-count 200 in 114ms
+ GET /api/messages/unread-count 200 in 147ms
+ GET /api/messages/unread-count 200 in 231ms
+ GET /api/messages/unread-count 200 in 80ms
+ GET /api/messages/unread-count 200 in 230ms
+ GET /api/messages/unread-count 200 in 115ms
+ ✓ Compiled in 3.2s (363 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 402ms
+ GET /api/messages/unread-count 200 in 89ms
+ GET /api/messages/unread-count 200 in 118ms
+ GET /api/messages/unread-count 200 in 494ms
+ GET /api/messages/unread-count 200 in 185ms
+ ✓ Compiled in 2.9s (363 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /api/messages/unread-count 200 in 386ms
+ GET /api/messages/unread-count 200 in 401ms
+ GET /administration/users?_rsc=4scvl 200 in 2270ms
+ GET /api/messages/unread-count 200 in 1365ms
+ GET /api/messages/unread-count 200 in 362ms
+ GET /api/messages/unread-count 200 in 482ms
+ GET /api/messages/unread-count 200 in 116ms
+ GET /api/messages/unread-count 200 in 311ms
+ GET /api/messages/unread-count 200 in 214ms
+ ✓ Compiled in 2.5s (363 modules)
+ GET /api/messages/unread-count 200 in 414ms
+ GET /api/messages/unread-count 200 in 185ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 1090ms (690 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /api/auth/session 200 in 2429ms
+ GET /administration/users?_rsc=4scvl 200 in 2606ms
+ GET /api/messages/unread-count 200 in 316ms
+ ✓ Compiled in 1994ms (363 modules)
+ GET /api/messages/unread-count 200 in 160ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 330ms
+ GET /api/messages/unread-count 200 in 263ms
+ GET /api/messages/unread-count 200 in 74ms
+ GET /api/messages/unread-count 200 in 138ms
+ GET /api/messages/unread-count 200 in 60ms
+ GET /api/messages/unread-count 200 in 276ms
+ GET /api/messages/unread-count 200 in 113ms
+ GET /api/messages/unread-count 200 in 310ms
+ GET /api/messages/unread-count 200 in 65ms
+ GET /api/messages/unread-count 200 in 340ms
+ GET /api/messages/unread-count 200 in 78ms
+ GET /api/messages/unread-count 200 in 377ms
+ GET /api/messages/unread-count 200 in 114ms
+ GET /api/messages/unread-count 200 in 312ms
+ GET /api/messages/unread-count 200 in 149ms
+ GET /api/messages/unread-count 200 in 345ms
+ GET /api/messages/unread-count 200 in 181ms
+ GET /api/messages/unread-count 200 in 374ms
+ GET /api/messages/unread-count 200 in 113ms
+ GET /api/messages/unread-count 200 in 310ms
+ GET /api/messages/unread-count 200 in 149ms
+ GET /api/messages/unread-count 200 in 348ms
+ GET /api/messages/unread-count 200 in 81ms
+ GET /api/messages/unread-count 200 in 383ms
+ GET /api/messages/unread-count 200 in 119ms
+ GET /api/messages/unread-count 200 in 410ms
+ GET /api/messages/unread-count 200 in 136ms
+ GET /api/messages/unread-count 200 in 166ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 5.6s (1053 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /login?callbackUrl=%2F 200 in 6576ms
+ GET /api/messages/unread-count 200 in 5720ms
+ GET /api/messages/unread-count 200 in 359ms
+ GET /api/messages/unread-count 200 in 160ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 567ms (699 modules)
+ GET /api/auth/session 200 in 1056ms
+ GET /api/auth/session 200 in 84ms
+ GET /api/messages/unread-count 200 in 310ms
+ GET /api/messages/unread-count 200 in 133ms
+ GET /api/messages/unread-count 200 in 344ms
+ GET /api/messages/unread-count 200 in 79ms
+ GET /api/messages/unread-count 200 in 276ms
+ GET /api/messages/unread-count 200 in 112ms
+ GET /api/messages/unread-count 200 in 263ms
+ GET /api/messages/unread-count 200 in 147ms
+ GET /api/messages/unread-count 200 in 348ms
+ GET /api/messages/unread-count 200 in 180ms
+ GET /api/messages/unread-count 200 in 378ms
+ GET /api/messages/unread-count 200 in 110ms
+ GET /api/messages/unread-count 200 in 412ms
+ GET /api/messages/unread-count 200 in 143ms
+ GET /api/messages/unread-count 200 in 341ms
+ GET /api/messages/unread-count 200 in 182ms
+ GET /api/messages/unread-count 200 in 380ms
+ GET /api/messages/unread-count 200 in 113ms
+ GET /api/messages/unread-count 200 in 308ms
+ GET /api/messages/unread-count 200 in 145ms
+ GET /api/messages/unread-count 200 in 444ms
+ GET /api/messages/unread-count 200 in 179ms
+ GET /api/messages/unread-count 200 in 580ms
+ GET /api/messages/unread-count 200 in 112ms
+ GET /api/messages/unread-count 200 in 514ms
+ GET /api/messages/unread-count 200 in 143ms
+ GET /api/messages/unread-count 200 in 341ms
+ GET /api/messages/unread-count 200 in 182ms
+ GET /api/messages/unread-count 200 in 376ms
+ GET /api/messages/unread-count 200 in 112ms
+ GET /api/messages/unread-count 200 in 309ms
+ GET /api/messages/unread-count 200 in 148ms
+ GET /api/messages/unread-count 200 in 347ms
+ GET /api/messages/unread-count 200 in 179ms
+ GET /api/messages/unread-count 200 in 381ms
+ GET /api/messages/unread-count 200 in 115ms
+ GET /api/messages/unread-count 200 in 316ms
+ GET /api/messages/unread-count 200 in 146ms
+ GET /api/messages/unread-count 200 in 347ms
+ GET /api/messages/unread-count 200 in 85ms
+ GET /api/messages/unread-count 200 in 381ms
+ GET /api/messages/unread-count 200 in 118ms
+ GET /api/messages/unread-count 200 in 312ms
+ GET /api/messages/unread-count 200 in 150ms
+ GET /api/messages/unread-count 200 in 349ms
+ GET /api/messages/unread-count 200 in 85ms
+ GET /api/messages/unread-count 200 in 375ms
+ GET /api/messages/unread-count 200 in 113ms
+ GET /api/messages/unread-count 200 in 315ms
+ GET /api/messages/unread-count 200 in 144ms
+ GET /api/messages/unread-count 200 in 350ms
+ GET /api/messages/unread-count 200 in 189ms
+ GET /api/messages/unread-count 200 in 388ms
+ GET /api/messages/unread-count 200 in 117ms
+ GET /api/messages/unread-count 200 in 315ms
+ GET /api/messages/unread-count 200 in 151ms
+ GET /api/messages/unread-count 200 in 351ms
+ GET /api/messages/unread-count 200 in 85ms
+ GET /api/messages/unread-count 200 in 487ms
+ GET /api/messages/unread-count 200 in 113ms
+ GET /api/messages/unread-count 200 in 323ms
+ GET /api/messages/unread-count 200 in 157ms
+ GET /api/messages/unread-count 200 in 355ms
+ GET /api/auth/csrf 200 in 88ms
+ POST /api/auth/signout 200 in 45ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /login 200 in 317ms
+ GET /api/auth/session 200 in 97ms
+ GET /api/auth/session 200 in 115ms
+ GET /api/auth/providers 200 in 103ms
+ GET /api/auth/csrf 200 in 53ms
+ POST /api/auth/callback/credentials 200 in 516ms
+ GET /api/auth/session 200 in 31ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /?_rsc=r3yhw 200 in 784ms
+ GET /api/messages/unread-count 200 in 207ms
+ ○ Compiling /api/dashboard-content ...
+ ✓ Compiled /api/dashboard-content in 2.4s (701 modules)
+ GET /api/messages/unread-count 200 in 3457ms
+ GET /api/messages/unread-count 200 in 3426ms
+ GET /api/dashboard-content 200 in 3571ms
+ GET /api/dashboard-content 200 in 3623ms
+ GET /api/messages/unread-count 200 in 3668ms
+ GET /api/messages/unread-count 200 in 287ms
+ GET /api/messages/unread-count 200 in 285ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration?_rsc=m8wvp 200 in 82ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=ts9f9 200 in 526ms
+ ○ Compiling /api/users/generate-credentials-pdf ...
+ ✓ Compiled /api/users/generate-credentials-pdf in 1374ms (899 modules)
+ ✓ Compiled in 1ms (899 modules)
+ ✓ Compiled in 0ms (899 modules)
+ ✓ Compiled in 1ms (899 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /api/messages/unread-count 200 in 3562ms
+ GET /api/messages/unread-count 200 in 3569ms
+ POST /api/users/generate-credentials-pdf 200 in 4092ms
+ GET /administration/users?_rsc=5wrd7 200 in 2784ms
+ GET /api/messages/unread-count 200 in 307ms
+ GET /api/messages/unread-count 200 in 315ms
+ GET /api/messages/unread-count 200 in 200ms
+ GET /api/messages/unread-count 200 in 260ms
+ GET /api/messages/unread-count 200 in 247ms
+ GET /api/messages/unread-count 200 in 151ms
+ GET /api/messages/unread-count 200 in 338ms
+ GET /api/messages/unread-count 200 in 301ms
+ GET /api/auth/session 200 in 258ms
+ GET /api/messages/unread-count 200 in 309ms
+ GET /api/messages/unread-count 200 in 91ms
+ GET /api/messages/unread-count 200 in 353ms
+ GET /api/messages/unread-count 200 in 125ms
+ ○ Compiling /api/users/[id]/update ...
+ ✓ Compiled /api/users/[id]/update in 2.1s (701 modules)
+Fehler beim Aktualisieren des Benutzers: NeonDbError: syntax error at or near "$5"
+    at execute (webpack-internal:///(rsc)/./node_modules/@neondatabase/serverless/index.mjs:1566:56)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async PUT (webpack-internal:///(rsc)/./app/api/users/[id]/update/route.ts:98:24)
+    at async /home/kai/gutclone/ica_dev/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:55038
+    at async ek.execute (/home/kai/gutclone/ica_dev/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:45808)
+    at async ek.handle (/home/kai/gutclone/ica_dev/node_modules/next/dist/compiled/next-server/app-route.runtime.dev.js:6:56292)
+    at async doRender (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/base-server.js:1377:42)
+    at async cacheEntry.responseCache.get.routeKind (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/base-server.js:1587:40)
+    at async DevServer.renderToResponseWithComponentsImpl (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/base-server.js:1507:28)
+    at async DevServer.renderPageComponent (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/base-server.js:1931:24)
+    at async DevServer.renderToResponseImpl (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/base-server.js:1969:32)
+    at async DevServer.pipeImpl (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/base-server.js:920:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/next-server.js:272:17)
+    at async DevServer.handleRequestImpl (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/base-server.js:816:17)
+    at async /home/kai/gutclone/ica_dev/node_modules/next/dist/server/dev/next-dev-server.js:339:20
+    at async Span.traceAsyncFn (/home/kai/gutclone/ica_dev/node_modules/next/dist/trace/trace.js:154:20)
+    at async DevServer.handleRequest (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/dev/next-dev-server.js:336:24)
+    at async invokeRender (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/lib/router-server.js:174:21)
+    at async handleRequest (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/lib/router-server.js:353:24)
+    at async requestHandlerImpl (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/lib/router-server.js:377:13)
+    at async Server.requestListener (/home/kai/gutclone/ica_dev/node_modules/next/dist/server/lib/start-server.js:141:13) {
+  severity: 'ERROR',
+  code: '42601',
+  detail: undefined,
+  hint: undefined,
+  position: '162',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'scan.l',
+  line: '1244',
+  routine: 'scanner_yyerror',
+  sourceError: undefined
+}
+ PUT /api/users/102/update 500 in 4597ms
+ GET /api/messages/unread-count 200 in 165ms
+ GET /api/messages/unread-count 200 in 166ms
+ GET /api/messages/unread-count 200 in 314ms
+ GET /api/messages/unread-count 200 in 91ms
+ GET /api/messages/unread-count 200 in 349ms
+ GET /api/messages/unread-count 200 in 120ms
+ GET /api/messages/unread-count 200 in 289ms
+ GET /api/messages/unread-count 200 in 155ms
+ GET /api/messages/unread-count 200 in 303ms
+ GET /api/messages/unread-count 200 in 152ms
+ ✓ Compiled /api/users/create in 413ms (701 modules)
+ POST /api/users/create 200 in 1331ms
+ ○ Compiling /api/users/generate-credentials-pdf ...
+ ✓ Compiled /api/users/generate-credentials-pdf in 678ms (899 modules)
+ POST /api/users/generate-credentials-pdf 200 in 1093ms
+ GET /api/messages/unread-count 200 in 259ms
+ GET /api/messages/unread-count 200 in 112ms
+ GET /api/messages/unread-count 200 in 335ms
+ GET /api/messages/unread-count 200 in 71ms
+ ✓ Compiled /api/auth/[...nextauth] in 350ms (899 modules)
+ GET /api/auth/session 200 in 562ms
+ ○ Compiling /api/dashboard-content ...
+ ✓ Compiled /api/dashboard-content in 1188ms (901 modules)
+ GET /api/dashboard-content 200 in 1870ms
+ GET /api/dashboard-content 200 in 1796ms
+ GET /api/messages/unread-count 200 in 170ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration?_rsc=44tpo 200 in 150ms
+ GET /api/messages/unread-count 200 in 312ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=83jfy 200 in 344ms
+ POST /api/users/generate-credentials-pdf 200 in 452ms
+ GET /api/messages/unread-count 200 in 77ms
+ GET /api/messages/unread-count 200 in 252ms
+ GET /api/auth/session 200 in 106ms
+ GET /api/messages/unread-count 200 in 393ms
+ GET /api/messages/unread-count 200 in 180ms
+ GET /api/messages/unread-count 200 in 354ms
+ GET /api/messages/unread-count 200 in 196ms
+ GET /api/messages/unread-count 200 in 313ms
+ GET /api/messages/unread-count 200 in 138ms
+ GET /api/messages/unread-count 200 in 345ms
+ GET /api/messages/unread-count 200 in 168ms
+ GET /api/messages/unread-count 200 in 269ms
+ GET /api/messages/unread-count 200 in 107ms
+ GET /api/messages/unread-count 200 in 371ms
+ GET /api/messages/unread-count 200 in 140ms
+ GET /api/messages/unread-count 200 in 301ms
+ GET /api/messages/unread-count 200 in 73ms
+ GET /api/messages/unread-count 200 in 235ms
+ GET /api/messages/unread-count 200 in 101ms
+ GET /api/messages/unread-count 200 in 371ms
+ GET /api/messages/unread-count 200 in 66ms
+ GET /api/messages/unread-count 200 in 303ms
+ GET /api/messages/unread-count 200 in 173ms
+ GET /api/messages/unread-count 200 in 142ms
+ GET /api/messages/unread-count 200 in 61ms
+ GET /api/messages/unread-count 200 in 134ms
+ GET /api/messages/unread-count 200 in 71ms
+ GET /api/messages/unread-count 200 in 300ms
+ GET /api/messages/unread-count 200 in 67ms
+ GET /api/messages/unread-count 200 in 164ms
+ GET /api/messages/unread-count 200 in 113ms
+ ✓ Compiled in 8.9s (1067 modules)
+ ✓ Compiled in 1ms (697 modules)
+ ⚠ Fast Refresh had to perform a full reload due to a runtime error.
+ GET /api/messages/unread-count 200 in 3418ms
+ ✓ Compiled in 10ms (697 modules)
+ ✓ Compiled in 1ms (697 modules)
+ ✓ Compiled in 14ms (697 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⨯ app/components/UserManagementImproved.tsx (421:24) @ RotateCcw
+ ⨯ ReferenceError: RotateCcw is not defined
+    at eval (./app/components/UserManagementImproved.tsx:757:135)
+    at Array.map (<anonymous>)
+    at UserManagementImproved (./app/components/UserManagementImproved.tsx:586:42)
+digest: "3117518940"
+[0m [90m 419 |[39m                       title[33m=[39m[32m"Passwort zurücksetzen"[39m[0m
+[0m [90m 420 |[39m                     [33m>[39m[0m
+[0m[31m[1m>[22m[39m[90m 421 |[39m                       [33m<[39m[33mRotateCcw[39m className[33m=[39m[32m"w-4 h-4"[39m [33m/[39m[33m>[39m[0m
+[0m [90m     |[39m                        [31m[1m^[22m[39m[0m
+[0m [90m 422 |[39m                     [33m<[39m[33m/[39m[33mbutton[39m[33m>[39m[0m
+[0m [90m 423 |[39m                     [33m<[39m[33mbutton[39m[0m
+[0m [90m 424 |[39m                       onClick[33m=[39m{() [33m=>[39m setEditingUser(user)}[0m
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users 500 in 12062ms
+ ✓ Compiled in 15.2s (1071 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users 200 in 2852ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 4.1s (674 modules)
+ GET /api/auth/session 200 in 5158ms
+ GET /api/auth/session 200 in 5171ms
+ ○ Compiling /api/messages/unread-count ...
+ ✓ Compiled /api/messages/unread-count in 2.4s (701 modules)
+ GET /api/messages/unread-count 200 in 3616ms
+ GET /api/messages/unread-count 200 in 3653ms
+ GET /api/messages/unread-count 200 in 4153ms
+ GET /api/messages/unread-count 200 in 3678ms
+ GET /api/messages/unread-count 200 in 1072ms
+ GET /api/messages/unread-count 200 in 1120ms
+ GET /api/messages/unread-count 200 in 1373ms
+ GET /api/messages/unread-count 200 in 1099ms
+ GET /api/messages/unread-count 200 in 4052ms
+ GET /api/messages/unread-count 200 in 1807ms
+ GET /api/messages/unread-count 200 in 330ms
+ GET /api/messages/unread-count 200 in 764ms
+ GET /api/messages/unread-count 200 in 153ms
+ GET /api/messages/unread-count 200 in 80ms
+ GET /api/messages/unread-count 200 in 367ms
+ GET /api/messages/unread-count 200 in 145ms
+ ✓ Compiled in 6.6s (1071 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /api/messages/unread-count 200 in 1097ms
+ GET /api/messages/unread-count 200 in 1108ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 294ms
+ GET /api/messages/unread-count 200 in 286ms
+ GET /api/messages/unread-count 200 in 309ms
+ ✓ Compiled in 2.6s (372 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /api/messages/unread-count 200 in 469ms
+ GET /api/messages/unread-count 200 in 479ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 771ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 331ms
+ GET /api/messages/unread-count 200 in 877ms
+ GET /api/messages/unread-count 200 in 1323ms
+ GET /api/messages/unread-count 200 in 148ms
+ GET /api/messages/unread-count 200 in 67ms
+ GET /api/messages/unread-count 200 in 373ms
+ GET /api/messages/unread-count 200 in 117ms
+ GET /api/messages/unread-count 200 in 378ms
+ GET /api/messages/unread-count 200 in 154ms
+ GET /api/messages/unread-count 200 in 359ms
+ GET /api/messages/unread-count 200 in 337ms
+ GET /api/messages/unread-count 200 in 345ms
+ GET /api/messages/unread-count 200 in 189ms
+ GET /api/messages/unread-count 200 in 320ms
+ GET /api/messages/unread-count 200 in 122ms
+ GET /api/messages/unread-count 200 in 356ms
+ GET /api/messages/unread-count 200 in 158ms
+ GET /api/messages/unread-count 200 in 404ms
+ GET /api/messages/unread-count 200 in 85ms
+ GET /api/messages/unread-count 200 in 218ms
+ GET /api/messages/unread-count 200 in 126ms
+ GET /api/messages/unread-count 200 in 355ms
+ GET /api/messages/unread-count 200 in 162ms
+ GET /api/messages/unread-count 200 in 194ms
+ GET /api/messages/unread-count 200 in 169ms
+ ✓ Compiled in 3.3s (372 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 519ms
+ GET /api/messages/unread-count 200 in 648ms
+ GET /api/messages/unread-count 200 in 558ms
+ GET /api/messages/unread-count 200 in 1104ms
+ GET /api/messages/unread-count 200 in 1332ms
+ GET /api/messages/unread-count 200 in 975ms
+ GET /api/messages/unread-count 200 in 1317ms
+ GET /api/messages/unread-count 200 in 2404ms
+ GET /api/messages/unread-count 200 in 2483ms
+ GET /api/messages/unread-count 200 in 323ms
+ GET /api/messages/unread-count 200 in 156ms
+ GET /api/messages/unread-count 200 in 336ms
+ GET /api/messages/unread-count 200 in 90ms
+ GET /api/messages/unread-count 200 in 380ms
+ GET /api/messages/unread-count 200 in 93ms
+ GET /api/messages/unread-count 200 in 366ms
+ GET /api/messages/unread-count 200 in 136ms
+ GET /api/messages/unread-count 200 in 368ms
+ GET /api/messages/unread-count 200 in 162ms
+ GET /api/messages/unread-count 200 in 404ms
+ GET /api/messages/unread-count 200 in 64ms
+ GET /api/messages/unread-count 200 in 336ms
+ GET /api/messages/unread-count 200 in 137ms
+ GET /api/messages/unread-count 200 in 368ms
+ GET /api/messages/unread-count 200 in 169ms
+ GET /api/messages/unread-count 200 in 302ms
+ GET /api/messages/unread-count 200 in 104ms
+ GET /api/messages/unread-count 200 in 390ms
+ GET /api/messages/unread-count 200 in 128ms
+ GET /api/messages/unread-count 200 in 400ms
+ GET /api/messages/unread-count 200 in 72ms
+ ○ Compiling /api/users/[id]/reset-password ...
+ ✓ Compiled /api/users/[id]/reset-password in 1359ms (701 modules)
+ GET /api/messages/unread-count 200 in 367ms
+ POST /api/users/103/reset-password 200 in 4084ms
+ GET /api/messages/unread-count 200 in 171ms
+ ○ Compiling /api/users/generate-credentials-pdf ...
+ ✓ Compiled /api/users/generate-credentials-pdf in 1716ms (899 modules)
+ POST /api/users/generate-credentials-pdf 200 in 2486ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 604ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 895ms (674 modules)
+ GET /api/auth/session 200 in 1375ms
+ ○ Compiling /api/messages/unread-count ...
+ ✓ Compiled /api/messages/unread-count in 608ms (701 modules)
+ GET /api/messages/unread-count 200 in 1134ms
+ GET /api/messages/unread-count 200 in 1379ms
+ ○ Compiling /api/users/[id] ...
+ ✓ Compiled /api/users/[id] in 569ms (703 modules)
+ GET /api/messages/unread-count 200 in 2153ms
+ GET /api/messages/unread-count 200 in 2169ms
+Deleting user 103...
+Deleted 0 comments
+Deleted 0 calendar events
+Deleted 0 parent_children relations
+Deleted 1 user
+ DELETE /api/users/103 200 in 3263ms
+ GET /api/messages/unread-count 200 in 339ms
+ GET /api/messages/unread-count 200 in 376ms
+ GET /api/messages/unread-count 200 in 421ms
+ GET /api/messages/unread-count 200 in 432ms
+ DELETE /api/users/103 404 in 440ms
+ ✓ Compiled in 5s (1042 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /administration/users. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /administration/users?_rsc=4scvl 200 in 598ms
+ ✓ Compiled in 5.4s (1042 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /login?callbackUrl=%2Fadministration%2Fusers 200 in 427ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /api/auth/[...nextauth] in 865ms (674 modules)
+ GET /api/auth/session 200 in 1537ms
+ GET /api/auth/session 200 in 107ms
+ ✓ Compiled in 2.8s (372 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ✓ Compiled in 5.8s (1042 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ✓ Compiled in 3.6s (1042 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 4.5s (1031 modules)
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /login. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /login?callbackUrl=%2Fadministration%2Fusers 404 in 5584ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/css/app/layout.css. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/css/app/layout.css. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /_next/static/css/app/layout.css?v=1761582223018 404 in 190ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/chunks/main-app.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/chunks/main-app.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/chunks/app-pages-internals.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/chunks/app-pages-internals.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/chunks/app/layout.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/chunks/app/layout.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /_next/static/chunks/main-app.js?v=1761582223018 404 in 268ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 261ms
+ GET /_next/static/chunks/app/layout.js 404 in 257ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET / 404 in 153ms
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/css/app/layout.css. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/css/app/layout.css. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/chunks/main-app.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/chunks/main-app.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/chunks/app-pages-internals.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/chunks/app-pages-internals.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata themeColor is configured in metadata export in /_next/static/chunks/app/layout.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ ⚠ Unsupported metadata viewport is configured in metadata export in /_next/static/chunks/app/layout.js. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+ GET /_next/static/css/app/layout.css?v=1761582235396 404 in 347ms
+ GET /_next/static/chunks/main-app.js?v=1761582235396 404 in 310ms
+ GET /_next/static/chunks/app-pages-internals.js 404 in 306ms
+ GET /_next/static/chunks/app/layout.js 404 in 301ms
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/home/kai/gutclone/ica_dev/.next/server/app/api/users'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/users/[id]/route' in /home/kai/gutclone/ica_dev/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/home/kai/gutclone/ica_dev/.next/server/app/api/users/[id]/route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/users/[id]/route' in '/home/kai/gutclone/ica_dev/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/users/[id]/route (expected /home/kai/gutclone/ica_dev/.next/server/app/api/users/[id]/route.js)
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/server/require.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/server/require.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/server/load-components.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/utils.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/handle-externals.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/handle-externals.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+ ✓ Compiled in 49.6s (1042 modules)
+ ✓ Compiled in 6.1s (1042 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/home/kai/gutclone/ica_dev/.next/server/app/api/users/generate-credentials-pdf'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/users/generate-credentials-pdf/route' in /home/kai/gutclone/ica_dev/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/home/kai/gutclone/ica_dev/.next/server/app/api/users/generate-credentials-pdf/route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/users/generate-credentials-pdf/route' in '/home/kai/gutclone/ica_dev/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/users/generate-credentials-pdf/route (expected /home/kai/gutclone/ica_dev/.next/server/app/api/users/generate-credentials-pdf/route.js)
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/server/require.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/server/require.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/server/load-components.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/utils.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/handle-externals.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/handle-externals.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+ ✓ Compiled in 14.6s (372 modules)
+ ✓ Compiled in 5.7s (1042 modules)
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/home/kai/gutclone/ica_dev/.next/server/app/api/users/generate-credentials-pdf'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving '../../../../.next/server/app/api/users/generate-credentials-pdf/route' in /home/kai/gutclone/ica_dev/node_modules/next/dist/server for build dependencies doesn't lead to expected result '/home/kai/gutclone/ica_dev/.next/server/app/api/users/generate-credentials-pdf/route.js', but to 'Error: Can't resolve '../../../../.next/server/app/api/users/generate-credentials-pdf/route' in '/home/kai/gutclone/ica_dev/node_modules/next/dist/server'' instead. Resolving dependencies are ignored for this path.
+<w>  at resolve commonjs file ../../../../.next/server/app/api/users/generate-credentials-pdf/route (expected /home/kai/gutclone/ica_dev/.next/server/app/api/users/generate-credentials-pdf/route.js)
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/server/require.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/server/require.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/server/load-components.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/server/load-components.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/utils.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/utils.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/handle-externals.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/handle-externals.js
+<w>  at file dependencies /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /home/kai/gutclone/ica_dev/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js

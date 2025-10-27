@@ -1,5 +1,5 @@
 import { requireRole } from "@/lib/auth-utils";
-import UserManagementClient from "@/app/components/UserManagementClient";
+import UserManagementImproved from "@/app/components/UserManagementImproved";
 import { neon } from "@neondatabase/serverless";
 
 interface User {
@@ -69,5 +69,5 @@ export default async function UsersManagementPage() {
     SELECT id, name, coach_id FROM teams ORDER BY name
   ` as unknown as Team[];
 
-  return <UserManagementClient users={users} members={members} teams={teams} />;
+  return <UserManagementImproved users={users} members={members} teams={teams} />;
 }

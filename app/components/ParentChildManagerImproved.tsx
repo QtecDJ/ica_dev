@@ -40,7 +40,7 @@ interface DatabaseStatus {
   missingParents: number;
 }
 
-export default function ParentChildManager() {
+export default function ParentChildManagerImproved() {
   const [parents, setParents] = useState<Parent[]>([]);
   const [allChildren, setAllChildren] = useState<Child[]>([]);
   const [relationships, setRelationships] = useState<Relationship[]>([]);
@@ -85,13 +85,12 @@ export default function ParentChildManager() {
 
   const loadDatabaseStatus = async () => {
     try {
-      // TODO: Add API endpoint for database status
-      const orphanedChildren = allChildren.filter(child => 
-        child.parent_email && !parents.some(parent => parent.email === child.parent_email)
+      const orphanedChildren = allChildren.filter((child: Child) => 
+        child.parent_email && !parents.some((parent: Parent) => parent.email === child.parent_email)
       ).length;
       
       setDbStatus({
-        hasParentChildrenTable: true, // Assume true after our improvements
+        hasParentChildrenTable: true,
         totalRelationships: relationships.length,
         orphanedChildren,
         missingParents: orphanedChildren
@@ -238,21 +237,21 @@ export default function ParentChildManager() {
     loadChildrenForParent(parentId);
   };
 
-  const filteredParents = parents.filter(parent => 
+  const filteredParents = parents.filter((parent: Parent) => 
     parent.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     parent.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const filteredChildren = allChildren.filter(child =>
-    !selectedParent || !parentChildren.some(pc => pc.id === child.id)
-  ).filter(child =>
+  const filteredChildren = allChildren.filter((child: Child) =>
+    !selectedParent || !parentChildren.some((pc: Child) => pc.id === child.id)
+  ).filter((child: Child) =>
     searchTerm === '' ||
     `${child.first_name} ${child.last_name}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     child.parent_email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const unlinkedChildren = allChildren.filter(child => 
-    child.parent_email && !parents.some(parent => parent.email === child.parent_email)
+  const unlinkedChildren = allChildren.filter((child: Child) => 
+    child.parent_email && !parents.some((parent: Parent) => parent.email === child.parent_email)
   );
 
   if (loading) {
@@ -267,10 +266,10 @@ export default function ParentChildManager() {
     <div className="space-y-6">
       <div>
         <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-          Parent-Child Verwaltung
+          Parent-Child Verwaltung (Verbessert)
         </h1>
         <p className="text-slate-600 dark:text-slate-400">
-          Verwalte die Verknüpfungen zwischen Eltern und Kindern
+          Erweiterte Verwaltung der Verknüpfungen zwischen Eltern und Kindern
         </p>
       </div>
 
@@ -354,6 +353,60 @@ export default function ParentChildManager() {
             : 'bg-blue-50 text-blue-800 border border-blue-200'
         }`}>
           {message.text}
+        </div>
+      )}
+
+      {/* Orphaned Children - Priorität geben */}
+      {unlinkedChildren.length > 0 && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 p-6">
+          <h3 className="text-lg font-semibold mb-4 text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5" />
+            🚨 Dringend: Kinder ohne Parent User ({unlinkedChildren.length})
+          </h3>
+          <p className="text-sm text-yellow-700 dark:text-yellow-300 mb-4">
+            Diese Kinder haben eine parent_email, aber es existiert kein entsprechender Parent User. 
+            Erstelle die Parent Users automatisch für ein vollständiges System.
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {unlinkedChildren.map(child => (
+              <div key={child.id} className="bg-white dark:bg-slate-800 p-4 rounded-lg border">
+                <div className="font-medium mb-2">
+                  {child.first_name} {child.last_name}
+                </div>
+                <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
+                  📧 {child.parent_email}
+                  {child.team_name && (
+                    <div className="text-xs text-slate-500 mt-1">
+                      Team: {child.team_name}
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => createParentFromEmail(child.parent_email!)}
+                  className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700 transition-colors flex items-center gap-2 w-full"
+                >
+                  <Plus className="w-4 h-4" />
+                  Parent User erstellen
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-4 border-t border-yellow-200">
+            <button
+              onClick={() => {
+                // Bulk create all missing parents
+                unlinkedChildren.forEach(child => {
+                  if (child.parent_email) {
+                    createParentFromEmail(child.parent_email);
+                  }
+                });
+              }}
+              className="bg-yellow-600 text-white px-6 py-2 rounded-lg hover:bg-yellow-700 transition-colors flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Alle Parent Users erstellen ({unlinkedChildren.length})
+            </button>
+          </div>
         </div>
       )}
 
@@ -487,40 +540,6 @@ export default function ParentChildManager() {
           </div>
         </div>
       </div>
-
-      {/* Orphaned Children */}
-      {unlinkedChildren.length > 0 && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 p-6">
-          <h3 className="text-lg font-semibold mb-4 text-yellow-800 dark:text-yellow-200 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5" />
-            Kinder ohne Parent User ({unlinkedChildren.length})
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {unlinkedChildren.map(child => (
-              <div key={child.id} className="bg-white dark:bg-slate-800 p-4 rounded-lg border">
-                <div className="font-medium mb-2">
-                  {child.first_name} {child.last_name}
-                </div>
-                <div className="text-sm text-slate-600 dark:text-slate-400 mb-3">
-                  📧 {child.parent_email}
-                  {child.team_name && (
-                    <div className="text-xs text-slate-500 mt-1">
-                      Team: {child.team_name}
-                    </div>
-                  )}
-                </div>
-                <button
-                  onClick={() => createParentFromEmail(child.parent_email!)}
-                  className="bg-blue-600 text-white text-sm px-3 py-1 rounded hover:bg-blue-700 transition-colors flex items-center gap-2 w-full"
-                >
-                  <Plus className="w-4 h-4" />
-                  Parent User erstellen
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Advanced View */}
       {showAdvanced && (

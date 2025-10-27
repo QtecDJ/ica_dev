@@ -1,5 +1,5 @@
 import { getTeams, deleteTeam } from "../actions";
-import { Plus, Pencil, Trash2, Trophy } from "lucide-react";
+import { Plus, Pencil, Trash2, Trophy, Users } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
 import { requireAuth } from "@/lib/auth-utils";
@@ -22,20 +22,49 @@ export default async function TeamsPage() {
   let teams: any[];
   
   if (userRole === "admin") {
-    // Admins see all teams
-    teams = await getTeams();
-  } else if (userRole === "coach") {
-    // Coaches only see their own team
+    // Admins see all teams with coach count
     teams = await sql`
       SELECT 
         t.id,
         t.name,
         t.level,
         t.created_at,
-        COALESCE(u.name, 'Kein Coach') as coach
+        COALESCE(
+          STRING_AGG(
+            CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END, 
+            ', ' ORDER BY tc.is_primary DESC, u.name
+          ), 
+          'Kein Coach'
+        ) as coach,
+        COUNT(tc.coach_id) as coach_count
       FROM teams t
-      LEFT JOIN users u ON t.coach_id = u.id
-      WHERE t.coach_id = ${userId}
+      LEFT JOIN team_coaches tc ON t.id = tc.team_id
+      LEFT JOIN users u ON tc.coach_id = u.id AND u.role IN ('coach', 'admin')
+      GROUP BY t.id, t.name, t.level, t.created_at
+      ORDER BY t.name
+    `;
+  } else if (userRole === "coach") {
+    // Coaches see teams they are assigned to
+    teams = await sql`
+      SELECT 
+        t.id,
+        t.name,
+        t.level,
+        t.created_at,
+        COALESCE(
+          STRING_AGG(
+            CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END, 
+            ', ' ORDER BY tc.is_primary DESC, u.name
+          ), 
+          'Kein Coach'
+        ) as coach,
+        COUNT(tc.coach_id) as coach_count
+      FROM teams t
+      JOIN team_coaches tc ON t.id = tc.team_id
+      LEFT JOIN team_coaches tc2 ON t.id = tc2.team_id
+      LEFT JOIN users u ON tc2.coach_id = u.id AND u.role IN ('coach', 'admin')
+      WHERE tc.coach_id = ${userId}
+      GROUP BY t.id, t.name, t.level, t.created_at
       ORDER BY t.name
     `;
   } else {
@@ -93,7 +122,16 @@ export default async function TeamsPage() {
                       <td>
                         <span className="badge-blue">Level {team.level}</span>
                       </td>
-                      <td className="text-slate-600 dark:text-slate-400">{team.coach}</td>
+                      <td className="text-slate-600 dark:text-slate-400">
+                        <div className="flex items-center gap-2">
+                          <span>{team.coach}</span>
+                          {team.coach_count > 1 && (
+                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full dark:bg-blue-900/30 dark:text-blue-300">
+                              +{team.coach_count - 1} weitere
+                            </span>
+                          )}
+                        </div>
+                      </td>
                       <td className="text-slate-600 dark:text-slate-400">
                         {new Date(team.created_at).toLocaleDateString("de-DE")}
                       </td>
@@ -101,8 +139,16 @@ export default async function TeamsPage() {
                         <td>
                           <div className="flex justify-end gap-2">
                             <Link
+                              href={`/teams/${team.id}/edit-multi`}
+                              className="text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+                              title="Multi-Coach bearbeiten"
+                            >
+                              <Users className="w-4 h-4" />
+                            </Link>
+                            <Link
                               href={`/teams/${team.id}/edit`}
                               className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                              title="Team bearbeiten"
                             >
                               <Pencil className="w-4 h-4" />
                             </Link>
@@ -139,8 +185,16 @@ export default async function TeamsPage() {
                     {userRole === "admin" && (
                       <div className="flex gap-2">
                         <Link
+                          href={`/teams/${team.id}/edit-multi`}
+                          className="text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+                          title="Multi-Coach verwalten"
+                        >
+                          <Users className="w-4 h-4" />
+                        </Link>
+                        <Link
                           href={`/teams/${team.id}/edit`}
                           className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                          title="Team bearbeiten"
                         >
                           <Pencil className="w-4 h-4" />
                         </Link>
@@ -151,9 +205,14 @@ export default async function TeamsPage() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-slate-400">Coach:</span>
-                      <span className="text-slate-900 dark:text-slate-50 font-medium">
-                        {team.coach}
-                      </span>
+                      <div className="text-slate-900 dark:text-slate-50 font-medium flex items-center gap-2">
+                        <span>{team.coach}</span>
+                        {team.coach_count > 1 && (
+                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full dark:bg-blue-900/30 dark:text-blue-300">
+                            +{team.coach_count - 1}
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600 dark:text-slate-400">Erstellt:</span>
