@@ -31,8 +31,8 @@ export default async function TeamsPage() {
         t.created_at,
         COALESCE(
           STRING_AGG(
-            CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END, 
-            ', ' ORDER BY tc.is_primary DESC, u.name
+            DISTINCT CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END, 
+            ', ' ORDER BY CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END
           ), 
           'Kein Coach'
         ) as coach,
@@ -46,7 +46,7 @@ export default async function TeamsPage() {
       ORDER BY t.name
     `;
   } else if (userRole === "coach") {
-    // Coaches see teams they are assigned to with member count
+    // Coaches see teams they are assigned to with ALL coaches displayed
     teams = await sql`
       SELECT 
         t.id,
@@ -55,19 +55,18 @@ export default async function TeamsPage() {
         t.created_at,
         COALESCE(
           STRING_AGG(
-            CASE WHEN tc2.is_primary THEN '👑 ' || u.name ELSE u.name END, 
-            ', ' ORDER BY tc2.is_primary DESC, u.name
+            DISTINCT CASE WHEN tc_all.is_primary THEN '👑 ' || u.name ELSE u.name END, 
+            ', ' ORDER BY CASE WHEN tc_all.is_primary THEN '👑 ' || u.name ELSE u.name END
           ), 
           'Kein Coach'
         ) as coach,
-        COUNT(DISTINCT tc2.coach_id) as coach_count,
+        COUNT(DISTINCT tc_all.coach_id) as coach_count,
         COUNT(DISTINCT m.id) as member_count
       FROM teams t
-      JOIN team_coaches tc ON t.id = tc.team_id
-      LEFT JOIN team_coaches tc2 ON t.id = tc2.team_id
-      LEFT JOIN users u ON tc2.coach_id = u.id AND u.role IN ('coach', 'admin')
+      JOIN team_coaches tc_user ON t.id = tc_user.team_id AND tc_user.coach_id = ${userId}
+      LEFT JOIN team_coaches tc_all ON t.id = tc_all.team_id
+      LEFT JOIN users u ON tc_all.coach_id = u.id AND u.role IN ('coach', 'admin')
       LEFT JOIN members m ON t.id = m.team_id
-      WHERE tc.coach_id = ${userId}
       GROUP BY t.id, t.name, t.level, t.created_at
       ORDER BY t.name
     `;
