@@ -22,7 +22,7 @@ export default async function TeamsPage() {
   let teams: any[];
   
   if (userRole === "admin") {
-    // Admins see all teams with coach count
+    // Admins see all teams with coach count and member count
     teams = await sql`
       SELECT 
         t.id,
@@ -36,15 +36,17 @@ export default async function TeamsPage() {
           ), 
           'Kein Coach'
         ) as coach,
-        COUNT(tc.coach_id) as coach_count
+        COUNT(DISTINCT tc.coach_id) as coach_count,
+        COUNT(DISTINCT m.id) as member_count
       FROM teams t
       LEFT JOIN team_coaches tc ON t.id = tc.team_id
       LEFT JOIN users u ON tc.coach_id = u.id AND u.role IN ('coach', 'admin')
+      LEFT JOIN members m ON t.id = m.team_id
       GROUP BY t.id, t.name, t.level, t.created_at
       ORDER BY t.name
     `;
   } else if (userRole === "coach") {
-    // Coaches see teams they are assigned to
+    // Coaches see teams they are assigned to with member count
     teams = await sql`
       SELECT 
         t.id,
@@ -53,16 +55,18 @@ export default async function TeamsPage() {
         t.created_at,
         COALESCE(
           STRING_AGG(
-            CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END, 
-            ', ' ORDER BY tc.is_primary DESC, u.name
+            CASE WHEN tc2.is_primary THEN '👑 ' || u.name ELSE u.name END, 
+            ', ' ORDER BY tc2.is_primary DESC, u.name
           ), 
           'Kein Coach'
         ) as coach,
-        COUNT(tc.coach_id) as coach_count
+        COUNT(DISTINCT tc2.coach_id) as coach_count,
+        COUNT(DISTINCT m.id) as member_count
       FROM teams t
       JOIN team_coaches tc ON t.id = tc.team_id
       LEFT JOIN team_coaches tc2 ON t.id = tc2.team_id
       LEFT JOIN users u ON tc2.coach_id = u.id AND u.role IN ('coach', 'admin')
+      LEFT JOIN members m ON t.id = m.team_id
       WHERE tc.coach_id = ${userId}
       GROUP BY t.id, t.name, t.level, t.created_at
       ORDER BY t.name
@@ -103,7 +107,8 @@ export default async function TeamsPage() {
                   <tr>
                     <th>Name</th>
                     <th>Level</th>
-                    <th>Coach</th>
+                    <th>Mitglieder</th>
+                    <th>Coaches</th>
                     <th>Erstellt</th>
                     {userRole === "admin" && <th className="text-right">Aktionen</th>}
                   </tr>
@@ -122,14 +127,31 @@ export default async function TeamsPage() {
                       <td>
                         <span className="badge-blue">Level {team.level}</span>
                       </td>
-                      <td className="text-slate-600 dark:text-slate-400">
+                      <td>
                         <div className="flex items-center gap-2">
-                          <span>{team.coach}</span>
-                          {team.coach_count > 1 && (
-                            <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full dark:bg-blue-900/30 dark:text-blue-300">
-                              +{team.coach_count - 1} weitere
+                          <Users className="w-4 h-4 text-slate-500" />
+                          <span className="font-medium text-slate-900 dark:text-slate-50">
+                            {team.member_count}
+                          </span>
+                          <span className="text-xs text-slate-500">
+                            {team.member_count === 1 ? 'Mitglied' : 'Mitglieder'}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="text-slate-600 dark:text-slate-400">
+                        <div className="flex flex-wrap gap-1">
+                          {team.coach.split(', ').map((coach: string, index: number) => (
+                            <span 
+                              key={index}
+                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                coach.includes('👑') 
+                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                              }`}
+                            >
+                              {coach}
                             </span>
-                          )}
+                          ))}
                         </div>
                       </td>
                       <td className="text-slate-600 dark:text-slate-400">
@@ -204,14 +226,29 @@ export default async function TeamsPage() {
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Coach:</span>
-                      <div className="text-slate-900 dark:text-slate-50 font-medium flex items-center gap-2">
-                        <span>{team.coach}</span>
-                        {team.coach_count > 1 && (
-                          <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full dark:bg-blue-900/30 dark:text-blue-300">
-                            +{team.coach_count - 1}
+                      <span className="text-slate-600 dark:text-slate-400">Mitglieder:</span>
+                      <div className="flex items-center gap-2">
+                        <Users className="w-4 h-4 text-slate-500" />
+                        <span className="font-medium text-slate-900 dark:text-slate-50">
+                          {team.member_count}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-start">
+                      <span className="text-slate-600 dark:text-slate-400">Coaches:</span>
+                      <div className="flex flex-wrap gap-1 justify-end max-w-xs">
+                        {team.coach.split(', ').map((coach: string, index: number) => (
+                          <span 
+                            key={index}
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              coach.includes('👑') 
+                                ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                            }`}
+                          >
+                            {coach}
                           </span>
-                        )}
+                        ))}
                       </div>
                     </div>
                     <div className="flex justify-between">
