@@ -38,6 +38,7 @@ interface Props {
   users: User[];
   members: Member[];
   teams: Team[];
+  onUserUpdate?: () => void; // Callback für Updates
 }
 
 // Verfügbare Rollen mit Beschreibungen und Berechtigungen
@@ -88,7 +89,7 @@ const AVAILABLE_ROLES = {
   }
 };
 
-export default function UserManagementImproved({ users, members, teams }: Props) {
+export default function UserManagementImproved({ users, members, teams, onUserUpdate }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
@@ -291,13 +292,7 @@ export default function UserManagementImproved({ users, members, teams }: Props)
       const result = await response.json();
       console.log('✅ Delete successful:', result);
       
-      // Benutzer aus der Liste entfernen
-      setUsers(prevUsers => {
-        const newUsers = prevUsers.filter(u => u.id !== user.id);
-        console.log(`📝 Removed user from list. Users before: ${prevUsers.length}, after: ${newUsers.length}`);
-        return newUsers;
-      });
-      
+      // Benutzer aus den ausgewählten Benutzern entfernen
       setSelectedUsers(prev => {
         const newSelected = new Set(prev);
         newSelected.delete(user.id);
@@ -306,6 +301,14 @@ export default function UserManagementImproved({ users, members, teams }: Props)
       
       // Erfolgs-Feedback
       alert(`✅ Benutzer ${user.name || user.username} wurde erfolgreich gelöscht.`);
+      
+      // Rufe das Update-Callback auf, um die Liste zu aktualisieren
+      if (onUserUpdate) {
+        onUserUpdate();
+      } else {
+        // Fallback: Seite neu laden wenn kein Callback vorhanden
+        window.location.reload();
+      }
       
     } catch (error) {
       console.error('💥 Fehler beim Löschen:', error);

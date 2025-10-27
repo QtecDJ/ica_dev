@@ -172,14 +172,14 @@ export async function POST(request: Request) {
     
     // DESIGN KONSTANTEN
     const colors = {
-      primary: [26, 35, 126],      // Deep Blue
-      secondary: [99, 102, 241],   // Indigo
-      accent: [239, 68, 68],       // Red
-      success: [34, 197, 94],      // Green
-      warning: [245, 158, 11],     // Amber
-      gray: [107, 114, 128],       // Gray
-      lightGray: [249, 250, 251],  // Light Gray
-      white: [255, 255, 255]
+      primary: [26, 35, 126] as const,      // Deep Blue
+      secondary: [99, 102, 241] as const,   // Indigo
+      accent: [239, 68, 68] as const,       // Red
+      success: [34, 197, 94] as const,      // Green
+      warning: [245, 158, 11] as const,     // Amber
+      gray: [107, 114, 128] as const,       // Gray
+      lightGray: [249, 250, 251] as const,  // Light Gray
+      white: [255, 255, 255] as const
     };
     
     // === HEADER SECTION ===

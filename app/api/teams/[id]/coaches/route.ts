@@ -122,15 +122,15 @@ export async function PUT(
       }
     }
 
-    // Start transaction to update coaches
-    await sql.transaction(async (tx) => {
+    // Update coaches using sequential operations (Neon doesn't support complex transactions)
+    try {
       // Remove all existing coach assignments for this team
-      await tx`DELETE FROM team_coaches WHERE team_id = ${teamId}`;
+      await sql`DELETE FROM team_coaches WHERE team_id = ${teamId}`;
 
       // Add new coach assignments
       if (coaches.length > 0) {
         for (const coach of coaches) {
-          await tx`
+          await sql`
             INSERT INTO team_coaches (team_id, coach_id, role, is_primary)
             VALUES (${teamId}, ${coach.coach_id}, ${coach.coach_role}, ${coach.is_primary})
           `;
@@ -140,19 +140,22 @@ export async function PUT(
       // Update teams.coach_id for backwards compatibility (set to primary coach)
       const primaryCoach = coaches.find(c => c.is_primary);
       if (primaryCoach) {
-        await tx`
+        await sql`
           UPDATE teams 
           SET coach_id = ${primaryCoach.coach_id}
           WHERE id = ${teamId}
         `;
       } else {
-        await tx`
+        await sql`
           UPDATE teams 
           SET coach_id = NULL
           WHERE id = ${teamId}
         `;
       }
-    });
+    } catch (error) {
+      console.error("Error updating team coaches:", error);
+      throw new Error("Failed to update team coaches");
+    }
 
     // Return updated team data
     const updatedTeamCoaches = await sql`
