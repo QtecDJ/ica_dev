@@ -121,15 +121,32 @@ export async function deleteTeam(id: number) {
 }
 
 // ===== MEMBERS =====
-export async function getMembers() {
+export interface MemberRecord {
+  id: number;
+  first_name: string | null;
+  last_name: string | null;
+  birth_date: string | null;
+  team_id: number | null;
+  email: string | null;
+  phone: string | null;
+  parent_name: string | null;
+  parent_email: string | null;
+  parent_phone: string | null;
+  avatar_url: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+  team_name: string | null;
+}
+
+export async function getMembers(): Promise<MemberRecord[]> {
   try {
     const data = await sql`
-      SELECT m.*, t.name as team_name 
+      SELECT m.*, t.name as team_name
       FROM members m
       LEFT JOIN teams t ON m.team_id = t.id
       ORDER BY m.last_name, m.first_name
     `;
-    return data;
+    return data as MemberRecord[];
   } catch (error) {
     console.error("Error fetching members:", error);
     return [];
