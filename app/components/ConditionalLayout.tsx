@@ -3,6 +3,7 @@
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import ResponsiveSidebar from "./ResponsiveSidebar";
+import PushNotifications from "./PushNotifications";
 
 export default function ConditionalLayout({
   children,
@@ -34,6 +35,9 @@ export default function ConditionalLayout({
           {/* Mobile bottom spacing for bottom navigation */}
           <div className="lg:hidden h-20" />
         </main>
+        
+        {/* Push Notifications Component */}
+        <PushNotifications />
       </div>
     );
   }

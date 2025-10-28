@@ -409,6 +409,42 @@ export async function createTraining(formData: FormData) {
         WHERE team_id = ${teamId}
       `;
     }
+
+    // Send push notifications for new training
+    if (teamId) {
+      try {
+        // Get team name for notification
+        const teamInfo = await sql`
+          SELECT name FROM teams WHERE id = ${teamId}
+        `;
+        const teamName = teamInfo[0]?.name || 'Team';
+
+        // Format date and time for notification
+        const formattedDate = new Date(trainingDate).toLocaleDateString('de-DE');
+        const formattedTime = `${startTime} - ${endTime}`;
+
+        // Send notification to users with push subscriptions
+        await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/send-notification`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            title: `🏋️ Neues Training: ${teamName}`,
+            body: `${formattedDate} um ${formattedTime} in ${location}`,
+            data: {
+              url: `/trainings`,
+              type: 'training',
+              trainingId: trainingId,
+              teamId: teamId
+            }
+          }),
+        });
+      } catch (notificationError) {
+        console.error('Failed to send push notification:', notificationError);
+        // Don't fail the training creation if notification fails
+      }
+    }
     
     revalidatePath("/trainings");
     return { success: true };

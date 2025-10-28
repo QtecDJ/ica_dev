@@ -134,6 +134,25 @@ export async function POST(request: Request) {
       RETURNING *
     `;
 
+    // Send push notification to recipient
+    try {
+      await fetch(`${process.env.NEXTAUTH_URL}/api/send-notification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userIds: [recipientId],
+          title: 'Neue Nachricht',
+          body: `${session.user.name || 'Jemand'} hat Ihnen eine Nachricht gesendet`,
+          url: '/messages',
+          tag: 'chat-message'
+        }),
+      });
+    } catch (error) {
+      console.error('Failed to send push notification:', error);
+    }
+
     return NextResponse.json({ 
       message: result[0],
       success: true 

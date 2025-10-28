@@ -20,12 +20,14 @@
     "next-auth": "^4.24.11",
     "next-pwa": "^5.6.0",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/web-push": "^3.6.4",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.39",
     "sharp": "^0.34.4",
