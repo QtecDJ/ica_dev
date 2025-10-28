@@ -53,6 +53,7 @@ export default function EditUserModalImproved({ user, members, teams, availableR
     email: user.email || "",
     roles: user.roles || [user.role],
     member_id: user.member_id?.toString() || "",
+    team_id: "", // Für Coach-Team-Zuweisung
     status: user.status || 'active',
     resetPassword: false,
   });
@@ -92,6 +93,7 @@ export default function EditUserModalImproved({ user, members, teams, availableR
           role: formData.roles[0], // Hauptrolle (erste Rolle)
           roles: formData.roles, // Alle Rollen
           member_id: formData.member_id ? parseInt(formData.member_id) : null,
+          teamId: formData.team_id ? parseInt(formData.team_id) : null, // Team-Zuweisung für Coaches
           status: formData.status,
           newPassword: formData.resetPassword ? true : undefined,
         }),
@@ -337,6 +339,31 @@ export default function EditUserModalImproved({ user, members, teams, availableR
                   ))}
                 </select>
               </div>
+
+              {/* Coach-Team-Zuweisung */}
+              {formData.roles.includes("coach") && (
+                <div>
+                  <label htmlFor="edit-team_id" className="label">
+                    Team-Zuweisung (für Coaches)
+                  </label>
+                  <select
+                    id="edit-team_id"
+                    value={formData.team_id}
+                    onChange={(e) => setFormData(prev => ({ ...prev, team_id: e.target.value }))}
+                    className="input"
+                  >
+                    <option value="">Kein Team zuweisen</option>
+                    {teams.map((team) => (
+                      <option key={team.id} value={team.id}>
+                        {team.name}
+                      </option>
+                    ))}
+                  </select>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                    Coaches können einem Team zugewiesen werden
+                  </p>
+                </div>
+              )}
 
               {/* Passwort zurücksetzen */}
               <div className="flex items-center gap-2 pt-6">

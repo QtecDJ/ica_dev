@@ -106,7 +106,7 @@ export async function PATCH(
     }
 
     // Coach-Team-Zuweisung mit Multi-Coach-System aktualisieren
-    if (primaryRole === "coach") {
+    if (roles.includes("coach")) {
       try {
         // Entferne alle bestehenden Coach-Zuweisungen für diesen User
         await sql`
