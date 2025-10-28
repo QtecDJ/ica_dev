@@ -92,7 +92,7 @@ export default function MobileSettingsDropdown() {
 
       {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-2 z-50">
+        <div className="absolute bottom-full right-0 mb-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-2 z-50">
           {/* User Info */}
           {session?.user && (
             <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">

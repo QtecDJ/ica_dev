@@ -100,8 +100,8 @@ export default function MobileBottomNav() {
       <div 
         className="absolute top-0 h-0.5 bg-gradient-to-r from-red-500 to-red-600 transition-all duration-300 ease-out"
         style={{
-          left: `${(activeIndex / navItems.length) * 100}%`,
-          width: `${100 / navItems.length}%`,
+          left: `${(activeIndex / (navItems.length + 1)) * 100}%`,
+          width: `${100 / (navItems.length + 1)}%`,
         }}
       />
 
@@ -188,7 +188,7 @@ export default function MobileBottomNav() {
             );
         })}
         
-        {/* Settings Dropdown - Fixed width */}
+        {/* Settings Dropdown - Same flex-1 as other items */}
         <div className="flex-1">
           <MobileSettingsDropdown />
         </div>
