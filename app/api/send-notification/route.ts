@@ -6,7 +6,11 @@ const sql = neon(process.env.DATABASE_URL!);
 
 export async function POST(request: NextRequest) {
   // Configure web-push (VAPID keys) - only when API is called
-  if (!process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || !process.env.VAPID_PRIVATE_KEY) {
+  // Support both new naming (Public_Key/Private_Key) and old naming for backward compatibility
+  const publicKey = process.env.NEXT_PUBLIC_Public_Key || process.env.Public_Key || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+  const privateKey = process.env.Private_Key || process.env.VAPID_PRIVATE_KEY;
+  
+  if (!publicKey || !privateKey) {
     return NextResponse.json(
       { error: 'VAPID keys not configured' },
       { status: 500 }
@@ -15,8 +19,8 @@ export async function POST(request: NextRequest) {
 
   webpush.setVapidDetails(
     process.env.VAPID_SUBJECT || 'mailto:support@infinity-cheer-allstars.de',
-    process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY,
-    process.env.VAPID_PRIVATE_KEY
+    publicKey,
+    privateKey
   );
   try {
     const { userIds, title, body, url, icon, tag } = await request.json();

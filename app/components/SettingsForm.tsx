@@ -37,7 +37,8 @@ export default function SettingsForm() {
 
     try {
       // Check if VAPID key is available
-      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      // Support both new naming and old naming for backward compatibility
+      const vapidKey = process.env.NEXT_PUBLIC_Public_Key || process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
       if (!vapidKey) {
         throw new Error('VAPID key not configured');
       }
