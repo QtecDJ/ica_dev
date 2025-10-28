@@ -49,26 +49,20 @@ export default function UsersManagementPage() {
     }
   }, [session, status, router]);
 
-  // Lade Daten
+  // Lade Daten direkt mit Server-Queries (da wir Admin-Rechte haben)
   const fetchData = async () => {
     try {
       setLoading(true);
       
-      // Lade Benutzer
-      const usersResponse = await fetch('/api/users');
-      const usersData = await usersResponse.json();
+      const response = await fetch('/api/administration/users');
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
       
-      // Lade Mitglieder
-      const membersResponse = await fetch('/api/members');
-      const membersData = await membersResponse.json();
-      
-      // Lade Teams
-      const teamsResponse = await fetch('/api/teams');
-      const teamsData = await teamsResponse.json();
-      
-      setUsers(usersData.users || []);
-      setMembers(membersData.members || []);
-      setTeams(teamsData.teams || []);
+      const data = await response.json();
+      setUsers(data.users || []);
+      setMembers(data.members || []);
+      setTeams(data.teams || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {

@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { UserPlus, Search, Edit, Download, Shield, Users, X, Plus, Minus, Eye, Trash2, RotateCcw } from "lucide-react";
 import CreateUserFormImproved from "./CreateUserFormImproved";
 import EditUserModalImproved from "./EditUserModalImproved";
+import { useRouter } from "next/navigation";
 
 interface User {
   id: number;
@@ -90,6 +91,7 @@ const AVAILABLE_ROLES = {
 };
 
 export default function UserManagementImproved({ users, members, teams, onUserUpdate }: Props) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
