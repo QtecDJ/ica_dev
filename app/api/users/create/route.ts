@@ -115,11 +115,11 @@ export async function POST(request: Request) {
       finalMemberId = memberResult[0].id;
     }
 
-    // Create user
+    // Create user mit Multi-Rollen Support
     const result = await sql`
-      INSERT INTO users (username, name, password_hash, role, email, member_id, created_at)
-      VALUES (${username}, ${name}, ${hashedPassword}, ${primaryRole}, ${email || null}, ${finalMemberId}, CURRENT_TIMESTAMP)
-      RETURNING id, username, name, role, email, member_id, created_at
+      INSERT INTO users (username, name, password_hash, role, roles, email, member_id, created_at)
+      VALUES (${username}, ${name}, ${hashedPassword}, ${primaryRole}, ${JSON.stringify(userRoles)}, ${email || null}, ${finalMemberId}, CURRENT_TIMESTAMP)
+      RETURNING id, username, name, role, roles, email, member_id, created_at
     `;
 
     const userId = result[0].id;

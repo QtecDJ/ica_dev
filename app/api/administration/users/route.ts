@@ -22,6 +22,7 @@ export async function GET() {
         u.email,
         u.name,
         u.role,
+        u.roles,
         u.member_id,
         u.created_at,
         m.first_name,
@@ -33,10 +34,10 @@ export async function GET() {
       ORDER BY u.created_at DESC
     `;
 
-    // Erweitere Benutzer um roles Array für Multi-Rollen Support
+    // Verarbeite Benutzer für Frontend-Kompatibilität
     const users = usersRaw.map(user => ({
       ...user,
-      roles: [user.role] // Wandle single role in array um für Frontend-Kompatibilität
+      roles: user.roles && Array.isArray(user.roles) ? user.roles : [user.role].filter(Boolean)
     }));
 
     // Hole alle Mitglieder für die Verknüpfung

@@ -72,11 +72,12 @@ export async function PATCH(
           username = ${data.username},
           email = ${data.email || null},
           role = ${primaryRole},
+          roles = ${JSON.stringify(roles)},
           member_id = ${data.member_id || null},
           password_hash = ${hashedPassword},
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ${userId}
-        RETURNING id, name, username, email, role, member_id
+        RETURNING id, name, username, email, role, roles, member_id
       `;
     } else {
       // Ohne Passwort-Änderung
@@ -87,10 +88,11 @@ export async function PATCH(
           username = ${data.username},
           email = ${data.email || null},
           role = ${primaryRole},
+          roles = ${JSON.stringify(roles)},
           member_id = ${data.member_id || null},
           updated_at = CURRENT_TIMESTAMP
         WHERE id = ${userId}
-        RETURNING id, name, username, email, role, member_id
+        RETURNING id, name, username, email, role, roles, member_id
       `;
     }
 
