@@ -8,6 +8,7 @@ import LogoutButton from "./LogoutButton";
 import MobileBottomNav from "./MobileBottomNav";
 import AdminFloatingButton from "./AdminFloatingButton";
 import UnreadMessagesBadge from "./UnreadMessagesBadge";
+import SettingsDropdown from "./SettingsDropdown";
 
 export default function ResponsiveSidebar() {
   const { data: session } = useSession();
@@ -43,9 +44,6 @@ export default function ResponsiveSidebar() {
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
     ];
   }
-  
-  // Add Settings for all users
-  navItems.push({ href: "/settings", label: "Einstellungen", iconName: "Settings" });
   
   if (userRole === "admin") {
     navItems.push({ href: "/administration", label: "Administration", iconName: "Shield" });
@@ -113,7 +111,6 @@ export default function ResponsiveSidebar() {
                       {item.iconName === "Shield" && <Shield className="w-5 h-5" />}
                       {item.iconName === "UserIcon" && <UserIcon className="w-5 h-5" />}
                       {item.iconName === "MessageCircle" && <MessageCircle className="w-5 h-5" />}
-                      {item.iconName === "Settings" && <Settings className="w-5 h-5" />}
                     </div>
                     <span className="text-sm font-medium">{item.label}</span>
                     
@@ -155,7 +152,12 @@ export default function ResponsiveSidebar() {
                 </div>
               </>
             )}
-            <LogoutButton />
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <LogoutButton />
+              </div>
+              <SettingsDropdown />
+            </div>
           </div>
         </div>
       </aside>

@@ -36,6 +36,12 @@ export default function SettingsForm() {
     setMessage("");
 
     try {
+      // Check if VAPID key is available
+      const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
+      if (!vapidKey) {
+        throw new Error('VAPID key not configured');
+      }
+
       const perm = await Notification.requestPermission();
       setPermission(perm);
       
@@ -44,7 +50,7 @@ export default function SettingsForm() {
         const registration = await navigator.serviceWorker.ready;
         const sub = await registration.pushManager.subscribe({
           userVisibleOnly: true,
-          applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '')
+          applicationServerKey: urlBase64ToUint8Array(vapidKey)
         });
         
         setSubscription(sub);
@@ -61,14 +67,15 @@ export default function SettingsForm() {
         if (response.ok) {
           setMessage("✅ Push-Benachrichtigungen erfolgreich aktiviert!");
         } else {
-          throw new Error('Server error');
+          const errorData = await response.text();
+          throw new Error(`Server error: ${errorData}`);
         }
       } else {
         setMessage("❌ Berechtigung für Benachrichtigungen wurde verweigert");
       }
     } catch (error) {
       console.error('Error enabling notifications:', error);
-      setMessage("❌ Fehler beim Aktivieren der Benachrichtigungen");
+      setMessage(`❌ Fehler beim Aktivieren der Benachrichtigungen: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`);
     } finally {
       setIsLoading(false);
     }

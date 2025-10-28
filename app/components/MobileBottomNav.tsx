@@ -6,6 +6,7 @@ import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import UnreadMessagesBadge from "./UnreadMessagesBadge";
+import MobileSettingsDropdown from "./MobileSettingsDropdown";
 
 interface NavItem {
   href?: string;
@@ -276,6 +277,9 @@ export default function MobileBottomNav() {
             );
           }
         })}
+        
+        {/* Settings Dropdown - Always last */}
+        <MobileSettingsDropdown />
       </div>
       
       {/* Safe area padding for devices with home indicator */}
