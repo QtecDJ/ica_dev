@@ -23,7 +23,7 @@ export default async function TrainingsPage() {
     // Admins sehen alle Trainings
     trainings = await getTrainings();
   } else if (userRole === "coach") {
-    // Coaches sehen nur Trainings ihrer eigenen Teams
+    // Coaches sehen Trainings ihrer eigenen Teams UND das Team in dem sie Mitglied sind
     const coachTeams = await sql`
       SELECT DISTINCT t.id 
       FROM teams t
@@ -31,10 +31,30 @@ export default async function TrainingsPage() {
       WHERE tc.coach_id = ${userId}
     `;
     
-    if (coachTeams.length > 0) {
-      const teamIds = coachTeams.map(team => team.id);
+    // Prüfe ob Coach auch ein Mitglied ist und hole sein Team
+    const coachMemberTeam = await sql`
+      SELECT DISTINCT m.team_id
+      FROM users u
+      JOIN members m ON u.member_id = m.id
+      WHERE u.id = ${userId} AND m.team_id IS NOT NULL
+    `;
+    
+    // Sammle alle Team-IDs (sowohl gecoachte Teams als auch eigenes Mitglieder-Team)
+    let teamIds = coachTeams.map(team => team.id);
+    if (coachMemberTeam.length > 0) {
+      const memberTeamId = coachMemberTeam[0].team_id;
+      if (!teamIds.includes(memberTeamId)) {
+        teamIds.push(memberTeamId);
+      }
+    }
+    
+    if (teamIds.length > 0) {
       trainings = await sql`
-        SELECT t.*, teams.name as team_name
+        SELECT t.*, teams.name as team_name,
+               CASE 
+                 WHEN t.team_id = ANY(${coachTeams.map(team => team.id)}) THEN 'coached'
+                 ELSE 'member'
+               END as user_relation
         FROM trainings t
         LEFT JOIN teams ON t.team_id = teams.id
         WHERE t.team_id = ANY(${teamIds})

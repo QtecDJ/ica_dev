@@ -39,7 +39,7 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
 
   const training = trainings[0];
 
-  // Zugriffskontrolle für Coaches - nur eigenes Team
+  // Zugriffskontrolle für Coaches - eigenes gecoachtes Team ODER eigenes Mitglieder-Team
   if (userRole === "coach") {
     const coachTeams = await sql`
       SELECT DISTINCT t.id 
@@ -48,7 +48,18 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
       WHERE tc.coach_id = ${userId}
     `;
     
-    const hasAccess = coachTeams.some(team => team.id === training.team_id);
+    // Prüfe ob Coach auch ein Mitglied ist und Zugriff auf sein Mitglieder-Team hat
+    const coachMemberTeam = await sql`
+      SELECT DISTINCT m.team_id
+      FROM users u
+      JOIN members m ON u.member_id = m.id
+      WHERE u.id = ${userId} AND m.team_id IS NOT NULL
+    `;
+    
+    const hasCoachAccess = coachTeams.some(team => team.id === training.team_id);
+    const hasMemberAccess = coachMemberTeam.some(member => member.team_id === training.team_id);
+    
+    const hasAccess = hasCoachAccess || hasMemberAccess;
     if (!hasAccess) {
       redirect("/trainings");
     }
