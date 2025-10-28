@@ -68,7 +68,7 @@ export default async function SettingsPage() {
             <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden sticky top-24">
               {/* Profile Header */}
               <div className="relative h-32 bg-gradient-to-br from-red-500 via-red-600 to-red-700">
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Cpath d="M0 100C20 80 40 60 60 80C80 100 100 60 100 40V0H0V100Z" fill="white" fill-opacity="0.1"/%3E%3C/svg%3E')] bg-cover"></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
               </div>
               
               {/* Profile Content */}
