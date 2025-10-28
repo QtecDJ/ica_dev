@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield, LogOut } from "lucide-react";
+import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield, LogOut, Settings } from "lucide-react";
 import { useSession, signOut } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -34,6 +34,7 @@ export default function MobileBottomNav() {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: `/members/${memberId}`, label: "Profil", icon: <UserIcon className="w-5 h-5" />, isActive: false },
+      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
       { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },
     ];
   } else if (userRole === "parent") {
@@ -41,14 +42,14 @@ export default function MobileBottomNav() {
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/profil", label: "Kind", icon: <UserIcon className="w-5 h-5" />, isActive: false },
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
+      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
       { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },
     ];
   } else if (userRole === "admin") {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/events", label: "Events", icon: <Calendar className="w-5 h-5" />, isActive: false },
+      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
       { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
       { href: "/administration", label: "Admin", icon: <Shield className="w-5 h-5" />, isActive: false },
       { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },
@@ -58,7 +59,7 @@ export default function MobileBottomNav() {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/events", label: "Events", icon: <Calendar className="w-5 h-5" />, isActive: false },
+      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
       { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
       { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
       { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },

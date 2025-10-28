@@ -10,9 +10,10 @@ export default function PushNotifications() {
 
   useEffect(() => {
     // Check if push notifications are supported
-    setIsSupported('serviceWorker' in navigator && 'PushManager' in window);
+    const supported = 'serviceWorker' in navigator && 'PushManager' in window;
+    setIsSupported(supported);
     
-    if (isSupported) {
+    if (supported) {
       setPermission(Notification.permission);
       
       // Register service worker and check for existing subscription
@@ -25,7 +26,7 @@ export default function PushNotifications() {
         })
         .catch(err => console.log('Service Worker registration failed:', err));
     }
-  }, [isSupported]);
+  }, []);
 
   const requestPermission = async () => {
     if (!isSupported) return;
