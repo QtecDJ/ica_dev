@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield, LogOut, Settings } from "lucide-react";
-import { useSession, signOut } from "next-auth/react";
+import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield } from "lucide-react";
+import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import UnreadMessagesBadge from "./UnreadMessagesBadge";
@@ -23,11 +23,6 @@ export default function MobileBottomNav() {
   const memberId = session?.user?.memberId;
   const [activeIndex, setActiveIndex] = useState(0);
 
-  // Logout function
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/login" });
-  };
-
   // Different navigation based on role
   let navItems: NavItem[] = [];
 
@@ -35,35 +30,28 @@ export default function MobileBottomNav() {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: `/members/${memberId}`, label: "Profil", icon: <UserIcon className="w-5 h-5" />, isActive: false },
-      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
-      { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },
     ];
   } else if (userRole === "parent") {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/profil", label: "Kind", icon: <UserIcon className="w-5 h-5" />, isActive: false },
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
-      { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },
+      { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
     ];
   } else if (userRole === "admin") {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
       { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
       { href: "/administration", label: "Admin", icon: <Shield className="w-5 h-5" />, isActive: false },
-      { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },
     ];
   } else {
     // Coach
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
       { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/settings", label: "Settings", icon: <Settings className="w-5 h-5" />, isActive: false },
       { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
       { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
-      { label: "Logout", icon: <LogOut className="w-5 h-5" />, isActive: false, onClick: handleLogout },
     ];
   }
 
@@ -123,20 +111,15 @@ export default function MobileBottomNav() {
           
           const handleClick = () => {
             handleNavClick(index);
-            if (item.onClick) {
-              item.onClick();
-            }
           };
           
-          // Render button for logout, link for navigation
-          if (item.href) {
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={handleClick}
-                data-nav-index={index}
-                className={`
+          return (
+            <Link
+              key={item.href}
+              href={item.href!}
+              onClick={handleClick}
+              data-nav-index={index}
+              className={`
                   relative flex flex-col items-center justify-center min-h-[60px] px-3 py-2 rounded-xl
                   transition-all duration-300 ease-out active:scale-95 touch-manipulation
                   ${isActiveItem 
@@ -206,76 +189,6 @@ export default function MobileBottomNav() {
                 </div>
               </Link>
             );
-          } else {
-            return (
-              <button
-                key={item.label}
-                onClick={handleClick}
-                data-nav-index={index}
-                className={`
-                  relative flex flex-col items-center justify-center min-h-[60px] px-3 py-2 rounded-xl
-                  transition-all duration-300 ease-out active:scale-95 touch-manipulation
-                  ${isActiveItem 
-                    ? 'text-red-600 dark:text-red-400' 
-                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
-                  }
-                `}
-                style={{
-                  width: `${100 / navItems.length}%`,
-                }}
-              >
-                {/* Active background */}
-                <div className={`
-                  absolute inset-0 rounded-xl transition-all duration-300
-                  ${isActiveItem 
-                    ? 'bg-red-50 dark:bg-red-900/20 scale-100' 
-                    : 'bg-transparent scale-95'
-                  }
-                `} />
-                
-                {/* Icon container with bounce animation */}
-                <div className={`
-                  relative z-10 p-2 rounded-lg transition-all duration-300
-                  ${isActiveItem 
-                    ? 'transform -translate-y-0.5 bg-red-100 dark:bg-red-900/30' 
-                    : 'transform translate-y-0'
-                  }
-                `}>
-                  {item.icon}
-                </div>
-                
-                {/* Label with smooth opacity */}
-                <span className={`
-                  relative z-10 text-xs font-medium mt-1 transition-all duration-300
-                  ${isActiveItem 
-                    ? 'opacity-100 transform translate-y-0' 
-                    : 'opacity-70 transform translate-y-0.5'
-                  }
-                `}>
-                  {item.label}
-                </span>
-                
-                {/* Active dot indicator */}
-                <div className={`
-                  absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full
-                  transition-all duration-300
-                  ${isActiveItem 
-                    ? 'bg-red-500 scale-100 opacity-100' 
-                    : 'bg-transparent scale-0 opacity-0'
-                  }
-                `} />
-                
-                {/* Ripple effect on tap */}
-                <div className="absolute inset-0 rounded-xl overflow-hidden">
-                  <div className={`
-                    absolute inset-0 bg-red-500/10 rounded-xl transform scale-0 opacity-0
-                    transition-all duration-200 ease-out
-                    ${isActiveItem ? 'animate-ping' : ''}
-                  `} />
-                </div>
-              </button>
-            );
-          }
         })}
         
         {/* Settings Dropdown - Always last */}
