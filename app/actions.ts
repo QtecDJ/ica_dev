@@ -487,14 +487,22 @@ export type TrainingAttendance = {
 
 export async function getTrainingAttendance(trainingId: number) {
   try {
+    // Hole alle Team-Mitglieder mit ihrem Attendance-Status (falls vorhanden)
     const attendance = await sql`
       SELECT 
-        ta.*,
+        m.id as member_id,
         m.first_name,
-        m.last_name
-      FROM training_attendance ta
-      JOIN members m ON ta.member_id = m.id
-      WHERE ta.training_id = ${trainingId}
+        m.last_name,
+        COALESCE(ta.id, NULL) as id,
+        COALESCE(ta.status, 'pending') as status,
+        ta.comment,
+        ta.created_at,
+        ta.updated_at,
+        ${trainingId} as training_id
+      FROM trainings t
+      JOIN members m ON m.team_id = t.team_id
+      LEFT JOIN training_attendance ta ON ta.training_id = t.id AND ta.member_id = m.id
+      WHERE t.id = ${trainingId}
       ORDER BY m.last_name, m.first_name
     `;
     return attendance;
