@@ -105,7 +105,7 @@ export default function MobileBottomNav() {
         }}
       />
 
-      <div className="flex items-center justify-around px-2 py-2">
+      <div className="flex items-center px-2 py-2">
         {navItems.map((item, index) => {
           const isActiveItem = item.isActive;
           
@@ -120,16 +120,13 @@ export default function MobileBottomNav() {
               onClick={handleClick}
               data-nav-index={index}
               className={`
-                  relative flex flex-col items-center justify-center min-h-[60px] px-3 py-2 rounded-xl
+                  relative flex-1 flex flex-col items-center justify-center min-h-[60px] px-2 py-2 rounded-xl
                   transition-all duration-300 ease-out active:scale-95 touch-manipulation
                   ${isActiveItem 
                     ? 'text-red-600 dark:text-red-400' 
                     : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300'
                   }
                 `}
-                style={{
-                  width: `${100 / navItems.length}%`,
-                }}
               >
                 {/* Active background */}
                 <div className={`
@@ -191,8 +188,10 @@ export default function MobileBottomNav() {
             );
         })}
         
-        {/* Settings Dropdown - Always last */}
-        <MobileSettingsDropdown />
+        {/* Settings Dropdown - Fixed width */}
+        <div className="flex-1">
+          <MobileSettingsDropdown />
+        </div>
       </div>
       
       {/* Safe area padding for devices with home indicator */}

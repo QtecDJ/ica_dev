@@ -38,18 +38,56 @@ export default function MobileSettingsDropdown() {
   };
 
   return (
-    <div className="relative flex-1" ref={dropdownRef}>
+    <div className="relative w-full" ref={dropdownRef}>
       {/* Settings Button - Mobile Style */}
       <button
         onClick={toggleDropdown}
-        className={`w-full flex flex-col items-center justify-center p-2 transition-all duration-200 ${
+        className={`w-full flex flex-col items-center justify-center min-h-[60px] px-2 py-2 rounded-xl transition-all duration-300 ease-out active:scale-95 touch-manipulation ${
           isOpen
             ? 'text-red-600 dark:text-red-400'
             : 'text-slate-600 dark:text-slate-400'
         }`}
       >
-        <Settings className="w-5 h-5 mb-1" />
-        <span className="text-xs font-medium">Settings</span>
+        {/* Active background */}
+        <div className={`
+          absolute inset-0 rounded-xl transition-all duration-300
+          ${isOpen 
+            ? 'bg-red-50 dark:bg-red-900/20 scale-100' 
+            : 'bg-transparent scale-95'
+          }
+        `} />
+        
+        {/* Icon container with bounce animation */}
+        <div className={`
+          relative z-10 p-2 rounded-lg transition-all duration-300
+          ${isOpen 
+            ? 'transform -translate-y-0.5 bg-red-100 dark:bg-red-900/30' 
+            : 'transform translate-y-0'
+          }
+        `}>
+          <Settings className="w-5 h-5" />
+        </div>
+        
+        {/* Label with smooth opacity */}
+        <span className={`
+          relative z-10 text-xs font-medium mt-1 transition-all duration-300
+          ${isOpen 
+            ? 'opacity-100 transform translate-y-0' 
+            : 'opacity-70 transform translate-y-0.5'
+          }
+        `}>
+          Settings
+        </span>
+        
+        {/* Active dot indicator */}
+        <div className={`
+          absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full
+          transition-all duration-300
+          ${isOpen 
+            ? 'bg-red-500 scale-100 opacity-100' 
+            : 'bg-transparent scale-0 opacity-0'
+          }
+        `} />
       </button>
 
       {/* Mobile Dropdown Menu */}
