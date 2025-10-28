@@ -162,10 +162,12 @@ export default function SettingsForm() {
 
   if (!isSupported) {
     return (
-      <div className="text-center py-8">
-        <BellOff className="w-12 h-12 text-slate-400 mx-auto mb-4" />
-        <h3 className="text-lg font-medium text-slate-900 dark:text-slate-50 mb-2">
-          Push-Benachrichtigungen nicht unterstützt
+      <div className="text-center py-12">
+        <div className="w-16 h-16 mx-auto bg-red-100 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mb-4">
+          <BellOff className="w-8 h-8 text-red-600 dark:text-red-400" />
+        </div>
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+          Nicht unterstützt
         </h3>
         <p className="text-slate-600 dark:text-slate-400">
           Dein Browser unterstützt keine Push-Benachrichtigungen.
@@ -173,6 +175,171 @@ export default function SettingsForm() {
       </div>
     );
   }
+
+  return (
+    <div className="space-y-8">
+      {/* Status Card */}
+      <div className="bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-700 dark:to-slate-800 rounded-2xl p-6 border border-slate-200/50 dark:border-slate-600/50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+              permission === 'granted' && subscription
+                ? 'bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400'
+                : 'bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400'
+            }`}>
+              {permission === 'granted' && subscription ? 
+                <Bell className="w-6 h-6" /> : 
+                <BellOff className="w-6 h-6" />
+              }
+            </div>
+            <div>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-50">
+                {permission === 'granted' && subscription ? 'Aktiviert' : 'Deaktiviert'}
+              </h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400">
+                {permission === 'granted' && subscription 
+                  ? 'Du erhältst Push-Benachrichtigungen'
+                  : permission === 'denied'
+                  ? 'Benachrichtigungen wurden blockiert'
+                  : 'Benachrichtigungen sind nicht aktiviert'
+                }
+              </p>
+            </div>
+          </div>
+          
+          <div className="flex gap-3">
+            {permission === 'granted' && subscription ? (
+              <>
+                <button
+                  onClick={testNotification}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-xl hover:bg-blue-200 dark:hover:bg-blue-900/40 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Teste..." : "Test"}
+                </button>
+                <button
+                  onClick={disableNotifications}
+                  disabled={isLoading}
+                  className="px-4 py-2 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-xl hover:bg-red-200 dark:hover:bg-red-900/40 transition-all duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? "Deaktiviere..." : "Deaktivieren"}
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={enableNotifications}
+                disabled={isLoading}
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Aktiviere...
+                  </div>
+                ) : (
+                  "Benachrichtigungen aktivieren"
+                )}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Message */}
+      {message && (
+        <div className={`p-4 rounded-2xl border ${
+          message.includes('✅') 
+            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-800 dark:text-green-200' 
+            : 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-800 dark:text-red-200'
+        }`}>
+          <div className="flex items-center gap-3">
+            {message.includes('✅') ? 
+              <Check className="w-5 h-5 flex-shrink-0" /> : 
+              <X className="w-5 h-5 flex-shrink-0" />
+            }
+            <p className="font-medium">{message}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Notification Types */}
+      <div className="space-y-6">
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+          Benachrichtigungstypen
+        </h3>
+        
+        <div className="grid gap-4">
+          <div className="group p-6 bg-white dark:bg-slate-700/50 rounded-2xl border border-slate-200 dark:border-slate-600 hover:border-blue-300 dark:hover:border-blue-600 transition-all duration-200 hover:shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                  <MessageSquare className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-900 dark:text-slate-50">Chat-Nachrichten</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    Benachrichtigungen bei neuen Nachrichten im Team-Chat
+                  </p>
+                </div>
+              </div>
+              <div className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                permission === 'granted' && subscription
+                  ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                  : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-400'
+              }`}>
+                {permission === 'granted' && subscription ? 'Aktiv' : 'Inaktiv'}
+              </div>
+            </div>
+          </div>
+
+          <div className="group p-6 bg-white dark:bg-slate-700/50 rounded-2xl border border-slate-200 dark:border-slate-600 hover:border-purple-300 dark:hover:border-purple-600 transition-all duration-200 hover:shadow-lg">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center group-hover:scale-110 transition-transform duration-200">
+                  <Dumbbell className="w-6 h-6" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-900 dark:text-slate-50">Training-Erinnerungen</h4>
+                  <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+                    Benachrichtigungen bei neuen Trainings und Terminen
+                  </p>
+                </div>
+              </div>
+              <div className={`px-3 py-1.5 rounded-full text-sm font-medium ${
+                permission === 'granted' && subscription
+                  ? 'bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-300'
+                  : 'bg-slate-200 dark:bg-slate-600 text-slate-600 dark:text-slate-400'
+              }`}>
+                {permission === 'granted' && subscription ? 'Aktiv' : 'Inaktiv'}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Info Card */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl p-6">
+        <div className="flex items-start gap-4">
+          <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+            <Bell className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
+              Über Push-Benachrichtigungen
+            </h4>
+            <div className="text-sm text-blue-800 dark:text-blue-200 space-y-2">
+              <p>
+                Du erhältst Benachrichtigungen auch wenn die App nicht geöffnet ist.
+              </p>
+              <p>
+                Die Benachrichtigungen können jederzeit in den Browser-Einstellungen oder hier deaktiviert werden.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="space-y-6">
