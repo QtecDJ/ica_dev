@@ -29,7 +29,9 @@ export default function MobileBottomNav() {
   if (userRole === "member") {
     navItems = [
       { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
-      { href: `/members/${memberId}`, label: "Profil", icon: <UserIcon className="w-5 h-5" />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
+      { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
+      { href: "/profil", label: "Profil", icon: <UserIcon className="w-5 h-5" />, isActive: false },
     ];
   } else if (userRole === "parent") {
     navItems = [

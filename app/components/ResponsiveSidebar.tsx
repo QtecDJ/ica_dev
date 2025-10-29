@@ -22,7 +22,11 @@ export default function ResponsiveSidebar() {
   if (userRole === "member") {
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
-      { href: `/members/${memberId}`, label: "Mein Profil", iconName: "UserIcon" },
+      { href: "/profil", label: "Mein Profil", iconName: "UserIcon" },
+      { href: "/messages", label: "Nachrichten", iconName: "MessageCircle" },
+      { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
+      { href: "/events", label: "Events", iconName: "Calendar" },
+      { href: "/calendar", label: "Kalender", iconName: "Calendar" },
     ];
   } else if (userRole === "parent") {
     navItems = [
