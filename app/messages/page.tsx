@@ -59,17 +59,13 @@ export default async function MessagesPage() {
   // Hole andere Coaches aus gleichen Teams (für Coaches)
   let availableTeamCoaches: any[] = [];
   if (userRole === "coach") {
-    // Coaches können nur anderen Coaches ihrer eigenen Teams schreiben
+    // Coaches können ALLEN anderen Coaches schreiben (nicht nur eigene Teams)
     availableTeamCoaches = await sql`
-      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
-      FROM team_coaches tc1
-      JOIN teams t ON tc1.team_id = t.id
-      JOIN team_coaches tc2 ON t.id = tc2.team_id
-      JOIN users u ON tc2.coach_id = u.id
-      WHERE tc1.coach_id = ${userId}
+      SELECT DISTINCT u.id, u.name, u.email, 'coach' as contact_type
+      FROM users u
+      WHERE u.role = 'coach'
         AND u.id != ${userId}
-        AND u.role = 'coach'
-      ORDER BY t.name, u.name ASC
+      ORDER BY u.name ASC
     `;
   }
 
@@ -102,7 +98,8 @@ export default async function MessagesPage() {
   let allAvailableContacts: any[] = [...adminContacts]; // Alle können Admins schreiben
   
   if (userRole === "coach") {
-    allAvailableContacts = [...allAvailableContacts, ...availableTeamCoaches, ...availableParents];
+    // Coaches sehen: Admins + alle anderen Coaches (KEINE Parents im Dropdown)
+    allAvailableContacts = [...allAvailableContacts, ...availableTeamCoaches];
   } else if (userRole === "admin") {
     allAvailableContacts = [...allAvailableContacts, ...availableParents];
   } else {
