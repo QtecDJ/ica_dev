@@ -56,8 +56,24 @@ export default async function MessagesPage() {
     ORDER BY name
   `;
 
-  // Kombiniere Coaches und Admins für verfügbare Kontakte
-  const allAvailableContacts = [...availableCoaches, ...adminContacts];
+  // Hole andere Coaches aus gleichen Teams (für Coaches)
+  let availableTeamCoaches: any[] = [];
+  if (userRole === "coach") {
+    availableTeamCoaches = await sql`
+      SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
+      FROM team_coaches tc1
+      JOIN teams t ON tc1.team_id = t.id
+      JOIN team_coaches tc2 ON t.id = tc2.team_id
+      JOIN users u ON tc2.coach_id = u.id
+      WHERE tc1.coach_id = ${userId}
+        AND u.id != ${userId}
+        AND u.role = 'coach'
+      ORDER BY t.name, u.name ASC
+    `;
+  }
+
+  // Kombiniere Coaches, Team-Coaches und Admins für verfügbare Kontakte
+  const allAvailableContacts = [...availableCoaches, ...availableTeamCoaches, ...adminContacts];
 
   // Hole alle Parents (für Coaches/Admins - alle Parents der Teams, die sie betreuen)
   let availableParents: any[] = [];

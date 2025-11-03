@@ -21,7 +21,13 @@ export default async function TrainingsPage() {
   
   if (userRole === "admin") {
     // Admins sehen alle Trainings
-    trainings = await getTrainings();
+    trainings = await sql`
+      SELECT t.*, teams.name as team_name, 'admin' as user_relation
+      FROM trainings t
+      LEFT JOIN teams ON t.team_id = teams.id
+      WHERE t.training_date >= CURRENT_DATE - INTERVAL '1 day'
+      ORDER BY t.training_date ASC, t.start_time ASC
+    `;
   } else if (userRole === "coach") {
     // Coaches sehen Trainings ihrer eigenen Teams UND das Team in dem sie Mitglied sind
     const coachTeams = await sql`
@@ -58,7 +64,8 @@ export default async function TrainingsPage() {
         FROM trainings t
         LEFT JOIN teams ON t.team_id = teams.id
         WHERE t.team_id = ANY(${teamIds})
-        ORDER BY t.training_date DESC, t.start_time
+        AND t.training_date >= CURRENT_DATE - INTERVAL '1 day'
+        ORDER BY t.training_date ASC, t.start_time ASC
       `;
     } else {
       trainings = [];
@@ -80,7 +87,8 @@ export default async function TrainingsPage() {
         FROM trainings t
         LEFT JOIN teams ON t.team_id = teams.id
         WHERE t.team_id = ${userTeamId}
-        ORDER BY t.training_date DESC, t.start_time
+        AND t.training_date >= CURRENT_DATE - INTERVAL '1 day'
+        ORDER BY t.training_date ASC, t.start_time ASC
       `;
     } else {
       trainings = [];
@@ -102,7 +110,8 @@ export default async function TrainingsPage() {
         FROM trainings t
         LEFT JOIN teams ON t.team_id = teams.id
         WHERE t.team_id = ${userTeamId}
-        ORDER BY t.training_date DESC, t.start_time
+        AND t.training_date >= CURRENT_DATE - INTERVAL '1 day'
+        ORDER BY t.training_date ASC, t.start_time ASC
       `;
     } else {
       trainings = [];
