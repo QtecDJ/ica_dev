@@ -2,37 +2,42 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============================================
+/* ========body {
+  @apply bg-white text-black dark:bg-black dark:text-white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}==============================
    DESIGN SYSTEM - Industry Standards
    Based on: Material Design 3, Tailwind Best Practices
    ============================================ */
 
 :root {
-  /* Modern Purple Theme */
-  --color-primary: 139 92 246;      /* Purple-600 */
-  --color-primary-hover: 124 58 237; /* Purple-700 */
-  --color-secondary: 15 23 42;      /* Slate-900 */
-  --color-accent: 168 139 250;      /* Purple-400 */
+  /* Team Colors: Schwarz, Rot, Weiß */
+  --color-primary: 220 38 38;       /* Red-600 */
+  --color-primary-hover: 185 28 28;  /* Red-700 */
+  --color-secondary: 0 0 0;          /* Black */
+  --color-accent: 239 68 68;         /* Red-500 */
   
   /* Backgrounds */
   --bg-base: 255 255 255;           /* White */
-  --bg-surface: 248 250 252;        /* Slate-50 */
+  --bg-surface: 250 250 250;        /* Gray-50 */
   --bg-elevated: 255 255 255;       /* White */
   
   /* Text */
-  --text-primary: 15 23 42;         /* Slate-900 */
-  --text-secondary: 71 85 105;      /* Slate-600 */
-  --text-disabled: 148 163 184;     /* Slate-400 */
+  --text-primary: 0 0 0;            /* Black */
+  --text-secondary: 64 64 64;       /* Gray-700 */
+  --text-disabled: 163 163 163;     /* Gray-400 */
   
   /* Borders */
-  --border-light: 226 232 240;      /* Slate-200 */
-  --border-medium: 203 213 225;     /* Slate-300 */
+  --border-light: 229 229 229;      /* Gray-200 */
+  --border-medium: 212 212 212;     /* Gray-300 */
   
-  /* Shadows */
+  /* Shadows with red accent */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-  --shadow-glass: 0 8px 32px 0 rgba(139, 92, 246, 0.15);
+  --shadow-glass: 0 8px 32px 0 rgba(220, 38, 38, 0.15);
   
   /* Spacing Scale (8px base) */
   --spacing-xs: 0.5rem;   /* 8px */
@@ -53,19 +58,19 @@
   --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Dark Mode - Consistent across all pages */
+/* Dark Mode - Team Colors */
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg-base: 15 23 42;            /* Slate-900 */
-    --bg-surface: 30 41 59;         /* Slate-800 */
-    --bg-elevated: 51 65 85;        /* Slate-700 */
+    --bg-base: 0 0 0;               /* Black */
+    --bg-surface: 23 23 23;         /* Gray-900 */
+    --bg-elevated: 38 38 38;        /* Gray-800 */
     
-    --text-primary: 248 250 252;    /* Slate-50 */
-    --text-secondary: 203 213 225;  /* Slate-300 */
-    --text-disabled: 100 116 139;   /* Slate-500 */
+    --text-primary: 255 255 255;    /* White */
+    --text-secondary: 212 212 212;  /* Gray-300 */
+    --text-disabled: 115 115 115;   /* Gray-500 */
     
-    --border-light: 51 65 85;       /* Slate-700 */
-    --border-medium: 71 85 105;     /* Slate-600 */
+    --border-light: 38 38 38;       /* Gray-800 */
+    --border-medium: 64 64 64;      /* Gray-700 */
   }
 }
 
@@ -97,19 +102,19 @@ body {
   }
   
   .btn-primary {
-    @apply btn bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800;
-    @apply focus:ring-purple-500 shadow-sm hover:shadow-md;
+    @apply btn bg-red-600 text-white hover:bg-red-700 active:bg-red-800;
+    @apply focus:ring-red-500 shadow-sm hover:shadow-md;
   }
   
   .btn-secondary {
-    @apply btn bg-slate-200 text-slate-900 hover:bg-slate-300 active:bg-slate-400;
-    @apply dark:bg-slate-700 dark:text-slate-50 dark:hover:bg-slate-600;
-    @apply focus:ring-slate-500;
+    @apply btn bg-gray-100 text-black hover:bg-gray-200 active:bg-gray-300;
+    @apply dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700;
+    @apply focus:ring-gray-500 border border-gray-300 dark:border-gray-600;
   }
   
   .btn-ghost {
-    @apply btn bg-transparent hover:bg-slate-100 dark:hover:bg-slate-800;
-    @apply text-slate-700 dark:text-slate-300;
+    @apply btn bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800;
+    @apply text-black dark:text-white;
   }
   
   .btn-sm {
@@ -124,22 +129,22 @@ body {
   
   /* Cards - Elevated Surface */
   .card {
-    @apply bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700;
+    @apply bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700;
     @apply transition-shadow duration-200;
   }
   
   .card-hover {
-    @apply card hover:shadow-md hover:border-slate-300 dark:hover:border-slate-600;
+    @apply card hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600;
   }
   
   .card-glass {
-    @apply backdrop-blur-md bg-white/80 dark:bg-slate-800/80 rounded-xl;
-    @apply border border-slate-200/50 dark:border-slate-700/50;
+    @apply backdrop-blur-md bg-white/90 dark:bg-gray-900/90 rounded-xl;
+    @apply border border-gray-200/50 dark:border-gray-700/50;
     box-shadow: var(--shadow-glass);
   }
   
   .card-header {
-    @apply px-6 py-4 border-b border-slate-200 dark:border-slate-700;
+    @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
   }
   
   .card-body {
@@ -147,17 +152,17 @@ body {
   }
   
   .card-footer {
-    @apply px-6 py-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 rounded-b-xl;
+    @apply px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-b-xl;
   }
   
   /* Inputs - Consistent Form Elements */
   .input {
-    @apply w-full px-4 py-2.5 rounded-lg border border-slate-300 dark:border-slate-600;
-    @apply bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-50;
-    @apply placeholder:text-slate-400 dark:placeholder:text-slate-500;
+    @apply w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600;
+    @apply bg-white dark:bg-gray-800 text-black dark:text-white;
+    @apply placeholder:text-gray-400 dark:placeholder:text-gray-500;
     @apply focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent;
     @apply transition-all duration-200;
-    @apply disabled:bg-slate-100 dark:disabled:bg-slate-900 disabled:cursor-not-allowed;
+    @apply disabled:bg-gray-100 dark:disabled:bg-gray-900 disabled:cursor-not-allowed;
     min-height: 44px;
   }
   
@@ -170,7 +175,7 @@ body {
   }
   
   .label {
-    @apply block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2;
+    @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2;
   }
   
   /* Badges - Role/Status Indicators */
@@ -195,7 +200,7 @@ body {
   }
   
   .badge-gray {
-    @apply badge bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300;
+    @apply badge bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300;
   }
   
   /* Alerts */
@@ -326,13 +331,13 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.125);
 }
 
-/* Enhanced button states */
+/* Enhanced button states with team colors */
 .btn-primary {
-  @apply bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
+  @apply bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-6 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
 }
 
 .btn-secondary {
-  @apply bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-semibold py-3 px-6 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
+  @apply bg-white dark:bg-gray-900 text-black dark:text-white font-semibold py-3 px-6 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 transition-all duration-200 active:scale-95;
 }
 
 /* Mobile-optimized containers */

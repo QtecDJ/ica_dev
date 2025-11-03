@@ -82,8 +82,8 @@ export default async function TeamsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">Teams</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Teams</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {teams.length} {teams.length === 1 ? 'Team' : 'Teams'} {userRole === "coach" ? "unter deiner Leitung" : "insgesamt"}
           </p>
         </div>
@@ -128,24 +128,24 @@ export default async function TeamsPage() {
                       </td>
                       <td>
                         <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-slate-500" />
-                          <span className="font-medium text-slate-900 dark:text-slate-50">
+                          <Users className="w-4 h-4 text-gray-500" />
+                          <span className="font-medium text-gray-900 dark:text-gray-50">
                             {team.member_count}
                           </span>
-                          <span className="text-xs text-slate-500">
+                          <span className="text-xs text-gray-500">
                             {team.member_count === 1 ? 'Mitglied' : 'Mitglieder'}
                           </span>
                         </div>
                       </td>
-                      <td className="text-slate-600 dark:text-slate-400">
+                      <td className="text-gray-600 dark:text-gray-400">
                         <div className="flex flex-wrap gap-1">
                           {team.coach.split(', ').map((coach: string, index: number) => (
                             <span 
                               key={index}
                               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                                 coach.includes('👑') 
-                                  ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300'
-                                  : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300'
+                                  ? 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300'
+                                  : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
                               }`}
                             >
                               {coach}
@@ -153,7 +153,7 @@ export default async function TeamsPage() {
                           ))}
                         </div>
                       </td>
-                      <td className="text-slate-600 dark:text-slate-400">
+                      <td className="text-gray-600 dark:text-gray-400">
                         {new Date(team.created_at).toLocaleDateString("de-DE")}
                       </td>
                       {userRole === "admin" && (
@@ -161,14 +161,14 @@ export default async function TeamsPage() {
                           <div className="flex justify-end gap-2">
                             <Link
                               href={`/teams/${team.id}/edit-multi`}
-                              className="text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+                              className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
                               title="Multi-Coach bearbeiten"
                             >
                               <Users className="w-4 h-4" />
                             </Link>
                             <Link
                               href={`/teams/${team.id}/edit`}
-                              className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                              className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
                               title="Team bearbeiten"
                             >
                               <Pencil className="w-4 h-4" />
@@ -195,7 +195,7 @@ export default async function TeamsPage() {
                         <Trophy className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-slate-900 dark:text-slate-50">
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-50">
                           {team.name}
                         </h3>
                         <span className="badge-blue text-xs mt-1 inline-block">
@@ -207,14 +207,14 @@ export default async function TeamsPage() {
                       <div className="flex gap-2">
                         <Link
                           href={`/teams/${team.id}/edit-multi`}
-                          className="text-slate-600 hover:text-blue-600 dark:text-slate-400 dark:hover:text-blue-400 transition-colors"
+                          className="text-gray-600 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
                           title="Multi-Coach verwalten"
                         >
                           <Users className="w-4 h-4" />
                         </Link>
                         <Link
                           href={`/teams/${team.id}/edit`}
-                          className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                          className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
                           title="Team bearbeiten"
                         >
                           <Pencil className="w-4 h-4" />
@@ -225,16 +225,16 @@ export default async function TeamsPage() {
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Mitglieder:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Mitglieder:</span>
                       <div className="flex items-center gap-2">
-                        <Users className="w-4 h-4 text-slate-500" />
-                        <span className="font-medium text-slate-900 dark:text-slate-50">
+                        <Users className="w-4 h-4 text-gray-500" />
+                        <span className="font-medium text-gray-900 dark:text-gray-50">
                           {team.member_count}
                         </span>
                       </div>
                     </div>
                     <div className="flex justify-between items-start">
-                      <span className="text-slate-600 dark:text-slate-400">Coaches:</span>
+                      <span className="text-gray-600 dark:text-gray-400">Coaches:</span>
                       <div className="flex flex-wrap gap-1 justify-end max-w-xs">
                         {team.coach.split(', ').map((coach: string, index: number) => (
                           <span 
@@ -251,8 +251,8 @@ export default async function TeamsPage() {
                       </div>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Erstellt:</span>
-                      <span className="text-slate-900 dark:text-slate-50">
+                      <span className="text-gray-600 dark:text-gray-400">Erstellt:</span>
+                      <span className="text-gray-900 dark:text-gray-50">
                         {new Date(team.created_at).toLocaleDateString("de-DE")}
                       </span>
                     </div>
@@ -265,13 +265,13 @@ export default async function TeamsPage() {
       ) : (
         <div className="card">
           <div className="card-body text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
-              <Trophy className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+              <Trophy className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">
               {userRole === "coach" ? "Dir wurde noch kein Team zugewiesen" : "Noch keine Teams"}
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               {userRole === "coach" 
                 ? "Bitte wende dich an einen Administrator, um einem Team zugewiesen zu werden."
                 : "Erstelle dein erstes Team, um loszulegen!"

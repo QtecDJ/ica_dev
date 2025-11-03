@@ -109,14 +109,21 @@ export async function POST(request: Request) {
 
     const recipientRole = recipient[0].role;
 
-    // Nur Parent ↔ Coach Kommunikation erlaubt
+    // Erweiterte Kommunikation: Parent ↔ Coach, Member ↔ Coach, Admin ↔ alle
     const isValidCommunication = 
+      // Parent kann mit Coach/Admin kommunizieren
       (senderRole === "parent" && (recipientRole === "coach" || recipientRole === "admin")) ||
-      ((senderRole === "coach" || senderRole === "admin") && recipientRole === "parent");
+      // Member kann mit Coach/Admin kommunizieren  
+      (senderRole === "member" && (recipientRole === "coach" || recipientRole === "admin")) ||
+      // Coach/Admin kann mit Parent/Member kommunizieren
+      ((senderRole === "coach" || senderRole === "admin") && (recipientRole === "parent" || recipientRole === "member")) ||
+      // Admin kann mit allen kommunizieren
+      (senderRole === "admin") ||
+      (recipientRole === "admin");
 
     if (!isValidCommunication) {
       return NextResponse.json(
-        { error: "Nachrichten sind nur zwischen Eltern und Coaches erlaubt" },
+        { error: "Nachrichten sind nur zwischen Eltern/Mitgliedern und Coaches erlaubt" },
         { status: 403 }
       );
     }

@@ -61,7 +61,7 @@ export default function ResponsiveSidebar() {
   return (
     <>
       {/* Desktop-only Sidebar */}
-      <aside className="hidden lg:flex w-80 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-50 border-r border-slate-200 dark:border-slate-700 flex-col h-full">
+      <aside className="hidden lg:flex w-80 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 border-r border-gray-200 dark:border-gray-700 flex-col h-full">
         {/* Enhanced Logo section */}
         <div className="p-6">
           <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200/50 dark:border-red-700/50">
@@ -93,7 +93,7 @@ export default function ResponsiveSidebar() {
                     className={`flex items-center space-x-4 px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden ${
                       active
                         ? "bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 text-red-600 dark:text-red-400 font-semibold shadow-sm"
-                        : "text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-50"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-50"
                     }`}
                   >
                     {/* Active indicator */}
@@ -105,7 +105,7 @@ export default function ResponsiveSidebar() {
                     <div className={`p-2 rounded-lg transition-all duration-200 ${
                       active 
                         ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400' 
-                        : 'group-hover:bg-slate-100 dark:group-hover:bg-slate-700'
+                        : 'group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
                     }`}>
                       {item.iconName === "Home" && <Home className="w-5 h-5" />}
                       {item.iconName === "Users" && <Users className="w-5 h-5" />}
@@ -132,7 +132,7 @@ export default function ResponsiveSidebar() {
         
         {/* Enhanced User section */}
         <div className="p-4 mt-auto">
-          <div className="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl p-4 border border-slate-200 dark:border-slate-700">
+          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
             {session?.user && (
               <>
                 <div className="flex items-center gap-3 mb-3">
@@ -140,7 +140,7 @@ export default function ResponsiveSidebar() {
                     {session.user.name?.charAt(0)?.toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wide font-medium">
+                    <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wide font-medium">
                       {userRole === "admin"
                         ? "Administrator"
                         : userRole === "coach"
@@ -149,7 +149,7 @@ export default function ResponsiveSidebar() {
                         ? "Elternteil"
                         : "Mitglied"}
                     </p>
-                    <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 truncate">
                       {session.user.name || ""}
                     </p>
                   </div>

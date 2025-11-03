@@ -25,14 +25,14 @@ export default function MemberDashboard({
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
             Willkommen zurück
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             {member.first_name}, hier ist deine Übersicht über Trainings und Events
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
           <User className="w-4 h-4" />
           Mitglieder-Ansicht
         </div>
@@ -52,7 +52,7 @@ export default function MemberDashboard({
           </div>
           <div className="card-body">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-xl overflow-hidden bg-slate-200 dark:bg-slate-700 flex-shrink-0">
+              <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
                 {member.avatar_url ? (
                   <Image
                     src={member.avatar_url}
@@ -62,13 +62,13 @@ export default function MemberDashboard({
                     className="object-cover w-full h-full"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-lg">
+                  <div className="w-full h-full flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold text-lg">
                     {member.first_name[0]}{member.last_name[0]}
                   </div>
                 )}
               </div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-gray-50">
                   {member.first_name} {member.last_name}
                 </h3>
                 <div className="flex items-center gap-2 mt-1">
@@ -77,8 +77,8 @@ export default function MemberDashboard({
                   </span>
                   {team.level && (
                     <>
-                      <span className="text-slate-400">•</span>
-                      <span className="text-sm text-slate-600 dark:text-slate-400">
+                      <span className="text-gray-400">•</span>
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
                         {team.level}
                       </span>
                     </>
@@ -150,10 +150,10 @@ export default function MemberDashboard({
                   <div key={training.id} className="border-l-4 border-blue-200 dark:border-blue-800 pl-3 py-2">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                        <h4 className="font-medium text-gray-900 dark:text-gray-50 text-sm">
                           {training.team_name || 'Training'}
                         </h4>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {new Date(training.training_date).toLocaleDateString('de-DE')}
@@ -187,7 +187,7 @@ export default function MemberDashboard({
                 ))}
               </div>
             ) : (
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Keine kommenden Trainings
               </p>
             )}
@@ -214,10 +214,10 @@ export default function MemberDashboard({
                   <div key={event.id} className="border-l-4 border-green-200 dark:border-green-800 pl-3 py-2">
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                        <h4 className="font-medium text-gray-900 dark:text-gray-50 text-sm">
                           {event.title}
                         </h4>
-                        <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                        <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
                             {new Date(event.event_date).toLocaleDateString('de-DE')}
@@ -240,7 +240,7 @@ export default function MemberDashboard({
                 ))}
               </div>
             ) : (
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Keine kommenden Events
               </p>
             )}
@@ -262,8 +262,8 @@ export default function MemberDashboard({
             {teamMembers.length > 0 ? (
               <div className="space-y-3">
                 {teamMembers.slice(0, 6).map((teamMember: any) => (
-                  <div key={teamMember.id} className="flex items-center gap-3 p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-700 flex-shrink-0">
+                  <div key={teamMember.id} className="flex items-center gap-3 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-700 flex-shrink-0">
                       {teamMember.avatar_url ? (
                         <Image 
                           src={teamMember.avatar_url} 
@@ -273,19 +273,19 @@ export default function MemberDashboard({
                           className="object-cover w-full h-full" 
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-sm">
+                        <div className="w-full h-full flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold text-sm">
                           {teamMember.first_name[0]}{teamMember.last_name[0]}
                         </div>
                       )}
                     </div>
-                    <p className="text-slate-900 dark:text-slate-50 text-sm font-medium">
+                    <p className="text-gray-900 dark:text-gray-50 text-sm font-medium">
                       {teamMember.first_name} {teamMember.last_name}
                     </p>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Kein Team zugeordnet
               </p>
             )}
@@ -304,13 +304,13 @@ export default function MemberDashboard({
             {coaches.length > 0 ? (
               <div className="space-y-3">
                 {coaches.map((coach: any) => (
-                  <div key={coach.id} className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                  <div key={coach.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400 font-bold text-sm">
                         {coach.name?.[0] || "C"}
                       </div>
                       <div>
-                        <p className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                        <p className="font-medium text-gray-900 dark:text-gray-50 text-sm">
                           {coach.name}
                         </p>
                         {coach.email && (
@@ -334,7 +334,7 @@ export default function MemberDashboard({
                 ))}
               </div>
             ) : (
-              <p className="text-slate-500 dark:text-slate-400 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 Keine Coaches verfügbar
               </p>
             )}
@@ -365,10 +365,10 @@ function QuickActionCard({ href, icon, title, description, color }: {
         <div className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3 ${colorClasses[color]}`}>
           {icon}
         </div>
-        <h4 className="font-semibold text-slate-900 dark:text-slate-50 mb-1">
+        <h4 className="font-semibold text-gray-900 dark:text-gray-50 mb-1">
           {title}
         </h4>
-        <p className="text-xs text-slate-600 dark:text-slate-400">
+        <p className="text-xs text-gray-600 dark:text-gray-400">
           {description}
         </p>
       </div>

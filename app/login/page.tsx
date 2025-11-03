@@ -87,11 +87,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo Section */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white dark:bg-slate-800 rounded-2xl shadow-lg mb-4 p-2">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-white dark:bg-gray-800 rounded-2xl shadow-lg mb-4 p-2">
             <Image
               src="/logo.png"
               alt="Infinity Cheer Allstars Logo"
@@ -101,10 +101,10 @@ export default function LoginPage() {
               priority
             />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-1">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 mb-1">
             Infinity Cheer Allstars
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 text-sm">
+          <p className="text-gray-600 dark:text-gray-400 text-sm">
             Backoffice Login
           </p>
         </div>
@@ -147,7 +147,7 @@ export default function LoginPage() {
                   Benutzername
                 </label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     id="username"
                     type="text"
@@ -166,7 +166,7 @@ export default function LoginPage() {
                   Passwort
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
                   <input
                     id="password"
                     type="password"

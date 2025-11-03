@@ -7,32 +7,109 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import type { Session } from "next-auth";
 import { redirect } from "next/navigation";
+import { neon } from "@neondatabase/serverless";
+
+const sql = neon(process.env.DATABASE_URL!);
 
 export default async function MembersPage() {
   const session = (await getServerSession(authOptions)) as Session | null;
   const userRole = session?.user?.role;
+  const userId = session?.user?.id;
   
-  // Only admin and coach can see all members
-  if (userRole !== "admin" && userRole !== "coach") {
+  // Only admin, coach, and member can see members (with different filtering)
+  if (userRole !== "admin" && userRole !== "coach" && userRole !== "member") {
     redirect("/profil");
   }
-  
-  const members = await getMembers();
+
+  let members: any[] = [];
+
+  if (userRole === "admin") {
+    // Admins see all members
+    members = await getMembers();
+  } else if (userRole === "coach") {
+    // Coaches see only coaches from their own team(s)
+    // First get teams where user is a coach
+    const coachTeams = await sql`
+      SELECT DISTINCT t.id, t.name
+      FROM teams t
+      JOIN team_coaches tc ON t.id = tc.team_id
+      WHERE tc.coach_id = ${userId}
+    `;
+    
+    // Check if coach is also a member and get their team
+    const coachMemberTeam = await sql`
+      SELECT DISTINCT m.team_id
+      FROM users u
+      JOIN members m ON u.member_id = m.id
+      WHERE u.id = ${userId} AND m.team_id IS NOT NULL
+    `;
+    
+    // Collect all team IDs (both coached teams and own member team)
+    let teamIds = coachTeams.map(team => team.id);
+    if (coachMemberTeam.length > 0) {
+      const memberTeamId = coachMemberTeam[0].team_id;
+      if (!teamIds.includes(memberTeamId)) {
+        teamIds.push(memberTeamId);
+      }
+    }
+    
+    if (teamIds.length > 0) {
+      // Get only coaches from these teams
+      members = await sql`
+        SELECT DISTINCT u.id as user_id, m.*, t.name as team_name, u.role
+        FROM members m
+        LEFT JOIN teams t ON m.team_id = t.id
+        LEFT JOIN users u ON u.member_id = m.id
+        WHERE m.team_id = ANY(${teamIds}) 
+        AND u.role = 'coach'
+        ORDER BY m.last_name, m.first_name
+      `;
+    }
+  } else if (userRole === "member") {
+    // Members see only coaches from their own team
+    const memberInfo = await sql`
+      SELECT m.team_id
+      FROM users u
+      JOIN members m ON u.member_id = m.id
+      WHERE u.id = ${userId}
+    `;
+    
+    if (memberInfo.length > 0 && memberInfo[0].team_id) {
+      const teamId = memberInfo[0].team_id;
+      // Get only coaches from the member's team
+      members = await sql`
+        SELECT DISTINCT u.id as user_id, m.*, t.name as team_name, u.role
+        FROM members m
+        LEFT JOIN teams t ON m.team_id = t.id
+        LEFT JOIN users u ON u.member_id = m.id
+        WHERE m.team_id = ${teamId} 
+        AND u.role = 'coach'
+        ORDER BY m.last_name, m.first_name
+      `;
+    }
+  }
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">Mitglieder</h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
-            {members.length} {members.length === 1 ? 'Mitglied' : 'Mitglieder'} insgesamt
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
+            {userRole === "admin" ? "Mitglieder" : "Meine Coaches"}
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
+            {userRole === "admin" 
+              ? `${members.length} ${members.length === 1 ? 'Mitglied' : 'Mitglieder'} insgesamt`
+              : `${members.length} ${members.length === 1 ? 'Coach' : 'Coaches'} in deinem Team`
+            }
           </p>
         </div>
-        <Link href="/members/new" className="btn btn-primary">
-          <Plus className="w-5 h-5" />
-          Neues Mitglied
-        </Link>
+        {userRole === "admin" && (
+          <Link href="/members/new" className="btn btn-primary">
+            <Plus className="w-5 h-5" />
+            Neues Mitglied
+          </Link>
+        )}
       </div>
 
       {/* Members Grid/Table */}
@@ -57,7 +134,7 @@ export default async function MembersPage() {
                     <tr key={member.id}>
                       <td>
                         <Link href={`/members/${member.id}`} className="block">
-                          <div className="w-10 h-10 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                          <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                             {member.avatar_url ? (
                               <Image
                                 src={member.avatar_url}
@@ -67,7 +144,7 @@ export default async function MembersPage() {
                                 className="object-cover"
                               />
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400 text-xs font-bold">
+                              <div className="w-full h-full flex items-center justify-center text-gray-600 dark:text-gray-400 text-xs font-bold">
                                 {member.first_name[0]}{member.last_name[0]}
                               </div>
                             )}
@@ -77,36 +154,36 @@ export default async function MembersPage() {
                       <td>
                         <Link 
                           href={`/members/${member.id}`}
-                          className="font-medium text-slate-900 dark:text-slate-50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                          className="font-medium text-gray-900 dark:text-gray-50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                         >
                           {member.first_name} {member.last_name}
                         </Link>
                       </td>
-                      <td className="text-slate-600 dark:text-slate-400">
+                      <td className="text-gray-600 dark:text-gray-400">
                         {new Date(member.birth_date).toLocaleDateString("de-DE")}
                       </td>
                       <td>
                         {member.team_name ? (
-                          <span className="badge-blue">{member.team_name}</span>
+                          <span className="badge-red">{member.team_name}</span>
                         ) : (
-                          <span className="text-slate-400">-</span>
+                          <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      <td className="text-slate-600 dark:text-slate-400">
+                      <td className="text-gray-600 dark:text-gray-400">
                         {member.email || "-"}
                       </td>
                       <td>
                         <div className="flex justify-end gap-2">
                           <Link
                             href={`/members/${member.id}`}
-                            className="text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
+                            className="text-gray-600 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
                             title="Profil ansehen"
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
                           <Link
                             href={`/members/${member.id}/edit`}
-                            className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                            className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
                             title="Bearbeiten"
                           >
                             <Pencil className="w-4 h-4" />
@@ -128,7 +205,7 @@ export default async function MembersPage() {
                 <div className="card-body">
                   <div className="flex items-start gap-4 mb-4">
                     <Link href={`/members/${member.id}`} className="flex-shrink-0">
-                      <div className="w-16 h-16 rounded-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                      <div className="w-16 h-16 rounded-full overflow-hidden bg-gray-200 dark:bg-gray-700">
                         {member.avatar_url ? (
                           <Image
                             src={member.avatar_url}
@@ -138,7 +215,7 @@ export default async function MembersPage() {
                             className="object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-lg">
+                          <div className="w-full h-full flex items-center justify-center text-gray-600 dark:text-gray-400 font-bold text-lg">
                             {member.first_name[0]}{member.last_name[0]}
                           </div>
                         )}
@@ -147,12 +224,12 @@ export default async function MembersPage() {
                     <div className="flex-1 min-w-0">
                       <Link 
                         href={`/members/${member.id}`}
-                        className="font-semibold text-lg text-slate-900 dark:text-slate-50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
+                        className="font-semibold text-lg text-gray-900 dark:text-gray-50 hover:text-red-600 dark:hover:text-red-400 transition-colors"
                       >
                         {member.first_name} {member.last_name}
                       </Link>
                       {member.team_name && (
-                        <span className="badge-blue text-xs mt-1 inline-block">
+                        <span className="badge-red text-xs mt-1 inline-block">
                           {member.team_name}
                         </span>
                       )}
@@ -160,13 +237,13 @@ export default async function MembersPage() {
                     <div className="flex gap-2">
                       <Link
                         href={`/members/${member.id}`}
-                        className="text-slate-600 hover:text-green-600 dark:text-slate-400 dark:hover:text-green-400 transition-colors"
+                        className="text-gray-600 hover:text-green-600 dark:text-gray-400 dark:hover:text-green-400 transition-colors"
                       >
                         <Eye className="w-5 h-5" />
                       </Link>
                       <Link
                         href={`/members/${member.id}/edit`}
-                        className="text-slate-600 hover:text-red-600 dark:text-slate-400 dark:hover:text-red-400 transition-colors"
+                        className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
                       >
                         <Pencil className="w-5 h-5" />
                       </Link>
@@ -175,15 +252,15 @@ export default async function MembersPage() {
                   </div>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-slate-600 dark:text-slate-400">Geburtsdatum:</span>
-                      <span className="text-slate-900 dark:text-slate-50">
+                      <span className="text-gray-600 dark:text-gray-400">Geburtsdatum:</span>
+                      <span className="text-gray-900 dark:text-gray-50">
                         {new Date(member.birth_date).toLocaleDateString("de-DE")}
                       </span>
                     </div>
                     {member.email && (
                       <div className="flex justify-between">
-                        <span className="text-slate-600 dark:text-slate-400">Email:</span>
-                        <span className="text-slate-900 dark:text-slate-50 truncate ml-2">
+                        <span className="text-gray-600 dark:text-gray-400">Email:</span>
+                        <span className="text-gray-900 dark:text-gray-50 truncate ml-2">
                           {member.email}
                         </span>
                       </div>
@@ -197,13 +274,13 @@ export default async function MembersPage() {
       ) : (
         <div className="card">
           <div className="card-body text-center py-12">
-            <div className="w-16 h-16 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mx-auto mb-4">
-              <Users className="w-8 h-8 text-slate-400" />
+            <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-50 mb-2">
               Noch keine Mitglieder
             </h3>
-            <p className="text-slate-600 dark:text-slate-400 mb-6">
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
               Füge dein erstes Mitglied hinzu, um loszulegen!
             </p>
             <Link href="/members/new" className="btn btn-primary inline-flex">

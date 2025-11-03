@@ -18,9 +18,9 @@ export default async function EventsPage() {
   const getEventTypeBadge = (type: string) => {
     const badges: Record<string, string> = {
       competition: "badge-red",
-      showcase: "badge-purple",
-      training: "badge-blue",
-      workshop: "badge-green",
+      showcase: "badge-black",
+      training: "badge-gray",
+      workshop: "badge-white",
       other: "badge-gray",
     };
     return badges[type] || "badge-gray";

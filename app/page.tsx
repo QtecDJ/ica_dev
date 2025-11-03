@@ -60,14 +60,18 @@ export default async function Home() {
           `
         : [];
 
-      // Get coaches (users with coach role)
-      const coaches = await sql`
-        SELECT u.id, u.name, m.email
-        FROM users u
-        LEFT JOIN members m ON u.member_id = m.id
-        WHERE u.role = 'coach'
-        ORDER BY u.name ASC
-      `;
+      // Get coaches from own team only
+      const coaches = member.team_id
+        ? await sql`
+            SELECT DISTINCT u.id, u.name, m.email
+            FROM team_coaches tc
+            JOIN users u ON tc.coach_id = u.id
+            LEFT JOIN members m ON u.member_id = m.id
+            WHERE tc.team_id = ${member.team_id}
+            AND u.role = 'coach'
+            ORDER BY tc.is_primary DESC, u.name ASC
+          `
+        : [];
 
       return (
         <MemberDashboard
@@ -124,14 +128,14 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
               Willkommen zurück
             </h1>
-            <p className="text-slate-600 dark:text-slate-400 mt-1">
+            <p className="text-gray-600 dark:text-gray-400 mt-1">
               {userName}, hier ist eine Übersicht über aktuelle Events und Trainings
             </p>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <Calendar className="w-4 h-4" />
             Eltern-Ansicht
           </div>
@@ -147,28 +151,28 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
             icon={<Calendar className="w-6 h-6" />}
             title="Events"
             description="Alle Veranstaltungen"
-            color="blue"
+            color="red"
           />
           <QuickActionCard
             href="/calendar"
             icon={<Calendar className="w-6 h-6" />}
             title="Kalender"
             description="Terminübersicht"
-            color="green"
+            color="black"
           />
           <QuickActionCard
             href="/trainings"
             icon={<Dumbbell className="w-6 h-6" />}
             title="Trainings"
             description="Trainingszeiten"
-            color="yellow"
+            color="gray"
           />
           <QuickActionCard
             href="/meine-kinder"
             icon={<Users className="w-6 h-6" />}
             title="Meine Kinder"
             description="Informationen"
-            color="red"
+            color="white"
           />
         </div>
 
@@ -179,10 +183,10 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
             <div className="card-header">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Calendar className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <Calendar className="w-5 h-5 text-red-600 dark:text-red-400" />
                   <h2 className="text-lg font-semibold">Kommende Events</h2>
                 </div>
-                <Link href="/events" className="text-sm text-blue-600 dark:text-blue-400 hover:underline">
+                <Link href="/events" className="text-sm text-red-600 dark:text-red-400 hover:underline">
                   Alle anzeigen
                 </Link>
               </div>
@@ -191,13 +195,13 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
               {upcomingEvents.length > 0 ? (
                 <div className="space-y-3">
                   {upcomingEvents.slice(0, 4).map((event: any) => (
-                    <div key={event.id} className="border-l-4 border-blue-200 dark:border-blue-800 pl-3 py-2">
+                    <div key={event.id} className="border-l-4 border-red-200 dark:border-red-800 pl-3 py-2">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                          <h4 className="font-medium text-gray-900 dark:text-gray-50 text-sm">
                             {event.title}
                           </h4>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {new Date(event.date).toLocaleDateString('de-DE')}
@@ -220,7 +224,7 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
                   ))}
                 </div>
               ) : (
-                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
                   Keine kommenden Events
                 </p>
               )}
@@ -232,10 +236,10 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
             <div className="card-header">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Dumbbell className="w-5 h-5 text-yellow-600 dark:text-yellow-400" />
+                  <Dumbbell className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   <h2 className="text-lg font-semibold">Kommende Trainings</h2>
                 </div>
-                <Link href="/trainings" className="text-sm text-yellow-600 dark:text-yellow-400 hover:underline">
+                <Link href="/trainings" className="text-sm text-gray-600 dark:text-gray-400 hover:underline">
                   Alle anzeigen
                 </Link>
               </div>
@@ -244,13 +248,13 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
               {upcomingTrainings.length > 0 ? (
                 <div className="space-y-3">
                   {upcomingTrainings.slice(0, 4).map((training: any) => (
-                    <div key={training.id} className="border-l-4 border-yellow-200 dark:border-yellow-800 pl-3 py-2">
+                    <div key={training.id} className="border-l-4 border-gray-200 dark:border-gray-800 pl-3 py-2">
                       <div className="flex justify-between items-start">
                         <div className="flex-1">
-                          <h4 className="font-medium text-slate-900 dark:text-slate-50 text-sm">
+                          <h4 className="font-medium text-gray-900 dark:text-gray-50 text-sm">
                             {training.team_name || 'Training'}
                           </h4>
-                          <div className="flex items-center gap-3 mt-1 text-xs text-slate-500 dark:text-slate-400">
+                          <div className="flex items-center gap-3 mt-1 text-xs text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               {new Date(training.date).toLocaleDateString('de-DE')}
@@ -273,7 +277,7 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
                   ))}
                 </div>
               ) : (
-                <p className="text-slate-500 dark:text-slate-400 text-sm">
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
                   Keine kommenden Trainings
                 </p>
               )}
@@ -287,10 +291,10 @@ async function ParentDashboard({ userId, userName }: { userId: string; userName?
     return (
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
             Dashboard
           </h1>
-          <p className="text-slate-600 dark:text-slate-400 mt-1">
+          <p className="text-gray-600 dark:text-gray-400 mt-1">
             Willkommen zurück, {userName}
           </p>
         </div>
@@ -314,25 +318,25 @@ function QuickActionCard({ href, icon, title, description, color }: {
   icon: React.ReactNode;
   title: string;
   description: string;
-  color: "red" | "blue" | "yellow" | "green";
+  color: "red" | "black" | "white" | "gray";
 }) {
   const colorClasses = {
-    red: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20",
-    blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20",
-    yellow: "text-yellow-600 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-900/20",
-    green: "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20",
+    red: "text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800",
+    black: "text-white bg-black hover:bg-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800",
+    white: "text-black bg-white border border-gray-200 hover:bg-gray-50 dark:bg-gray-100 dark:hover:bg-gray-200",
+    gray: "text-black bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700",
   };
 
   return (
-    <Link href={href} className="card-hover group">
-      <div className="card-body text-center">
-        <div className={`w-12 h-12 rounded-lg flex items-center justify-center mx-auto mb-3 ${colorClasses[color]}`}>
+    <Link href={href} className="group transform transition-all duration-200 hover:scale-105">
+      <div className="card-body text-center h-full">
+        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 ${colorClasses[color]} transition-all duration-200 group-hover:scale-110 shadow-lg`}>
           {icon}
         </div>
-        <h4 className="font-semibold text-slate-900 dark:text-slate-50 mb-1">
+        <h4 className="font-semibold text-black dark:text-white mb-1">
           {title}
         </h4>
-        <p className="text-xs text-slate-600 dark:text-slate-400">
+        <p className="text-xs text-gray-600 dark:text-gray-400">
           {description}
         </p>
       </div>
@@ -386,10 +390,10 @@ function QuickActionCard({ href, icon, title, description, color }: {
     <div className="space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
           Dashboard
         </h1>
-        <p className="text-slate-600 dark:text-slate-400 mt-1">
+        <p className="text-gray-600 dark:text-gray-400 mt-1">
           Willkommen zurück, {session?.user?.name || "Admin"}
         </p>
       </div>
@@ -410,21 +414,21 @@ function QuickActionCard({ href, icon, title, description, color }: {
           icon={<Users className="w-6 h-6" />}
           title="Mitglieder"
           value={stats.members}
-          color="blue"
+          color="black"
           href="/members"
         />
         <StatCard
           icon={<Calendar className="w-6 h-6" />}
           title="Events"
           value={stats.events}
-          color="purple"
+          color="gray"
           href="/events"
         />
         <StatCard
           icon={<Dumbbell className="w-6 h-6" />}
           title="Trainings"
           value={stats.trainings}
-          color="green"
+          color="white"
           href="/trainings"
         />
       </div>
@@ -436,13 +440,13 @@ function QuickActionCard({ href, icon, title, description, color }: {
             icon={<UserPlus className="w-5 h-5" />}
             title="Neue (30 Tage)"
             value={adminStats.new_members || 0}
-            color="green"
+            color="gray"
           />
           <MiniStatCard
             icon={<CheckCircle className="w-5 h-5" />}
             title="Zusagen"
             value={adminStats.training_accepted || 0}
-            color="blue"
+            color="black"
           />
           <MiniStatCard
             icon={<XCircle className="w-5 h-5" />}
@@ -454,7 +458,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
             icon={<Bell className="w-5 h-5" />}
             title="Anstehende Events"
             value={adminStats.upcoming_events || 0}
-            color="purple"
+            color="white"
           />
         </div>
       )}
@@ -502,17 +506,17 @@ function QuickActionCard({ href, icon, title, description, color }: {
             </div>
 
             {/* Training-Statistiken */}
-            <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4 flex items-center gap-2">
+            <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-4 flex items-center gap-2">
                 <Dumbbell className="w-4 h-4" />
                 Training-Teilnahme (kommende Trainings)
               </h3>
               <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                <div className="text-center p-4 bg-black/5 dark:bg-black/20 rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
+                    <CheckCircle className="w-5 h-5 text-black dark:text-white" />
                   </div>
-                  <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                  <p className="text-2xl font-bold text-black dark:text-white">
                     {adminStats.training_accepted || 0}
                   </p>
                   <p className="text-xs text-green-700 dark:text-green-300 font-medium">Zusagen</p>
@@ -526,36 +530,36 @@ function QuickActionCard({ href, icon, title, description, color }: {
                   </p>
                   <p className="text-xs text-red-700 dark:text-red-300 font-medium">Absagen</p>
                 </div>
-                <div className="text-center p-4 bg-slate-50 dark:bg-slate-800 rounded-lg">
+                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                   <div className="flex items-center justify-center gap-2 mb-2">
-                    <Clock className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                    <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                   </div>
-                  <p className="text-2xl font-bold text-slate-600 dark:text-slate-400">
+                  <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
                     {adminStats.training_pending || 0}
                   </p>
-                  <p className="text-xs text-slate-700 dark:text-slate-300 font-medium">Ausstehend</p>
+                  <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">Ausstehend</p>
                 </div>
               </div>
             </div>
 
             {/* Nachrichten-Statistik */}
-            <div className="pt-6 border-t border-slate-200 dark:border-slate-700 mt-6">
-              <div className="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+              <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+                    <Bell className="w-5 h-5 text-red-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-blue-900 dark:text-blue-100">
+                    <p className="text-sm font-medium text-red-900 dark:text-red-100">
                       Neue Kommentare
                     </p>
-                    <p className="text-xs text-blue-700 dark:text-blue-300">
+                    <p className="text-xs text-red-700 dark:text-red-300">
                       Letzte 7 Tage
                     </p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                  <p className="text-3xl font-bold text-red-600 dark:text-red-400">
                     {adminStats.unread_comments || 0}
                   </p>
                 </div>
@@ -572,25 +576,25 @@ function StatCard({ icon, title, value, color, href }: {
   icon: React.ReactNode; 
   title: string; 
   value: number; 
-  color: "red" | "blue" | "purple" | "green";
+  color: "red" | "black" | "white" | "gray";
   href: string;
 }) {
   const colorClasses = {
-    red: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20",
-    blue: "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20",
-    purple: "text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20",
-    green: "text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20",
+    red: "text-white bg-red-600 dark:bg-red-700",
+    black: "text-white bg-black dark:bg-gray-900",
+    white: "text-black bg-white border border-gray-200 dark:bg-gray-100",
+    gray: "text-black bg-gray-100 dark:bg-gray-800 dark:text-white",
   };
 
   return (
-    <Link href={href} className="card-hover group">
+    <Link href={href} className="group transform transition-all duration-200 hover:scale-105">
       <div className="card-body">
         <div className="flex items-start justify-between">
           <div className="flex-1">
-            <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">{title}</p>
-            <p className="text-3xl font-bold text-slate-900 dark:text-slate-50">{value}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{title}</p>
+            <p className="text-3xl font-bold text-black dark:text-white">{value}</p>
           </div>
-          <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
+          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses[color]} shadow-lg group-hover:scale-110 transition-all duration-200`}>
             {icon}
           </div>
         </div>
@@ -603,23 +607,23 @@ function MiniStatCard({ icon, title, value, color }: {
   icon: React.ReactNode;
   title: string;
   value: number;
-  color: "red" | "blue" | "purple" | "green";
+  color: "red" | "black" | "white" | "gray";
 }) {
   const colorClasses = {
     red: "text-red-600 dark:text-red-400",
-    blue: "text-blue-600 dark:text-blue-400",
-    purple: "text-purple-600 dark:text-purple-400",
-    green: "text-green-600 dark:text-green-400",
+    black: "text-black dark:text-white",
+    white: "text-gray-600 dark:text-gray-300",
+    gray: "text-gray-600 dark:text-gray-400",
   };
 
   return (
-    <div className="card">
+    <div className="card transform transition-all duration-200 hover:scale-105">
       <div className="card-body">
         <div className="flex items-center gap-3 mb-2">
           <div className={colorClasses[color]}>
             {icon}
           </div>
-          <p className="text-xs text-slate-600 dark:text-slate-400 uppercase tracking-wide font-medium">
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wide font-medium">
             {title}
           </p>
         </div>

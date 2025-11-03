@@ -13,6 +13,11 @@ export default async function MessagesPage() {
   const userId = parseInt(session.user.id);
   const userRole = session.user.role;
 
+  // Überprüfe Berechtigung
+  if (!["admin", "coach", "parent", "member"].includes(userRole)) {
+    throw new Error("Unauthorized");
+  }
+
   // Hole verfügbare Coaches (für Parents und Members - alle Coaches ihrer Teams)
   let availableCoaches: any[] = [];
   if (userRole === "parent") {
@@ -32,11 +37,12 @@ export default async function MessagesPage() {
     // Member kann allen Coaches seines Teams schreiben
     availableCoaches = await sql`
       SELECT DISTINCT u.id, u.name, u.email, t.name as team_name, tc.is_primary
-      FROM members m
+      FROM users user_self
+      JOIN members m ON user_self.member_id = m.id
       JOIN teams t ON m.team_id = t.id
       JOIN team_coaches tc ON t.id = tc.team_id
       JOIN users u ON tc.coach_id = u.id
-      WHERE m.user_id = ${userId}
+      WHERE user_self.id = ${userId}
         AND u.role IN ('coach', 'admin')
       ORDER BY tc.is_primary DESC, u.name ASC
     `;
