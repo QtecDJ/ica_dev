@@ -8,7 +8,7 @@ const sql = neon(process.env.DATABASE_URL!);
 // DELETE - Nachricht löschen
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -16,7 +16,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const messageId = parseInt(params.messageId);
+    const messageId = parseInt(params.id);
     const userId = parseInt(session.user.id);
 
     // Prüfe ob User berechtigt ist (Sender oder Empfänger)
@@ -67,7 +67,7 @@ export async function DELETE(
 // PATCH - Nachricht als erledigt markieren
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { messageId: string } }
+  { params }: { params: { id: string } }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -75,7 +75,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const messageId = parseInt(params.messageId);
+    const messageId = parseInt(params.id);
     const userId = parseInt(session.user.id);
     const { action } = await request.json();
 
