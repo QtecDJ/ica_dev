@@ -1,0 +1,44 @@
+/* Training Hervorhebung für kommende Trainings */
+.training-upcoming {
+  background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+  border-left: 4px solid #dc2626;
+  animation: glow 2s ease-in-out infinite alternate;
+}
+
+.dark .training-upcoming {
+  background: linear-gradient(135deg, #7f1d1d20 0%, #991b1b20 100%);
+  border-left: 4px solid #ef4444;
+}
+
+.training-upcoming-badge {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  color: white;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.training-upcoming-text {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.dark .training-upcoming-text {
+  color: #fca5a5;
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px rgba(220, 38, 38, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(220, 38, 38, 0.6);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}

@@ -123,6 +123,15 @@ export default async function TrainingsPage() {
   // Determine permissions
   const canManageTrainings = userRole === "admin" || userRole === "coach";
 
+  // Helper function to check if training is upcoming (within 1 day)
+  const isUpcomingTraining = (trainingDate: string) => {
+    const training = new Date(trainingDate);
+    const now = new Date();
+    const timeDiff = training.getTime() - now.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+    return daysDiff <= 1 && daysDiff >= 0;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -165,7 +174,10 @@ export default async function TrainingsPage() {
                 </thead>
                 <tbody>
                   {trainings.map((training: any) => (
-                    <tr key={training.id}>
+                    <tr 
+                      key={training.id}
+                      className={isUpcomingTraining(training.training_date) ? "training-upcoming" : ""}
+                    >
                       <td>
                         <Link 
                           href={`/trainings/${training.id}`}
@@ -176,7 +188,9 @@ export default async function TrainingsPage() {
                           </div>
                           <span className="font-medium">
                             {training.team_name ? (
-                              <span className="badge-red">{training.team_name}</span>
+                              <span className={`badge-red ${isUpcomingTraining(training.training_date) ? 'training-upcoming-badge' : ''}`}>
+                                {training.team_name}
+                              </span>
                             ) : (
                               <span className="text-slate-400">Allgemein</span>
                             )}
@@ -184,12 +198,15 @@ export default async function TrainingsPage() {
                         </Link>
                       </td>
                       <td className="text-slate-600 dark:text-slate-400">
-                        <div className="font-medium">
+                        <div className={`font-medium ${isUpcomingTraining(training.training_date) ? 'training-upcoming-text' : ''}`}>
                           {new Date(training.training_date).toLocaleDateString("de-DE", {
                             weekday: 'short',
                             day: 'numeric',
                             month: 'short'
                           })}
+                          {isUpcomingTraining(training.training_date) && (
+                            <span className="ml-2 text-xs font-bold">🔴 BALD!</span>
+                          )}
                         </div>
                       </td>
                       <td className="text-slate-600 dark:text-slate-400">
@@ -236,7 +253,10 @@ export default async function TrainingsPage() {
           {/* Mobile Cards */}
           <div className="md:hidden space-y-4">
             {trainings.map((training: any) => (
-              <div key={training.id} className="card">
+              <div 
+                key={training.id} 
+                className={`card ${isUpcomingTraining(training.training_date) ? 'training-upcoming' : ''}`}
+              >
                 <div className="card-body">
                   <div className="flex items-start justify-between mb-4">
                     <Link href={`/trainings/${training.id}`} className="flex items-center gap-3 flex-1">
@@ -246,9 +266,12 @@ export default async function TrainingsPage() {
                       <div className="min-w-0 flex-1">
                         <h3 className="font-semibold text-slate-900 dark:text-slate-50">
                           {training.team_name || "Allgemeines Training"}
+                          {isUpcomingTraining(training.training_date) && (
+                            <span className="ml-2 text-xs font-bold training-upcoming-text">🔴 BALD!</span>
+                          )}
                         </h3>
                         {training.team_name && (
-                          <span className="badge-red text-xs mt-1 inline-block">
+                          <span className={`badge-red text-xs mt-1 inline-block ${isUpcomingTraining(training.training_date) ? 'training-upcoming-badge' : ''}`}>
                             {training.team_name}
                           </span>
                         )}

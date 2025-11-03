@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import "./styles/training-highlights.css";
 import ConditionalLayout from "./components/ConditionalLayout";
 import Providers from "./components/Providers";
 
