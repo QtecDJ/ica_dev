@@ -1,7 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield } from "lucide-react";
+import { 
+  IconHome, 
+  IconUsers, 
+  IconTrophy, 
+  IconCalendar, 
+  IconBarbell, 
+  IconUser, 
+  IconMessageCircle, 
+  IconShield 
+} from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
@@ -28,32 +37,32 @@ export default function MobileBottomNav() {
 
   if (userRole === "member") {
     navItems = [
-      { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
-      { href: "/profil", label: "Profil", icon: <UserIcon className="w-5 h-5" />, isActive: false },
+      { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/profil", label: "Profil", icon: <IconUser className="w-5 h-5" stroke={2} />, isActive: false },
     ];
   } else if (userRole === "parent") {
     navItems = [
-      { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
-      { href: "/profil", label: "Kind", icon: <UserIcon className="w-5 h-5" />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
+      { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/profil", label: "Kind", icon: <IconUser className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
     ];
   } else if (userRole === "admin") {
     navItems = [
-      { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
-      { href: "/administration", label: "Admin", icon: <Shield className="w-5 h-5" />, isActive: false },
+      { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/teams", label: "Teams", icon: <IconTrophy className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/administration", label: "Admin", icon: <IconShield className="w-5 h-5" stroke={2} />, isActive: false },
     ];
   } else {
     // Coach
     navItems = [
-      { href: "/", label: "Home", icon: <Home className="w-5 h-5" />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <MessageCircle className="w-5 h-5" />, isActive: false },
-      { href: "/teams", label: "Teams", icon: <Trophy className="w-5 h-5" />, isActive: false },
-      { href: "/trainings", label: "Training", icon: <Dumbbell className="w-5 h-5" />, isActive: false },
+      { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/teams", label: "Teams", icon: <IconTrophy className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
     ];
   }
 
@@ -100,7 +109,7 @@ export default function MobileBottomNav() {
       
       {/* Active indicator background */}
       <div 
-        className="absolute top-0 h-0.5 bg-gradient-to-r from-red-500 to-red-600 transition-all duration-300 ease-out"
+        className="absolute top-0 h-1 bg-gradient-to-r from-red-500 to-red-600 transition-all duration-300 ease-out rounded-b-full"
         style={{
           left: `${(activeIndex / (navItems.length + 1)) * 100}%`,
           width: `${100 / (navItems.length + 1)}%`,
@@ -122,7 +131,7 @@ export default function MobileBottomNav() {
               onClick={handleClick}
               data-nav-index={index}
               className={`
-                  relative flex-1 flex flex-col items-center justify-center min-h-[60px] px-2 py-2 rounded-xl
+                  relative flex-1 flex flex-col items-center justify-center min-h-[68px] px-3 py-3 rounded-2xl
                   transition-all duration-300 ease-out active:scale-95 touch-manipulation
                   ${isActiveItem 
                     ? 'text-red-600 dark:text-red-400' 
@@ -132,18 +141,18 @@ export default function MobileBottomNav() {
               >
                 {/* Active background */}
                 <div className={`
-                  absolute inset-0 rounded-xl transition-all duration-300
+                  absolute inset-0 rounded-2xl transition-all duration-300
                   ${isActiveItem 
-                    ? 'bg-red-50 dark:bg-red-900/20 scale-100' 
+                    ? 'bg-red-50 dark:bg-red-900/20 scale-100 shadow-lg shadow-red-500/10' 
                     : 'bg-transparent scale-95'
                   }
                 `} />
                 
                 {/* Icon container with bounce animation */}
                 <div className={`
-                  relative z-10 p-2 rounded-lg transition-all duration-300
+                  relative z-10 p-2.5 rounded-xl transition-all duration-300
                   ${isActiveItem 
-                    ? 'transform -translate-y-0.5 bg-red-100 dark:bg-red-900/30' 
+                    ? 'transform -translate-y-1 bg-red-100 dark:bg-red-900/30' 
                     : 'transform translate-y-0'
                   }
                 `}>
@@ -151,7 +160,7 @@ export default function MobileBottomNav() {
                   
                   {/* Badge für ungelesene Nachrichten */}
                   {item.label === "Chat" && (
-                    <div className="absolute -top-1 -right-1">
+                    <div className="absolute -top-1.5 -right-1.5">
                       <UnreadMessagesBadge />
                     </div>
                   )}
@@ -159,10 +168,10 @@ export default function MobileBottomNav() {
                 
                 {/* Label with smooth opacity */}
                 <span className={`
-                  relative z-10 text-xs font-medium mt-1 transition-all duration-300
+                  relative z-10 text-xs font-semibold mt-1.5 transition-all duration-300 text-center leading-tight
                   ${isActiveItem 
-                    ? 'opacity-100 transform translate-y-0' 
-                    : 'opacity-70 transform translate-y-0.5'
+                    ? 'opacity-100 transform translate-y-0 scale-105' 
+                    : 'opacity-70 transform translate-y-0.5 scale-100'
                   }
                 `}>
                   {item.label}
@@ -170,7 +179,7 @@ export default function MobileBottomNav() {
                 
                 {/* Active dot indicator */}
                 <div className={`
-                  absolute -top-1 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full
+                  absolute -top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full
                   transition-all duration-300
                   ${isActiveItem 
                     ? 'bg-red-500 scale-100 opacity-100' 
@@ -179,11 +188,10 @@ export default function MobileBottomNav() {
                 `} />
                 
                 {/* Ripple effect on tap */}
-                <div className="absolute inset-0 rounded-xl overflow-hidden">
+                <div className="absolute inset-0 rounded-2xl overflow-hidden">
                   <div className={`
-                    absolute inset-0 bg-red-500/10 rounded-xl transform scale-0 opacity-0
+                    absolute inset-0 bg-red-500/10 rounded-2xl transform scale-0 opacity-0
                     transition-all duration-200 ease-out
-                    ${isActiveItem ? 'animate-ping' : ''}
                   `} />
                 </div>
               </Link>

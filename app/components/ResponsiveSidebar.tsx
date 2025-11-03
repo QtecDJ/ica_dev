@@ -1,7 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { Home, Users, Trophy, Calendar, Dumbbell, User as UserIcon, MessageCircle, Shield, Settings } from "lucide-react";
+import { 
+  IconHome, 
+  IconUsers, 
+  IconTrophy, 
+  IconCalendar, 
+  IconBarbell, 
+  IconUser, 
+  IconMessageCircle, 
+  IconShield, 
+  IconSettings 
+} from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
@@ -107,14 +117,14 @@ export default function ResponsiveSidebar() {
                         ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400' 
                         : 'group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
                     }`}>
-                      {item.iconName === "Home" && <Home className="w-5 h-5" />}
-                      {item.iconName === "Users" && <Users className="w-5 h-5" />}
-                      {item.iconName === "Trophy" && <Trophy className="w-5 h-5" />}
-                      {item.iconName === "Calendar" && <Calendar className="w-5 h-5" />}
-                      {item.iconName === "Dumbbell" && <Dumbbell className="w-5 h-5" />}
-                      {item.iconName === "Shield" && <Shield className="w-5 h-5" />}
-                      {item.iconName === "UserIcon" && <UserIcon className="w-5 h-5" />}
-                      {item.iconName === "MessageCircle" && <MessageCircle className="w-5 h-5" />}
+                      {item.iconName === "Home" && <IconHome className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "Users" && <IconUsers className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "Trophy" && <IconTrophy className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "Calendar" && <IconCalendar className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "Dumbbell" && <IconBarbell className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "Shield" && <IconShield className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "UserIcon" && <IconUser className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "MessageCircle" && <IconMessageCircle className="w-5 h-5" stroke={2} />}
                     </div>
                     <span className="text-sm font-medium">{item.label}</span>
                     

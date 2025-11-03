@@ -1,9 +1,22 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Send, ArrowLeft, User, Clock, MessageCircle, Mail, Trash2, Check, MoreVertical } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { 
+  IconSend, 
+  IconArrowLeft, 
+  IconUser, 
+  IconClock, 
+  IconMessageCircle, 
+  IconMail, 
+  IconTrash, 
+  IconCheck, 
+  IconDotsVertical 
+} from "@tabler/icons-react";
 import Link from "next/link";
+
+
 
 interface Conversation {
   partner_id: number;
@@ -364,7 +377,7 @@ export default function MessagesClient({
                 onClick={startNewConversation}
                 className="w-full btn-primary flex items-center justify-center gap-2 py-3"
               >
-                <Send className="w-5 h-5" />
+                <IconSend className="w-5 h-5" stroke={2} />
                 <span className="font-semibold">Nachricht schreiben</span>
               </button>
               {availableCoaches.length === 1 && (
@@ -378,7 +391,7 @@ export default function MessagesClient({
           <div className="divide-y divide-slate-200 dark:divide-slate-700">
             {conversations.length === 0 ? (
               <div className="p-8 text-center">
-                <MessageCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                <IconMessageCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" stroke={2} />
                 <p className="text-slate-500 dark:text-slate-400 text-sm">
                   Noch keine Nachrichten
                 </p>
@@ -447,7 +460,7 @@ export default function MessagesClient({
                   onClick={() => setShowNewMessageForm(false)}
                   className="text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
                 >
-                  <ArrowLeft className="w-5 h-5" />
+                  <IconArrowLeft className="w-5 h-5" />
                 </button>
                 <div>
                   <h2 className="text-lg font-semibold">Nachricht schreiben</h2>
@@ -556,7 +569,7 @@ export default function MessagesClient({
                     </>
                   ) : (
                     <>
-                      <Send className="w-4 h-4" />
+                      <IconSend className="w-4 h-4" />
                       Nachricht senden
                     </>
                   )}
@@ -574,7 +587,7 @@ export default function MessagesClient({
                     onClick={() => setSelectedPartnerId(null)}
                     className="lg:hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
                   >
-                    <ArrowLeft className="w-5 h-5" />
+                    <IconArrowLeft className="w-5 h-5" />
                   </button>
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
                     {getInitials(
@@ -605,14 +618,14 @@ export default function MessagesClient({
                     className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                     title="Konversation als erledigt markieren"
                   >
-                    <Check className="w-5 h-5" />
+                    <IconCheck className="w-5 h-5" />
                   </button>
                   <button
                     onClick={() => deleteConversation(selectedPartnerId)}
                     className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                     title="Konversation löschen"
                   >
-                    <Trash2 className="w-5 h-5" />
+                    <IconTrash className="w-5 h-5" />
                   </button>
                 </div>
               </div>
@@ -629,7 +642,7 @@ export default function MessagesClient({
                 </div>
               ) : messages.length === 0 ? (
                 <div className="text-center py-12">
-                  <MessageCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
+                  <IconMessageCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-3" />
                   <p className="text-slate-500 dark:text-slate-400">
                     Noch keine Nachrichten
                   </p>
@@ -693,7 +706,7 @@ export default function MessagesClient({
                 {isSending ? (
                   <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
                 ) : (
-                  <Send className="w-5 h-5" />
+                  <IconSend className="w-5 h-5" />
                 )}
               </button>
             </form>
@@ -704,7 +717,7 @@ export default function MessagesClient({
             <div className="card-body text-center py-20">
               <div className="max-w-md mx-auto">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <MessageCircle className="w-10 h-10 text-white" />
+                  <IconMessageCircle className="w-10 h-10 text-white" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-3">
                   Keine Konversation ausgewählt
