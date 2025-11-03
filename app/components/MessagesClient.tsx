@@ -260,51 +260,56 @@ export default function MessagesClient({
     }
   };
 
-  // Nachricht löschen
-  const deleteMessage = async (messageId: number) => {
-    if (!confirm('Möchtest du diese Nachricht wirklich löschen?')) return;
+  // Gesamte Konversation löschen
+  const deleteConversation = async (partnerId: number) => {
+    if (!confirm('Möchtest du diese gesamte Konversation wirklich löschen?')) return;
 
     try {
-      const response = await fetch(`/api/messages/message/${messageId}`, {
+      const response = await fetch(`/api/messages/conversations/${partnerId}`, {
         method: 'DELETE',
       });
 
       if (response.ok) {
-        // Entferne die Nachricht aus der lokalen Liste
-        setMessages(prev => prev.filter(msg => msg.id !== messageId));
+        // Zurück zur Konversationsliste
+        setSelectedPartnerId(null);
+        setMessages([]);
+        // Entferne die Konversation aus der lokalen Liste
+        setConversations(prev => prev.filter(conv => conv.partner_id !== partnerId));
+        router.refresh();
       } else {
         const error = await response.json();
         alert('Fehler beim Löschen: ' + (error.error || 'Unbekannter Fehler'));
       }
     } catch (error) {
-      console.error('Error deleting message:', error);
-      alert('Fehler beim Löschen der Nachricht');
+      console.error('Error deleting conversation:', error);
+      alert('Fehler beim Löschen der Konversation');
     }
   };
 
-  // Nachricht als erledigt markieren
-  const markAsCompleted = async (messageId: number) => {
-    if (!confirm('Möchtest du diese Nachricht als erledigt markieren?')) return;
+  // Gesamte Konversation als erledigt markieren
+  const markConversationAsCompleted = async (partnerId: number) => {
+    if (!confirm('Möchtest du diese gesamte Konversation als erledigt markieren?')) return;
 
     try {
-      const response = await fetch(`/api/messages/message/${messageId}`, {
+      const response = await fetch(`/api/messages/conversations/${partnerId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'mark_completed' })
       });
 
       if (response.ok) {
-        // Lade die Nachrichten neu
+        // Lade die Konversation neu
         if (selectedPartnerId) {
           await loadConversation(selectedPartnerId);
         }
+        router.refresh();
       } else {
         const error = await response.json();
         alert('Fehler: ' + (error.error || 'Unbekannter Fehler'));
       }
     } catch (error) {
-      console.error('Error marking message as completed:', error);
-      alert('Fehler beim Markieren der Nachricht');
+      console.error('Error marking conversation as completed:', error);
+      alert('Fehler beim Markieren der Konversation');
     }
   };
 
@@ -563,32 +568,52 @@ export default function MessagesClient({
           /* Konversations-Ansicht */
           <div className="card flex flex-col h-[calc(100vh-300px)] min-h-[500px]">
             <div className="card-header flex-shrink-0">
-              <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setSelectedPartnerId(null)}
-                  className="lg:hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </button>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
-                  {getInitials(
-                    conversations.find((c) => c.partner_id === selectedPartnerId)
-                      ?.partner_name || ""
-                  )}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSelectedPartnerId(null)}
+                    className="lg:hidden text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-50"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                    {getInitials(
+                      conversations.find((c) => c.partner_id === selectedPartnerId)
+                        ?.partner_name || ""
+                    )}
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold">
+                      {conversations.find((c) => c.partner_id === selectedPartnerId)
+                        ?.partner_name}
+                    </h2>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                      {conversations.find((c) => c.partner_id === selectedPartnerId)
+                        ?.partner_role === "coach" && "🏋️ Coach"}
+                      {conversations.find((c) => c.partner_id === selectedPartnerId)
+                        ?.partner_role === "admin" && "👨‍💼 Administrator"}
+                      {conversations.find((c) => c.partner_id === selectedPartnerId)
+                        ?.partner_role === "parent" && "👨‍👩‍👧‍👦 Eltern"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-lg font-semibold">
-                    {conversations.find((c) => c.partner_id === selectedPartnerId)
-                      ?.partner_name}
-                  </h2>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    {conversations.find((c) => c.partner_id === selectedPartnerId)
-                      ?.partner_role === "coach" && "🏋️ Coach"}
-                    {conversations.find((c) => c.partner_id === selectedPartnerId)
-                      ?.partner_role === "admin" && "👨‍💼 Administrator"}
-                    {conversations.find((c) => c.partner_id === selectedPartnerId)
-                      ?.partner_role === "parent" && "👨‍👩‍👧‍👦 Eltern"}
-                  </p>
+                
+                {/* Konversations-Aktionen */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => markConversationAsCompleted(selectedPartnerId)}
+                    className="p-2 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                    title="Konversation als erledigt markieren"
+                  >
+                    <Check className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => deleteConversation(selectedPartnerId)}
+                    className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                    title="Konversation löschen"
+                  >
+                    <Trash2 className="w-5 h-5" />
+                  </button>
                 </div>
               </div>
             </div>
@@ -624,42 +649,14 @@ export default function MessagesClient({
                           : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50"
                       }`}
                     >
-                      {/* Message Actions (nur für Coaches/Admins) */}
-                      {(userRole === "coach" || userRole === "admin") && (
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => markAsCompleted(message.id)}
-                              className={`p-1 rounded text-xs ${
-                                message.sender_id === userId
-                                  ? "bg-blue-700 hover:bg-blue-800 text-white"
-                                  : "bg-green-100 hover:bg-green-200 text-green-600"
-                              }`}
-                              title="Als erledigt markieren"
-                            >
-                              <Check className="w-3 h-3" />
-                            </button>
-                            <button
-                              onClick={() => deleteMessage(message.id)}
-                              className={`p-1 rounded text-xs ${
-                                message.sender_id === userId
-                                  ? "bg-blue-700 hover:bg-blue-800 text-white"
-                                  : "bg-red-100 hover:bg-red-200 text-red-600"
-                              }`}
-                              title="Nachricht löschen"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      )}
+
                       
                       {message.subject && (
                         <p className="font-semibold mb-2 text-sm opacity-90">
                           {message.subject}
                         </p>
                       )}
-                      <p className="whitespace-pre-wrap pr-8">{message.content}</p>
+                      <p className="whitespace-pre-wrap">{message.content}</p>
                       <p
                         className={`text-xs mt-2 ${
                           message.sender_id === userId

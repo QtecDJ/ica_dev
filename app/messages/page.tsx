@@ -59,6 +59,7 @@ export default async function MessagesPage() {
   // Hole andere Coaches aus gleichen Teams (für Coaches)
   let availableTeamCoaches: any[] = [];
   if (userRole === "coach") {
+    // Coaches können nur anderen Coaches ihrer eigenen Teams schreiben
     availableTeamCoaches = await sql`
       SELECT DISTINCT u.id, u.name, u.email, t.name as team_name
       FROM team_coaches tc1
@@ -72,34 +73,41 @@ export default async function MessagesPage() {
     `;
   }
 
-  // Kombiniere Coaches, Team-Coaches und Admins für verfügbare Kontakte
-  const allAvailableContacts = [...availableCoaches, ...availableTeamCoaches, ...adminContacts];
-
-  // Hole alle Parents (für Coaches/Admins - alle Parents der Teams, die sie betreuen)
+  // Hole alle Parents (NUR für Coaches/Admins - aber nur die Parents ihrer eigenen Teams)
   let availableParents: any[] = [];
-  if (userRole === "coach" || userRole === "admin") {
-    if (userRole === "admin") {
-      // Admins sehen alle Parents
-      availableParents = await sql`
-        SELECT DISTINCT u.id, u.name, u.email
-        FROM users u
-        WHERE u.role = 'parent'
-        ORDER BY u.name ASC
-      `;
-    } else {
-      // Coaches sehen nur Parents ihrer Teams
-      availableParents = await sql`
-        SELECT DISTINCT u.id, u.name, u.email
-        FROM users u
-        JOIN parent_children pc ON pc.parent_user_id = u.id
-        JOIN members m ON pc.child_member_id = m.id
-        JOIN teams t ON m.team_id = t.id
-        JOIN team_coaches tc ON t.id = tc.team_id
-        WHERE tc.coach_id = ${userId}
-          AND u.role = 'parent'
-        ORDER BY u.name ASC
-      `;
-    }
+  if (userRole === "coach") {
+    // Coaches sehen NUR Parents der Teams, die sie betreuen
+    availableParents = await sql`
+      SELECT DISTINCT u.id, u.name, u.email
+      FROM users u
+      JOIN parent_children pc ON pc.parent_user_id = u.id
+      JOIN members m ON pc.child_member_id = m.id
+      JOIN teams t ON m.team_id = t.id
+      JOIN team_coaches tc ON t.id = tc.team_id
+      WHERE tc.coach_id = ${userId}
+        AND u.role = 'parent'
+      ORDER BY u.name ASC
+    `;
+  } else if (userRole === "admin") {
+    // Nur Admins sehen alle Parents
+    availableParents = await sql`
+      SELECT DISTINCT u.id, u.name, u.email
+      FROM users u
+      WHERE u.role = 'parent'
+      ORDER BY u.name ASC
+    `;
+  }
+
+  // Kombiniere verfügbare Kontakte basierend auf Rolle
+  let allAvailableContacts: any[] = [...adminContacts]; // Alle können Admins schreiben
+  
+  if (userRole === "coach") {
+    allAvailableContacts = [...allAvailableContacts, ...availableTeamCoaches, ...availableParents];
+  } else if (userRole === "admin") {
+    allAvailableContacts = [...allAvailableContacts, ...availableParents];
+  } else {
+    // Parents und Members können nur Coaches und Admins schreiben
+    allAvailableContacts = [...allAvailableContacts, ...availableCoaches];
   }
 
   // Hole Konversationen
