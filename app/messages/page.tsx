@@ -171,6 +171,15 @@ export default async function MessagesPage() {
             Kommuniziere direkt mit deinen Coaches und der Administration
           </p>
         </div>
+        <div className="flex gap-2">
+          <Link 
+            href="/messages/new" 
+            className="btn-primary flex items-center gap-2"
+          >
+            <Send className="w-4 h-4" />
+            Neue Nachricht
+          </Link>
+        </div>
       </div>
 
       {/* Messages Client Component */}

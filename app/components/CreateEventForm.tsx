@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar, Clock, MapPin, FileText, Users, AlertCircle, CheckCircle, Tag } from "lucide-react";
+import LocationMap from "./LocationMap";
 
 interface Team {
   id: number;
@@ -174,6 +175,13 @@ export default function CreateEventForm({ teams }: Props) {
                 placeholder="z.B. Sporthalle München"
                 required
               />
+              
+              {/* Location Map - Shows when address is entered */}
+              {formData.location && formData.location.trim() && (
+                <div className="mt-4">
+                  <LocationMap address={formData.location} />
+                </div>
+              )}
             </div>
           </div>
         </div>

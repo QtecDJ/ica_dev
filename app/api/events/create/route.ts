@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
-import { auth } from "../../../../auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth-utils";
+
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await getServerSession(authOptions);
     if (!session || !["admin", "coach"].includes(session.user.role)) {
       return NextResponse.json(
         { error: "Nur Admins und Coaches können Events erstellen" },

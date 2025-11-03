@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, MapPin, Users, Edit, FileText, Tag, AlertCircle } from "lucide-react";
 import EventParticipants from "@/app/components/EventParticipants";
+import LocationMap from "@/app/components/LocationMap";
 import { requireAuth } from "@/lib/auth-utils";
 
 export default async function EventDetailPage({ params }: { params: { id: string } }) {
@@ -180,6 +181,14 @@ export default async function EventDetailPage({ params }: { params: { id: string
                     </p>
                   </div>
                 </div>
+                
+                {/* Location Map */}
+                {event.location && (
+                  <div className="mt-4">
+                    <LocationMap address={event.location} />
+                  </div>
+                )}
+                
                 {event.max_participants && (
                   <div className="flex items-start gap-3">
                     <Users className="w-5 h-5 text-slate-400 mt-0.5" />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Send, ArrowLeft, User, Clock, MessageCircle, Mail } from "lucide-react";
+import { Send, ArrowLeft, User, Clock, MessageCircle, Mail, Trash2, Check, MoreVertical } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -257,6 +257,54 @@ export default function MessagesClient({
       alert("Fehler beim Senden der Nachricht");
     } finally {
       setIsSending(false);
+    }
+  };
+
+  // Nachricht löschen
+  const deleteMessage = async (messageId: number) => {
+    if (!confirm('Möchtest du diese Nachricht wirklich löschen?')) return;
+
+    try {
+      const response = await fetch(`/api/messages/message/${messageId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Entferne die Nachricht aus der lokalen Liste
+        setMessages(prev => prev.filter(msg => msg.id !== messageId));
+      } else {
+        const error = await response.json();
+        alert('Fehler beim Löschen: ' + (error.error || 'Unbekannter Fehler'));
+      }
+    } catch (error) {
+      console.error('Error deleting message:', error);
+      alert('Fehler beim Löschen der Nachricht');
+    }
+  };
+
+  // Nachricht als erledigt markieren
+  const markAsCompleted = async (messageId: number) => {
+    if (!confirm('Möchtest du diese Nachricht als erledigt markieren?')) return;
+
+    try {
+      const response = await fetch(`/api/messages/message/${messageId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'mark_completed' })
+      });
+
+      if (response.ok) {
+        // Lade die Nachrichten neu
+        if (selectedPartnerId) {
+          await loadConversation(selectedPartnerId);
+        }
+      } else {
+        const error = await response.json();
+        alert('Fehler: ' + (error.error || 'Unbekannter Fehler'));
+      }
+    } catch (error) {
+      console.error('Error marking message as completed:', error);
+      alert('Fehler beim Markieren der Nachricht');
     }
   };
 
@@ -570,18 +618,48 @@ export default function MessagesClient({
                     }`}
                   >
                     <div
-                      className={`max-w-[70%] rounded-lg p-4 ${
+                      className={`max-w-[70%] rounded-lg p-4 relative group ${
                         message.sender_id === userId
                           ? "bg-blue-600 text-white"
                           : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50"
                       }`}
                     >
+                      {/* Message Actions (nur für Coaches/Admins) */}
+                      {(userRole === "coach" || userRole === "admin") && (
+                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <div className="flex gap-1">
+                            <button
+                              onClick={() => markAsCompleted(message.id)}
+                              className={`p-1 rounded text-xs ${
+                                message.sender_id === userId
+                                  ? "bg-blue-700 hover:bg-blue-800 text-white"
+                                  : "bg-green-100 hover:bg-green-200 text-green-600"
+                              }`}
+                              title="Als erledigt markieren"
+                            >
+                              <Check className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => deleteMessage(message.id)}
+                              className={`p-1 rounded text-xs ${
+                                message.sender_id === userId
+                                  ? "bg-blue-700 hover:bg-blue-800 text-white"
+                                  : "bg-red-100 hover:bg-red-200 text-red-600"
+                              }`}
+                              title="Nachricht löschen"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      
                       {message.subject && (
                         <p className="font-semibold mb-2 text-sm opacity-90">
                           {message.subject}
                         </p>
                       )}
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      <p className="whitespace-pre-wrap pr-8">{message.content}</p>
                       <p
                         className={`text-xs mt-2 ${
                           message.sender_id === userId
