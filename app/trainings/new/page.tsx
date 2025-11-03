@@ -22,12 +22,13 @@ export default async function NewTrainingPage() {
       ORDER BY name
     `;
   } else if (userRole === "coach") {
-    // Coaches sehen nur ihr eigenes Team
+    // Coaches sehen Teams, die sie coachen
     teams = await sql`
-      SELECT id, name, level 
-      FROM teams 
-      WHERE coach_id = ${userId}
-      ORDER BY name
+      SELECT DISTINCT t.id, t.name, t.level 
+      FROM teams t
+      JOIN team_coaches tc ON t.id = tc.team_id
+      WHERE tc.coach_id = ${userId}
+      ORDER BY t.name
     `;
   }
 
@@ -36,7 +37,7 @@ export default async function NewTrainingPage() {
       <div className="flex items-center gap-3">
         <Link
           href="/trainings"
-          className="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-50 transition-colors"
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-50 transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
           <span className="font-medium">Zurück zu Trainings</span>
@@ -48,11 +49,11 @@ export default async function NewTrainingPage() {
           <div className="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 flex items-center justify-center">
             <Dumbbell className="w-6 h-6" />
           </div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
             Neues Training erstellen
           </h1>
         </div>
-        <p className="text-slate-600 dark:text-slate-400 ml-[60px]">
+        <p className="text-gray-600 dark:text-gray-400 ml-[60px]">
           Erstelle ein neues Training und weise es einem Team zu
         </p>
       </div>
