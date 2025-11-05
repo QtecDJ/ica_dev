@@ -42,8 +42,10 @@ export async function GET(request: NextRequest) {
       
       console.log("👔 Coach teams:", coachTeams);
       
-      const coachTeamIds = coachTeams.map((t: any) => t.team_id);
+      const coachTeamIds = coachTeams.map((t: any) => String(t.team_id));
       const hasAccess = teamIds.every(id => coachTeamIds.includes(id));
+      
+      console.log("🔐 Access check:", { teamIds, coachTeamIds, hasAccess });
       
       if (!hasAccess) {
         return NextResponse.json({ error: "Forbidden - No access to these teams" }, { status: 403 });
