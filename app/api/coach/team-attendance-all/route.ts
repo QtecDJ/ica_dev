@@ -50,23 +50,23 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get the next upcoming trainings for these teams
-    const nextTrainings = await sql`
-      SELECT DISTINCT ON (team_id) id, team_id, training_date, start_time
+    // Get ALL upcoming trainings for these teams (not just next one)
+    const upcomingTrainings = await sql`
+      SELECT id, team_id, training_date, start_time
       FROM trainings 
       WHERE team_id = ANY(${teamIds})
         AND training_date >= CURRENT_DATE
-      ORDER BY team_id, training_date ASC, start_time ASC
+      ORDER BY training_date ASC, start_time ASC
     `;
 
-    console.log("📅 Next trainings:", nextTrainings);
+    console.log("📅 Upcoming trainings:", upcomingTrainings);
 
-    if (nextTrainings.length === 0) {
+    if (upcomingTrainings.length === 0) {
       console.log("⚠️ No upcoming trainings found");
       return NextResponse.json({ members: [] });
     }
 
-    const trainingIds = nextTrainings.map((t: any) => t.id);
+    const trainingIds = upcomingTrainings.map((t: any) => t.id);
 
     // Get members with the specified status for these trainings
     const members = await sql`
