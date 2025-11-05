@@ -30,6 +30,8 @@ export async function GET(request: NextRequest) {
 
     const teamIds = teamIdsParam.split(",");
 
+    console.log("🔍 API Request:", { status, teamIds, userRole, userId: session.user.id });
+
     // Verify coach has access to these teams
     if (userRole === "coach") {
       const coachTeams = await sql`
@@ -37,6 +39,8 @@ export async function GET(request: NextRequest) {
         FROM team_coaches 
         WHERE coach_id = ${session.user.id}
       `;
+      
+      console.log("👔 Coach teams:", coachTeams);
       
       const coachTeamIds = coachTeams.map((t: any) => t.team_id);
       const hasAccess = teamIds.every(id => coachTeamIds.includes(id));
@@ -48,14 +52,17 @@ export async function GET(request: NextRequest) {
 
     // Get the next upcoming trainings for these teams
     const nextTrainings = await sql`
-      SELECT DISTINCT ON (team_id) id, team_id
+      SELECT DISTINCT ON (team_id) id, team_id, training_date, start_time
       FROM trainings 
       WHERE team_id = ANY(${teamIds})
         AND training_date >= CURRENT_DATE
       ORDER BY team_id, training_date ASC, start_time ASC
     `;
 
+    console.log("📅 Next trainings:", nextTrainings);
+
     if (nextTrainings.length === 0) {
+      console.log("⚠️ No upcoming trainings found");
       return NextResponse.json({ members: [] });
     }
 
@@ -79,6 +86,8 @@ export async function GET(request: NextRequest) {
         AND m.team_id = ANY(${teamIds})
       ORDER BY tm.name ASC, m.last_name ASC, m.first_name ASC
     `;
+
+    console.log(`👥 Found ${members.length} members with status ${status}`);
 
     return NextResponse.json({ members });
   } catch (error) {
