@@ -81,7 +81,12 @@ export async function createTeam(formData: FormData) {
       VALUES (${name}, ${level}, ${coach})
     `;
     
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/teams");
+    revalidatePath("/members");
+    revalidatePath("/trainings");
+    
     return { success: true };
   } catch (error) {
     console.error("Error creating team:", error);
@@ -97,11 +102,17 @@ export async function updateTeam(id: number, formData: FormData) {
 
     await sql`
       UPDATE teams 
-      SET name = ${name}, level = ${level}, coach = ${coach}
+      SET name = ${name}, level = ${level}, coach = ${coach}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
     `;
     
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/teams");
+    revalidatePath(`/teams/${id}`);
+    revalidatePath("/members");
+    revalidatePath("/trainings");
+    
     return { success: true };
   } catch (error) {
     console.error("Error updating team:", error);
@@ -112,7 +123,13 @@ export async function updateTeam(id: number, formData: FormData) {
 export async function deleteTeam(id: number) {
   try {
     await sql`DELETE FROM teams WHERE id = ${id}`;
+    
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/teams");
+    revalidatePath("/members");
+    revalidatePath("/trainings");
+    
     return { success: true };
   } catch (error) {
     console.error("Error deleting team:", error);
@@ -230,7 +247,13 @@ export async function createMember(formData: FormData) {
       }
     }
     
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/members");
+    if (teamId) {
+      revalidatePath(`/teams/${teamId}`);
+    }
+    
     return { success: true };
   } catch (error) {
     console.error("Error creating member:", error);
@@ -257,11 +280,18 @@ export async function updateMember(id: number, formData: FormData) {
       SET first_name = ${firstName}, last_name = ${lastName}, birth_date = ${birthDate},
           team_id = ${teamId}, email = ${email || null}, phone = ${phone || null},
           parent_name = ${parentName || null}, parent_email = ${parentEmail || null}, parent_phone = ${parentPhone || null},
-          avatar_url = ${avatarUrl || null}
+          avatar_url = ${avatarUrl || null}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
     `;
     
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/members");
+    revalidatePath(`/members/${id}`);
+    if (teamId) {
+      revalidatePath(`/teams/${teamId}`);
+    }
+    
     return { success: true };
   } catch (error) {
     console.error("Error updating member:", error);
@@ -271,8 +301,19 @@ export async function updateMember(id: number, formData: FormData) {
 
 export async function deleteMember(id: number) {
   try {
+    // Get team_id before deleting
+    const member = await sql`SELECT team_id FROM members WHERE id = ${id}`;
+    const teamId = member[0]?.team_id;
+    
     await sql`DELETE FROM members WHERE id = ${id}`;
+    
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/members");
+    if (teamId) {
+      revalidatePath(`/teams/${teamId}`);
+    }
+    
     return { success: true };
   } catch (error) {
     console.error("Error deleting member:", error);
@@ -314,7 +355,11 @@ export async function createEvent(formData: FormData) {
       VALUES (${title}, ${description}, ${eventDate}, ${location}, ${eventType})
     `;
     
+    // Aggressive revalidation
+    revalidatePath("/");
     revalidatePath("/events");
+    revalidatePath("/calendar");
+    
     return { success: true };
   } catch (error) {
     console.error("Error creating event:", error);
@@ -333,11 +378,16 @@ export async function updateEvent(id: number, formData: FormData) {
     await sql`
       UPDATE events 
       SET title = ${title}, description = ${description}, event_date = ${eventDate},
-          location = ${location}, event_type = ${eventType}
+          location = ${location}, event_type = ${eventType}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
     `;
     
+    // Aggressive revalidation
+    revalidatePath("/");
     revalidatePath("/events");
+    revalidatePath(`/events/${id}`);
+    revalidatePath("/calendar");
+    
     return { success: true };
   } catch (error) {
     console.error("Error updating event:", error);
@@ -348,7 +398,12 @@ export async function updateEvent(id: number, formData: FormData) {
 export async function deleteEvent(id: number) {
   try {
     await sql`DELETE FROM events WHERE id = ${id}`;
+    
+    // Aggressive revalidation
+    revalidatePath("/");
     revalidatePath("/events");
+    revalidatePath("/calendar");
+    
     return { success: true };
   } catch (error) {
     console.error("Error deleting event:", error);
@@ -446,7 +501,15 @@ export async function createTraining(formData: FormData) {
       }
     }
     
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/trainings");
+    revalidatePath(`/trainings/${trainingId}`);
+    revalidatePath("/calendar");
+    if (teamId) {
+      revalidatePath(`/teams/${teamId}`);
+    }
+    
     return { success: true };
   } catch (error) {
     console.error("Error creating training:", error);
@@ -468,11 +531,19 @@ export async function updateTraining(id: number, formData: FormData) {
       UPDATE trainings 
       SET team_id = ${teamId}, training_date = ${trainingDate}, 
           start_time = ${startTime}, end_time = ${endTime},
-          location = ${location}, notes = ${notes || null}
+          location = ${location}, notes = ${notes || null}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}
     `;
     
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/trainings");
+    revalidatePath(`/trainings/${id}`);
+    revalidatePath("/calendar");
+    if (teamId) {
+      revalidatePath(`/teams/${teamId}`);
+    }
+    
     return { success: true };
   } catch (error) {
     console.error("Error updating training:", error);
@@ -482,8 +553,20 @@ export async function updateTraining(id: number, formData: FormData) {
 
 export async function deleteTraining(id: number) {
   try {
+    // First get the team_id before deleting
+    const training = await sql`SELECT team_id FROM trainings WHERE id = ${id}`;
+    const teamId = training[0]?.team_id;
+    
     await sql`DELETE FROM trainings WHERE id = ${id}`;
+    
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
     revalidatePath("/trainings");
+    revalidatePath("/calendar");
+    if (teamId) {
+      revalidatePath(`/teams/${teamId}`);
+    }
+    
     return { success: true };
   } catch (error) {
     console.error("Error deleting training:", error);
@@ -575,20 +658,33 @@ export async function updateAttendanceStatus(
   trainingId: number,
   memberId: number,
   status: "accepted" | "declined" | "pending",
-  comment?: string
+  comment?: string,
+  declineReason?: string
 ) {
   try {
+    // Validate that decline_reason is provided when declining
+    if (status === "declined" && !declineReason) {
+      return { success: false, error: "Ein Grund für die Absage muss angegeben werden" };
+    }
+
     await sql`
-      INSERT INTO training_attendance (training_id, member_id, status, comment)
-      VALUES (${trainingId}, ${memberId}, ${status}, ${comment || null})
+      INSERT INTO training_attendance (training_id, member_id, status, comment, decline_reason)
+      VALUES (${trainingId}, ${memberId}, ${status}, ${comment || null}, ${status === "declined" ? declineReason : null})
       ON CONFLICT (training_id, member_id)
       DO UPDATE SET
         status = ${status},
         comment = ${comment || null},
+        decline_reason = ${status === "declined" ? declineReason : null},
         updated_at = CURRENT_TIMESTAMP
     `;
+    
+    // Aggressive revalidation for real-time updates
+    revalidatePath("/");
+    revalidatePath("/trainings");
     revalidatePath(`/trainings/${trainingId}`);
+    revalidatePath("/members");
     revalidatePath(`/members/${memberId}`);
+    
     return { success: true };
   } catch (error) {
     console.error("Error updating attendance:", error);

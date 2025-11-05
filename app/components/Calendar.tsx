@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Clock, MapPin, X } from "lucide-react";
 import Link from "next/link";
 
 interface CalendarEvent {
@@ -11,6 +11,7 @@ interface CalendarEvent {
   event_type: string;
   location?: string;
   start_time?: string;
+  end_time?: string;
   is_mandatory?: boolean;
   source: 'event' | 'calendar';
 }
@@ -22,6 +23,7 @@ interface CalendarProps {
 
 export default function Calendar({ events, calendarEvents }: CalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState<number | null>(null);
   
   const allEvents = [...events, ...calendarEvents];
   
@@ -59,26 +61,13 @@ export default function Calendar({ events, calendarEvents }: CalendarProps) {
   };
   
   // Event-Typ Farbe
-  const getEventColor = (type: string) => {
+  const getEventDotColor = (type: string) => {
     switch (type) {
-      case 'competition':
-        return 'bg-red-500';
-      case 'showcase':
-        return 'bg-purple-500';
-      case 'training':
-        return 'bg-blue-500';
-      case 'workshop':
-        return 'bg-green-500';
-      case 'meeting':
-        return 'bg-gray-500';
-      case 'holiday':
-        return 'bg-yellow-500';
-      case 'deadline':
-        return 'bg-orange-500';
-      case 'reminder':
-        return 'bg-pink-500';
-      default:
-        return 'bg-slate-500';
+      case 'competition': return 'bg-red-500';
+      case 'showcase': return 'bg-purple-500';
+      case 'training': return 'bg-blue-500';
+      case 'workshop': return 'bg-emerald-500';
+      default: return 'bg-gray-400';
     }
   };
   
@@ -94,188 +83,238 @@ export default function Calendar({ events, calendarEvents }: CalendarProps) {
     'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'
   ];
   
-  // Render Kalender-Grid
+  // Render Kalender-Grid - Clean & Simple
   const renderCalendarDays = () => {
     const days = [];
     
-    // Leere Zellen vor dem ersten Tag
+    // Leere Zellen
     for (let i = 0; i < startingDayOfWeek; i++) {
-      days.push(
-        <div key={`empty-${i}`} className="aspect-square p-2 border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900" />
-      );
+      days.push(<div key={`empty-${i}`} />);
     }
     
-    // Tage des Monats
+    // Tage
     for (let day = 1; day <= daysInMonth; day++) {
       const dayEvents = getEventsForDay(day);
       const isTodayDate = isToday(day);
+      const hasEvents = dayEvents.length > 0;
       
       days.push(
-        <div
+        <button
           key={day}
-          className={`aspect-square p-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors ${
-            isTodayDate ? 'ring-2 ring-purple-500 dark:ring-purple-400' : ''
-          }`}
+          onClick={() => setSelectedDay(day === selectedDay ? null : day)}
+          className="relative p-2 group"
         >
-          <div className="h-full flex flex-col">
-            <div className={`text-sm font-semibold mb-1 ${
-              isTodayDate 
-                ? 'text-purple-600 dark:text-purple-400' 
-                : 'text-slate-900 dark:text-slate-50'
-            }`}>
+          <div className={`
+            w-full aspect-square flex flex-col items-center justify-center rounded-lg
+            transition-all duration-200
+            ${isTodayDate 
+              ? 'bg-red-600 text-white font-bold' 
+              : selectedDay === day
+                ? 'bg-slate-200 dark:bg-slate-700'
+                : 'hover:bg-slate-100 dark:hover:bg-slate-800'
+            }
+          `}>
+            <span className={`text-sm ${isTodayDate ? 'text-white' : 'text-slate-900 dark:text-slate-100'}`}>
               {day}
-            </div>
-            <div className="flex-1 overflow-y-auto space-y-1">
-              {dayEvents.slice(0, 3).map((event, idx) => (
-                <Link
-                  key={`${event.source}-${event.id}-${idx}`}
-                  href={event.source === 'event' ? `/events/${event.id}` : `/calendar?event=${event.id}`}
-                  className="block"
-                >
+            </span>
+            {hasEvents && !isTodayDate && (
+              <div className="flex gap-1 mt-1">
+                {dayEvents.slice(0, 3).map((event, idx) => (
                   <div
-                    className={`text-xs px-1.5 py-0.5 rounded text-white truncate hover:opacity-80 transition-opacity ${getEventColor(event.event_type)}`}
-                    title={event.title}
-                  >
-                    {event.start_time && (
-                      <span className="font-semibold">{event.start_time.slice(0, 5)} </span>
-                    )}
-                    {event.title}
-                    {event.is_mandatory && <span className="ml-1">*</span>}
-                  </div>
-                </Link>
-              ))}
-              {dayEvents.length > 3 && (
-                <div className="text-xs text-slate-600 dark:text-slate-400 px-1.5">
-                  +{dayEvents.length - 3} mehr
-                </div>
-              )}
-            </div>
+                    key={idx}
+                    className={`w-1 h-1 rounded-full ${getEventDotColor(event.event_type)}`}
+                  />
+                ))}
+              </div>
+            )}
+            {hasEvents && isTodayDate && (
+              <div className="flex gap-1 mt-1">
+                {dayEvents.slice(0, 3).map((event, idx) => (
+                  <div key={idx} className="w-1 h-1 rounded-full bg-white opacity-80" />
+                ))}
+              </div>
+            )}
           </div>
-        </div>
+        </button>
       );
     }
     
     return days;
   };
   
+  const selectedDayEvents = selectedDay ? getEventsForDay(selectedDay) : [];
+  const monthEvents = allEvents
+    .filter(event => {
+      const eventDate = new Date(event.event_date);
+      return eventDate.getMonth() === month && eventDate.getFullYear() === year;
+    })
+    .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+
   return (
-    <div className="space-y-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          {monthNames[month]} {year}
-        </h2>
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header - Clean */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+            {monthNames[month]} {year}
+          </h2>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={today}
-            className="px-3 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+            className="px-4 py-2 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors"
           >
             Heute
           </button>
           <button
             onClick={previousMonth}
-            className="p-2 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            aria-label="Vorheriger Monat"
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={nextMonth}
-            className="p-2 text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            aria-label="Nächster Monat"
+            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
         </div>
       </div>
       
-      {/* Legende */}
-      <div className="flex flex-wrap gap-2 text-xs">
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-red-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Wettkampf</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-purple-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Showcase</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-blue-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Training</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-green-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Workshop</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-gray-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Meeting</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded bg-yellow-500"></div>
-          <span className="text-slate-600 dark:text-slate-400">Feiertag</span>
+      {/* Kalender - Minimalistisch */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <div className="p-6">
+          {/* Wochentage */}
+          <div className="grid grid-cols-7 gap-2 mb-3">
+            {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(day => (
+              <div key={day} className="text-center text-xs font-semibold text-slate-400 py-2">
+                {day}
+              </div>
+            ))}
+          </div>
+          
+          {/* Tage */}
+          <div className="grid grid-cols-7 gap-2">
+            {renderCalendarDays()}
+          </div>
         </div>
       </div>
-      
-      {/* Kalender */}
-      <div className="card overflow-hidden">
-        {/* Wochentage */}
-        <div className="grid grid-cols-7 bg-slate-100 dark:bg-slate-900">
-          {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map(day => (
-            <div
-              key={day}
-              className="p-2 text-center text-sm font-semibold text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-            >
-              {day}
+
+      {/* Event Details für ausgewählten Tag */}
+      {selectedDay && selectedDayEvents.length > 0 && (
+        <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 overflow-hidden">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+                {selectedDay}. {monthNames[month]} {year}
+              </h3>
+              <button
+                onClick={() => setSelectedDay(null)}
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-slate-400" />
+              </button>
             </div>
-          ))}
+            
+            <div className="space-y-3">
+              {selectedDayEvents.map((event, idx) => (
+                <Link
+                  key={idx}
+                  href={event.source === 'event' ? `/events/${event.id}` : `/calendar?event=${event.id}`}
+                  className="block p-4 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                >
+                  <div className="flex gap-3">
+                    <div className={`w-1 rounded-full ${getEventDotColor(event.event_type)}`} />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-slate-900 dark:text-slate-100 mb-1">
+                        {event.title}
+                        {event.is_mandatory && (
+                          <span className="ml-2 text-xs text-red-600 dark:text-red-400">Pflicht</span>
+                        )}
+                      </h4>
+                      <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                        {event.start_time && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            <span>{event.start_time.slice(0, 5)}</span>
+                          </div>
+                        )}
+                        {event.location && (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-4 h-4" />
+                            <span className="truncate">{event.location}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
-        
-        {/* Tage */}
-        <div className="grid grid-cols-7">
-          {renderCalendarDays()}
-        </div>
-      </div>
-      
-      {/* Mobile Event Liste */}
-      <div className="lg:hidden space-y-2">
-        <h3 className="font-semibold text-slate-900 dark:text-slate-50">
-          Events in {monthNames[month]}
-        </h3>
-        {allEvents
-          .filter(event => {
+      )}
+
+      {/* Event-Liste des Monats */}
+      {!selectedDay && monthEvents.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            Termine in {monthNames[month]}
+          </h3>
+          {monthEvents.map((event, idx) => {
             const eventDate = new Date(event.event_date);
-            return eventDate.getMonth() === month && eventDate.getFullYear() === year;
-          })
-          .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
-          .map((event, idx) => (
-            <Link
-              key={`mobile-${event.source}-${event.id}-${idx}`}
-              href={event.source === 'event' ? `/events/${event.id}` : `/calendar?event=${event.id}`}
-              className="block p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-            >
-              <div className="flex items-center gap-2 mb-1">
-                <div className={`w-2 h-2 rounded-full ${getEventColor(event.event_type)}`}></div>
-                <span className="font-medium text-slate-900 dark:text-slate-50">
-                  {event.title}
-                </span>
-                {event.is_mandatory && (
-                  <span className="text-xs text-red-600 dark:text-red-400">*Pflicht</span>
-                )}
-              </div>
-              <div className="text-sm text-slate-600 dark:text-slate-400">
-                {new Date(event.event_date).toLocaleDateString('de-DE', { 
-                  weekday: 'short', 
-                  day: '2-digit', 
-                  month: 'short' 
-                })}
-                {event.start_time && ` • ${event.start_time.slice(0, 5)}`}
-                {event.location && ` • ${event.location}`}
-              </div>
-            </Link>
-          ))
-        }
-      </div>
+            const isTodayEvent = isToday(eventDate.getDate());
+            
+            return (
+              <Link
+                key={idx}
+                href={event.source === 'event' ? `/events/${event.id}` : `/calendar?event=${event.id}`}
+                className="block"
+              >
+                <div className="flex gap-4 p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-red-300 dark:hover:border-red-800 transition-colors">
+                  <div className={`
+                    flex-shrink-0 w-14 h-14 rounded-xl flex flex-col items-center justify-center
+                    ${isTodayEvent 
+                      ? 'bg-red-600 text-white' 
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100'
+                    }
+                  `}>
+                    <span className="text-xs font-medium uppercase">
+                      {eventDate.toLocaleDateString('de-DE', { weekday: 'short' })}
+                    </span>
+                    <span className="text-xl font-bold">
+                      {eventDate.getDate()}
+                    </span>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+                      {event.title}
+                      {event.is_mandatory && (
+                        <span className="ml-2 text-xs text-red-600 dark:text-red-400">Pflicht</span>
+                      )}
+                    </h4>
+                    <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400">
+                      {event.start_time && (
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-4 h-4" />
+                          <span>{event.start_time.slice(0, 5)}</span>
+                        </div>
+                      )}
+                      {event.location && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="w-4 h-4" />
+                          <span className="truncate">{event.location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

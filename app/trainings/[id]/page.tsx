@@ -247,6 +247,7 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
           trainingId={trainingId}
           memberId={currentUserMemberId}
           currentStatus={currentUserAttendance?.status || "pending"}
+          currentDeclineReason={currentUserAttendance?.decline_reason}
         />
       )}
 

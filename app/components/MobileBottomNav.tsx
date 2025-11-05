@@ -103,13 +103,14 @@ export default function MobileBottomNav() {
   };
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 dark:bg-gray-900/95 backdrop-blur-lg border-t border-gray-200/50 dark:border-gray-700/50 safe-area-pb">
-      {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-t from-red-500/5 to-transparent pointer-events-none" />
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/98 dark:bg-gray-900/98 backdrop-blur-2xl border-t-2 border-gray-200/60 dark:border-gray-700/60 safe-area-pb shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      {/* Enhanced background with gradient layers */}
+      <div className="absolute inset-0 bg-gradient-to-t from-red-500/10 via-red-500/5 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-white/50 dark:from-gray-900/50 to-transparent pointer-events-none" />
       
-      {/* Active indicator background */}
+      {/* Modern active indicator with glow */}
       <div 
-        className="absolute top-0 h-1 bg-gradient-to-r from-red-500 to-red-600 transition-all duration-300 ease-out rounded-b-full"
+        className="absolute top-0 h-1.5 bg-gradient-to-r from-red-500 via-red-600 to-red-500 transition-all duration-500 ease-out rounded-b-full shadow-glow-red"
         style={{
           left: `${(activeIndex / (navItems.length + 1)) * 100}%`,
           width: `${100 / (navItems.length + 1)}%`,
@@ -131,29 +132,29 @@ export default function MobileBottomNav() {
               onClick={handleClick}
               data-nav-index={index}
               className={`
-                  relative flex-1 flex flex-col items-center justify-center min-h-[68px] px-3 py-3 rounded-2xl
-                  transition-all duration-300 ease-out active:scale-95 touch-manipulation
+                  relative flex-1 flex flex-col items-center justify-center min-h-[72px] px-3 py-3.5 rounded-2xl
+                  transition-all duration-300 ease-smooth active:scale-95 touch-manipulation
                   ${isActiveItem 
                     ? 'text-red-600 dark:text-red-400' 
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                    : 'text-gray-500 dark:text-gray-400 active:text-gray-700 dark:active:text-gray-300'
                   }
                 `}
               >
-                {/* Active background */}
+                {/* Enhanced active background with gradient */}
                 <div className={`
-                  absolute inset-0 rounded-2xl transition-all duration-300
+                  absolute inset-0 rounded-2xl transition-all duration-500 ease-smooth
                   ${isActiveItem 
-                    ? 'bg-red-50 dark:bg-red-900/20 scale-100 shadow-lg shadow-red-500/10' 
-                    : 'bg-transparent scale-95'
+                    ? 'bg-gradient-to-br from-red-50 via-red-100/50 to-red-50 dark:from-red-900/30 dark:via-red-800/20 dark:to-red-900/20 scale-100 shadow-elegant border-2 border-red-200/40 dark:border-red-700/30' 
+                    : 'bg-transparent scale-90 border-2 border-transparent'
                   }
                 `} />
                 
-                {/* Icon container with bounce animation */}
+                {/* Icon container with enhanced bounce animation */}
                 <div className={`
-                  relative z-10 p-2.5 rounded-xl transition-all duration-300
+                  relative z-10 p-3 rounded-2xl transition-all duration-500 ease-smooth
                   ${isActiveItem 
-                    ? 'transform -translate-y-1 bg-red-100 dark:bg-red-900/30' 
-                    : 'transform translate-y-0'
+                    ? 'transform -translate-y-1.5 bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg shadow-red-500/40 scale-110' 
+                    : 'transform translate-y-0 bg-gray-100/50 dark:bg-gray-800/50 scale-100'
                   }
                 `}>
                   {item.icon}
@@ -166,23 +167,23 @@ export default function MobileBottomNav() {
                   )}
                 </div>
                 
-                {/* Label with smooth opacity */}
+                {/* Enhanced label with smooth transitions */}
                 <span className={`
-                  relative z-10 text-xs font-semibold mt-1.5 transition-all duration-300 text-center leading-tight
+                  relative z-10 text-xs font-bold mt-2 transition-all duration-500 text-center leading-tight
                   ${isActiveItem 
-                    ? 'opacity-100 transform translate-y-0 scale-105' 
-                    : 'opacity-70 transform translate-y-0.5 scale-100'
+                    ? 'opacity-100 transform translate-y-0 scale-110 text-red-600 dark:text-red-400' 
+                    : 'opacity-60 transform translate-y-0.5 scale-95 text-gray-600 dark:text-gray-400'
                   }
                 `}>
                   {item.label}
                 </span>
                 
-                {/* Active dot indicator */}
+                {/* Enhanced active dot indicator with glow */}
                 <div className={`
-                  absolute -top-1 left-1/2 transform -translate-x-1/2 w-1.5 h-1.5 rounded-full
-                  transition-all duration-300
+                  absolute -top-0.5 left-1/2 transform -translate-x-1/2 w-2 h-2 rounded-full
+                  transition-all duration-500
                   ${isActiveItem 
-                    ? 'bg-red-500 scale-100 opacity-100' 
+                    ? 'bg-red-500 scale-100 opacity-100 shadow-glow-red' 
                     : 'bg-transparent scale-0 opacity-0'
                   }
                 `} />

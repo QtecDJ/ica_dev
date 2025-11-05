@@ -321,24 +321,29 @@ function QuickActionCard({ href, icon, title, description, color }: {
   color: "red" | "black" | "white" | "gray";
 }) {
   const colorClasses = {
-    red: "text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800",
-    black: "text-white bg-black hover:bg-gray-800 dark:bg-gray-900 dark:hover:bg-gray-800",
-    white: "text-black bg-white border border-gray-200 hover:bg-gray-50 dark:bg-gray-100 dark:hover:bg-gray-200",
-    gray: "text-black bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700",
+    red: "text-white bg-gradient-to-br from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 shadow-glow-red",
+    black: "text-white bg-gradient-to-br from-gray-900 to-black hover:from-black hover:to-gray-900",
+    white: "text-black bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 hover:border-gray-300 dark:bg-gradient-to-br dark:from-gray-100 dark:to-gray-200",
+    gray: "text-gray-900 dark:text-white bg-gradient-to-br from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 dark:from-gray-800 dark:to-gray-900 dark:hover:from-gray-700 dark:hover:to-gray-800",
   };
 
   return (
-    <Link href={href} className="group transform transition-all duration-200 hover:scale-105">
-      <div className="card-body text-center h-full">
-        <div className={`w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 ${colorClasses[color]} transition-all duration-200 group-hover:scale-110 shadow-lg`}>
-          {icon}
+    <Link href={href} className="group">
+      <div className="card-hover text-center h-full relative overflow-hidden">
+        {/* Animated shine effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
+        
+        <div className="card-body relative z-10">
+          <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${colorClasses[color]} transition-all duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-elegant`}>
+            {icon}
+          </div>
+          <h4 className="font-bold text-gray-900 dark:text-white mb-2 text-lg group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">
+            {title}
+          </h4>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {description}
+          </p>
         </div>
-        <h4 className="font-semibold text-black dark:text-white mb-1">
-          {title}
-        </h4>
-        <p className="text-xs text-gray-600 dark:text-gray-400">
-          {description}
-        </p>
       </div>
     </Link>
   );
@@ -347,44 +352,147 @@ function QuickActionCard({ href, icon, title, description, color }: {
   // Admin/Coach Dashboard
   const stats = await getStats();
   
+  // Get coach's team IDs if user is a coach
+  const coachTeamIds = userRole === "coach" 
+    ? await sql`
+        SELECT team_id 
+        FROM team_coaches 
+        WHERE coach_id = ${session?.user?.id}
+      `
+    : [];
+  
+  const coachTeamIdList = coachTeamIds.map((t: any) => t.team_id);
+  
   // Extended Stats für Admin/Coach mit Training-Statistiken
-  const extendedStats = await sql`
-    WITH training_stats AS (
-      SELECT 
-        COUNT(DISTINCT t.id) as upcoming_trainings,
-        COUNT(CASE WHEN ta.status = 'accepted' THEN 1 END) as total_accepted,
-        COUNT(CASE WHEN ta.status = 'declined' THEN 1 END) as total_declined,
-        COUNT(CASE WHEN ta.status = 'pending' THEN 1 END) as total_pending
-      FROM trainings t
-      LEFT JOIN training_attendance ta ON t.id = ta.training_id
-      WHERE t.training_date >= CURRENT_DATE
-    ),
-    upcoming_events AS (
-      SELECT COUNT(*) as upcoming_events_count
-      FROM events
-      WHERE event_date >= CURRENT_DATE
-    ),
-    recent_members AS (
-      SELECT COUNT(*) as new_members_30d
-      FROM members
-      WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
-    ),
-    comment_stats AS (
-      SELECT COUNT(*) as unread_comments
-      FROM comments
-      WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
-    )
-    SELECT 
-      (SELECT upcoming_trainings FROM training_stats) as upcoming_trainings,
-      (SELECT total_accepted FROM training_stats) as training_accepted,
-      (SELECT total_declined FROM training_stats) as training_declined,
-      (SELECT total_pending FROM training_stats) as training_pending,
-      (SELECT upcoming_events_count FROM upcoming_events) as upcoming_events,
-      (SELECT new_members_30d FROM recent_members) as new_members,
-      (SELECT unread_comments FROM comment_stats) as unread_comments
-  `;
+  const extendedStats = userRole === "admin"
+    ? await sql`
+        WITH training_stats AS (
+          SELECT 
+            COUNT(DISTINCT t.id) as upcoming_trainings,
+            COUNT(CASE WHEN ta.status = 'accepted' THEN 1 END) as total_accepted,
+            COUNT(CASE WHEN ta.status = 'declined' THEN 1 END) as total_declined,
+            COUNT(CASE WHEN ta.status = 'pending' THEN 1 END) as total_pending
+          FROM trainings t
+          LEFT JOIN training_attendance ta ON t.id = ta.training_id
+          WHERE t.training_date >= CURRENT_DATE
+        ),
+        upcoming_events AS (
+          SELECT COUNT(*) as upcoming_events_count
+          FROM events
+          WHERE event_date >= CURRENT_DATE
+        ),
+        recent_members AS (
+          SELECT COUNT(*) as new_members_30d
+          FROM members
+          WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+        ),
+        comment_stats AS (
+          SELECT COUNT(*) as unread_comments
+          FROM comments
+          WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+        )
+        SELECT 
+          (SELECT upcoming_trainings FROM training_stats) as upcoming_trainings,
+          (SELECT total_accepted FROM training_stats) as training_accepted,
+          (SELECT total_declined FROM training_stats) as training_declined,
+          (SELECT total_pending FROM training_stats) as training_pending,
+          (SELECT upcoming_events_count FROM upcoming_events) as upcoming_events,
+          (SELECT new_members_30d FROM recent_members) as new_members,
+          (SELECT unread_comments FROM comment_stats) as unread_comments
+      `
+    : await sql`
+        WITH training_stats AS (
+          SELECT 
+            COUNT(DISTINCT t.id) as upcoming_trainings,
+            COUNT(CASE WHEN ta.status = 'accepted' THEN 1 END) as total_accepted,
+            COUNT(CASE WHEN ta.status = 'declined' THEN 1 END) as total_declined,
+            COUNT(CASE WHEN ta.status = 'pending' THEN 1 END) as total_pending
+          FROM trainings t
+          LEFT JOIN training_attendance ta ON t.id = ta.training_id
+          WHERE t.training_date >= CURRENT_DATE
+            AND t.team_id = ANY(${coachTeamIdList})
+        ),
+        upcoming_events AS (
+          SELECT COUNT(*) as upcoming_events_count
+          FROM events
+          WHERE event_date >= CURRENT_DATE
+        ),
+        recent_members AS (
+          SELECT COUNT(*) as new_members_30d
+          FROM members
+          WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
+            AND team_id = ANY(${coachTeamIdList})
+        ),
+        comment_stats AS (
+          SELECT COUNT(*) as unread_comments
+          FROM comments
+          WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
+        )
+        SELECT 
+          (SELECT upcoming_trainings FROM training_stats) as upcoming_trainings,
+          (SELECT total_accepted FROM training_stats) as training_accepted,
+          (SELECT total_declined FROM training_stats) as training_declined,
+          (SELECT total_pending FROM training_stats) as training_pending,
+          (SELECT upcoming_events_count FROM upcoming_events) as upcoming_events,
+          (SELECT new_members_30d FROM recent_members) as new_members,
+          (SELECT unread_comments FROM comment_stats) as unread_comments
+      `;
 
   const adminStats = extendedStats[0];
+
+  // Get recent decline reasons for Admin/Coach
+  const recentDeclines = (userRole === "admin" || userRole === "coach")
+    ? userRole === "admin"
+      ? await sql`
+          SELECT 
+            ta.decline_reason,
+            ta.updated_at,
+            m.first_name || ' ' || m.last_name as member_name,
+            t.training_date,
+            t.start_time,
+            teams.name as team_name
+          FROM training_attendance ta
+          JOIN members m ON ta.member_id = m.id
+          JOIN trainings t ON ta.training_id = t.id
+          LEFT JOIN teams ON t.team_id = teams.id
+          WHERE ta.status = 'declined' 
+            AND ta.decline_reason IS NOT NULL
+            AND ta.updated_at >= CURRENT_DATE - INTERVAL '7 days'
+          ORDER BY ta.updated_at DESC
+          LIMIT 10
+        `
+      : await sql`
+          SELECT 
+            ta.decline_reason,
+            ta.updated_at,
+            m.first_name || ' ' || m.last_name as member_name,
+            t.training_date,
+            t.start_time,
+            teams.name as team_name
+          FROM training_attendance ta
+          JOIN members m ON ta.member_id = m.id
+          JOIN trainings t ON ta.training_id = t.id
+          LEFT JOIN teams ON t.team_id = teams.id
+          WHERE ta.status = 'declined' 
+            AND ta.decline_reason IS NOT NULL
+            AND ta.updated_at >= CURRENT_DATE - INTERVAL '7 days'
+            AND t.team_id = ANY(${coachTeamIdList})
+          ORDER BY ta.updated_at DESC
+          LIMIT 10
+        `
+    : [];
+
+  // Auto-delete old trainings (older than 30 days)
+  if (userRole === "admin") {
+    try {
+      await sql`
+        DELETE FROM trainings
+        WHERE training_date < CURRENT_DATE - INTERVAL '30 days'
+      `;
+    } catch (error) {
+      console.error("Error deleting old trainings:", error);
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -433,24 +541,24 @@ function QuickActionCard({ href, icon, title, description, color }: {
         />
       </div>
 
-      {/* Extended Stats for Admin */}
-      {userRole === "admin" && (
+      {/* Extended Stats for Admin & Coach */}
+      {(userRole === "admin" || userRole === "coach") && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <MiniStatCard
             icon={<UserPlus className="w-5 h-5" />}
-            title="Neue (30 Tage)"
+            title={userRole === "coach" ? "Neue Mitglieder (30 Tage)" : "Neue (30 Tage)"}
             value={adminStats.new_members || 0}
             color="gray"
           />
           <MiniStatCard
             icon={<CheckCircle className="w-5 h-5" />}
-            title="Zusagen"
+            title={userRole === "coach" ? "Zusagen (Meine Teams)" : "Zusagen"}
             value={adminStats.training_accepted || 0}
             color="black"
           />
           <MiniStatCard
             icon={<XCircle className="w-5 h-5" />}
-            title="Absagen"
+            title={userRole === "coach" ? "Absagen (Meine Teams)" : "Absagen"}
             value={adminStats.training_declined || 0}
             color="red"
           />
@@ -567,6 +675,62 @@ function QuickActionCard({ href, icon, title, description, color }: {
             </div>
           </div>
         </div>
+
+        {/* Recent Decline Reasons */}
+        {(userRole === "admin" || userRole === "coach") && recentDeclines.length > 0 && (
+          <div className="card lg:col-span-2">
+            <div className="card-header">
+              <div className="flex items-center gap-3">
+                <XCircle className="w-5 h-5 text-red-600" />
+                <h2 className="text-lg font-semibold">Letzte Absagen mit Begründung</h2>
+                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">Letzte 7 Tage</span>
+              </div>
+            </div>
+            <div className="card-body">
+              <div className="space-y-3">
+                {recentDeclines.map((decline: any, index: number) => (
+                  <div
+                    key={index}
+                    className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg"
+                  >
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4 text-red-600 dark:text-red-400" />
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                          {decline.member_name}
+                        </span>
+                        {decline.team_name && (
+                          <span className="text-sm text-gray-500 dark:text-gray-400">
+                            ({decline.team_name})
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                        <Clock className="w-4 h-4" />
+                        {new Date(decline.updated_at).toLocaleDateString('de-DE', {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric'
+                        })}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                      <Calendar className="w-4 h-4" />
+                      Training: {new Date(decline.training_date).toLocaleDateString('de-DE', {
+                        weekday: 'short',
+                        day: '2-digit',
+                        month: '2-digit'
+                      })} um {decline.start_time.substring(0, 5)} Uhr
+                    </div>
+                    <div className="pl-6 text-sm text-red-800 dark:text-red-300 italic">
+                      "{decline.decline_reason}"
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -580,22 +744,33 @@ function StatCard({ icon, title, value, color, href }: {
   href: string;
 }) {
   const colorClasses = {
-    red: "text-white bg-red-600 dark:bg-red-700",
-    black: "text-white bg-black dark:bg-gray-900",
-    white: "text-black bg-white border border-gray-200 dark:bg-gray-100",
-    gray: "text-black bg-gray-100 dark:bg-gray-800 dark:text-white",
+    red: "text-white bg-gradient-to-br from-red-600 to-red-700 shadow-glow-red",
+    black: "text-white bg-gradient-to-br from-gray-900 to-black",
+    white: "text-black bg-gradient-to-br from-white to-gray-50 border-2 border-gray-200 dark:border-gray-700",
+    gray: "text-gray-900 dark:text-white bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900",
   };
 
   return (
-    <Link href={href} className="group transform transition-all duration-200 hover:scale-105">
-      <div className="card-body">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{title}</p>
-            <p className="text-3xl font-bold text-black dark:text-white">{value}</p>
+    <Link href={href} className="group">
+      <div className="card-hover overflow-hidden relative">
+        {/* Animated Background Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        
+        <div className="card-body relative z-10">
+          <div className="flex items-start justify-between">
+            <div className="flex-1 space-y-1">
+              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">{title}</p>
+              <p className="text-4xl font-bold bg-gradient-to-br from-gray-900 to-gray-700 dark:from-white dark:to-gray-300 bg-clip-text text-transparent animate-fade-in">{value}</p>
+            </div>
+            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${colorClasses[color]} shadow-lg group-hover:scale-110 group-hover:rotate-3 transition-all duration-300`}>
+              {icon}
+            </div>
           </div>
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${colorClasses[color]} shadow-lg group-hover:scale-110 transition-all duration-200`}>
-            {icon}
+          
+          {/* Hover indicator */}
+          <div className="mt-4 flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">
+            <span>Details anzeigen</span>
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
           </div>
         </div>
       </div>
@@ -610,24 +785,31 @@ function MiniStatCard({ icon, title, value, color }: {
   color: "red" | "black" | "white" | "gray";
 }) {
   const colorClasses = {
-    red: "text-red-600 dark:text-red-400",
-    black: "text-black dark:text-white",
-    white: "text-gray-600 dark:text-gray-300",
-    gray: "text-gray-600 dark:text-gray-400",
+    red: "text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20",
+    black: "text-gray-900 dark:text-white bg-gray-100 dark:bg-gray-800",
+    white: "text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900",
+    gray: "text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-800",
+  };
+
+  const iconBgClasses = {
+    red: "bg-red-100 dark:bg-red-900/30",
+    black: "bg-gray-200 dark:bg-gray-700",
+    white: "bg-gray-100 dark:bg-gray-800",
+    gray: "bg-gray-200 dark:bg-gray-700",
   };
 
   return (
-    <div className="card transform transition-all duration-200 hover:scale-105">
+    <div className="card-hover group">
       <div className="card-body">
-        <div className="flex items-center gap-3 mb-2">
-          <div className={colorClasses[color]}>
+        <div className="flex items-center gap-3 mb-3">
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBgClasses[color]} ${colorClasses[color]} group-hover:scale-110 transition-transform duration-300`}>
             {icon}
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wide font-medium">
+          <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wider font-semibold">
             {title}
           </p>
         </div>
-        <p className={`text-2xl font-bold ${colorClasses[color]}`}>{value}</p>
+        <p className={`text-3xl font-bold ${colorClasses[color]}`}>{value}</p>
       </div>
     </div>
   );
@@ -637,10 +819,10 @@ function QuickLink({ href, title }: { href: string; title: string }) {
   return (
     <Link
       href={href}
-      className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+      className="flex items-center justify-between p-4 rounded-xl hover:bg-gradient-to-r hover:from-red-50 hover:to-transparent dark:hover:from-red-900/20 dark:hover:to-transparent border-2 border-transparent hover:border-red-100 dark:hover:border-red-900/30 transition-all duration-300 group"
     >
-      <span className="text-slate-900 dark:text-slate-50 font-medium">{title}</span>
-      <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:translate-x-1 transition-all" />
+      <span className="text-gray-900 dark:text-gray-50 font-semibold group-hover:text-red-600 dark:group-hover:text-red-400 transition-colors duration-300">{title}</span>
+      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-red-600 dark:group-hover:text-red-400 group-hover:translate-x-2 transition-all duration-300" />
     </Link>
   );
 }

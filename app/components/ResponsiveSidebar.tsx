@@ -71,68 +71,76 @@ export default function ResponsiveSidebar() {
   return (
     <>
       {/* Desktop-only Sidebar */}
-      <aside className="hidden lg:flex w-80 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-50 border-r border-gray-200 dark:border-gray-700 flex-col h-full">
+      <aside className="hidden lg:flex w-80 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-900/50 dark:to-gray-900 text-gray-900 dark:text-gray-50 border-r border-gray-200/60 dark:border-gray-700/60 flex-col h-full backdrop-blur-sm">
         {/* Enhanced Logo section */}
         <div className="p-6">
-          <div className="flex items-center gap-4 p-4 rounded-2xl bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border border-red-200/50 dark:border-red-700/50">
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg overflow-hidden">
-              <img 
-                src="/logo.png" 
-                alt="Infinity Allstars Logo" 
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold bg-gradient-to-r from-red-600 to-red-800 bg-clip-text text-transparent">
-                Infinity Cheer
-              </h1>
-              <p className="text-red-600 dark:text-red-400 text-sm font-semibold tracking-wider">ALLSTARS</p>
+          <div className="relative group overflow-hidden">
+            {/* Animated background gradient */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600/10 via-red-500/5 to-transparent dark:from-red-600/20 dark:via-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl"></div>
+            
+            <div className="relative flex items-center gap-4 p-5 rounded-2xl bg-gradient-to-br from-red-50 via-white to-red-50/50 dark:from-red-900/20 dark:via-gray-800/50 dark:to-red-800/20 border-2 border-red-200/60 dark:border-red-700/40 shadow-elegant group-hover:shadow-elegant-hover transition-all duration-300">
+              <div className="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg overflow-hidden bg-white dark:bg-gray-800 ring-2 ring-red-100 dark:ring-red-900/50 group-hover:scale-105 transition-transform duration-300">
+                <img 
+                  src="/logo.png" 
+                  alt="Infinity Allstars Logo" 
+                  className="w-full h-full object-contain"
+                />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-red-600 via-red-700 to-red-800 bg-clip-text text-transparent">
+                  Infinity Cheer
+                </h1>
+                <p className="text-red-600 dark:text-red-400 text-sm font-bold tracking-widest uppercase">ALLSTARS</p>
+              </div>
             </div>
           </div>
         </div>
         
         {/* Enhanced Navigation */}
-        <nav className="flex-1 overflow-y-auto px-4">
-          <ul className="space-y-2">
+        <nav className="flex-1 overflow-y-auto px-4 py-2">
+          <ul className="space-y-1.5">
             {navItems.map((item) => {
               const active = isActive(item.href);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className={`flex items-center space-x-4 px-4 py-3.5 rounded-xl transition-all duration-200 group relative overflow-hidden ${
+                    className={`flex items-center space-x-4 px-4 py-4 rounded-2xl transition-all duration-300 group relative overflow-hidden ${
                       active
-                        ? "bg-gradient-to-r from-red-50 to-red-100 dark:from-red-900/30 dark:to-red-800/20 text-red-600 dark:text-red-400 font-semibold shadow-sm"
-                        : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-50"
+                        ? "bg-gradient-to-br from-red-50 via-red-100/80 to-red-50 dark:from-red-900/30 dark:via-red-800/20 dark:to-red-900/30 text-red-600 dark:text-red-400 font-bold shadow-elegant border-2 border-red-200/60 dark:border-red-700/40"
+                        : "text-gray-600 dark:text-gray-400 hover:bg-gradient-to-br hover:from-gray-50 hover:to-gray-100/50 dark:hover:from-gray-800/50 dark:hover:to-gray-800/30 hover:text-gray-900 dark:hover:text-gray-50 border-2 border-transparent hover:border-gray-200/60 dark:hover:border-gray-700/40 hover:shadow-sm"
                     }`}
                   >
-                    {/* Active indicator */}
+                    {/* Active indicator with glow */}
                     {active && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-red-500 to-red-600 rounded-r-full" />
+                      <>
+                        <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-red-500 via-red-600 to-red-500 rounded-r-full shadow-glow-red" />
+                        <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 via-transparent to-transparent rounded-2xl animate-pulse-subtle" />
+                      </>
                     )}
                     
                     {/* Icon with enhanced styling */}
-                    <div className={`p-2 rounded-lg transition-all duration-200 ${
+                    <div className={`p-2.5 rounded-xl transition-all duration-300 ${
                       active 
-                        ? 'bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400' 
-                        : 'group-hover:bg-gray-100 dark:group-hover:bg-gray-700'
+                        ? 'bg-gradient-to-br from-red-600 to-red-700 text-white shadow-lg shadow-red-500/30 scale-105' 
+                        : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 group-hover:bg-gray-200 dark:group-hover:bg-gray-700 group-hover:scale-105'
                     }`}>
-                      {item.iconName === "Home" && <IconHome className="w-5 h-5" stroke={2} />}
-                      {item.iconName === "Users" && <IconUsers className="w-5 h-5" stroke={2} />}
-                      {item.iconName === "Trophy" && <IconTrophy className="w-5 h-5" stroke={2} />}
-                      {item.iconName === "Calendar" && <IconCalendar className="w-5 h-5" stroke={2} />}
-                      {item.iconName === "Dumbbell" && <IconBarbell className="w-5 h-5" stroke={2} />}
-                      {item.iconName === "Shield" && <IconShield className="w-5 h-5" stroke={2} />}
-                      {item.iconName === "UserIcon" && <IconUser className="w-5 h-5" stroke={2} />}
-                      {item.iconName === "MessageCircle" && <IconMessageCircle className="w-5 h-5" stroke={2} />}
+                      {item.iconName === "Home" && <IconHome className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "Users" && <IconUsers className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "Trophy" && <IconTrophy className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "Calendar" && <IconCalendar className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "Dumbbell" && <IconBarbell className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "Shield" && <IconShield className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "UserIcon" && <IconUser className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "MessageCircle" && <IconMessageCircle className="w-5 h-5" stroke={2.5} />}
                     </div>
-                    <span className="text-sm font-medium">{item.label}</span>
+                    <span className={`text-sm font-semibold flex-1 ${active ? 'text-red-600 dark:text-red-400' : ''}`}>{item.label}</span>
                     
                     {/* Badge für ungelesene Nachrichten */}
                     {item.iconName === "MessageCircle" && <UnreadMessagesBadge className="ml-2" />}
                     
-                    {/* Hover effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/5 to-red-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-xl" />
+                    {/* Shimmer effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700 rounded-2xl" />
                   </Link>
                 </li>
               );
@@ -142,15 +150,18 @@ export default function ResponsiveSidebar() {
         
         {/* Enhanced User section */}
         <div className="p-4 mt-auto">
-          <div className="bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 rounded-2xl p-4 border border-gray-200 dark:border-gray-700">
+          <div className="relative group overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-800 dark:via-gray-850 dark:to-gray-900 rounded-2xl p-5 border-2 border-gray-200/60 dark:border-gray-700/60 shadow-elegant hover:shadow-elegant-hover transition-all duration-300">
+            {/* Subtle animated background */}
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            
             {session?.user && (
               <>
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-xl flex items-center justify-center text-white font-semibold text-sm">
+                <div className="flex items-center gap-3 mb-4 relative z-10">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-red-500/30 ring-2 ring-red-100 dark:ring-red-900/50 group-hover:scale-105 transition-transform duration-300">
                     {session.user.name?.charAt(0)?.toUpperCase()}
                   </div>
-                  <div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 uppercase tracking-wide font-medium">
+                  <div className="flex-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-bold mb-0.5">
                       {userRole === "admin"
                         ? "Administrator"
                         : userRole === "coach"
@@ -159,14 +170,14 @@ export default function ResponsiveSidebar() {
                         ? "Elternteil"
                         : "Mitglied"}
                     </p>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-gray-50 truncate">
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-50 truncate">
                       {session.user.name || ""}
                     </p>
                   </div>
                 </div>
               </>
             )}
-            <div className="flex gap-2">
+            <div className="flex gap-2 relative z-10">
               <div className="flex-1">
                 <LogoutButton />
               </div>

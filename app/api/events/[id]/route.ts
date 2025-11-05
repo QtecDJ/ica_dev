@@ -1,6 +1,7 @@
 import { neon } from "@neondatabase/serverless";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
 
 export async function PATCH(
   request: NextRequest,
@@ -63,7 +64,8 @@ export async function PATCH(
         end_time = ${end_time || null},
         max_participants = ${max_participants || null},
         is_mandatory = ${is_mandatory || false},
-        notes = ${notes || null}
+        notes = ${notes || null},
+        updated_at = CURRENT_TIMESTAMP
       WHERE id = ${eventId}
     `;
 
@@ -93,6 +95,12 @@ export async function PATCH(
         `;
       }
     }
+
+    // Revalidate paths for realtime updates
+    revalidatePath("/");
+    revalidatePath("/events");
+    revalidatePath(`/events/${eventId}`);
+    revalidatePath("/calendar");
 
     return NextResponse.json({
       success: true,
@@ -141,6 +149,11 @@ export async function DELETE(
     await sql`
       DELETE FROM events WHERE id = ${eventId}
     `;
+
+    // Revalidate paths for realtime updates
+    revalidatePath("/");
+    revalidatePath("/events");
+    revalidatePath("/calendar");
 
     return NextResponse.json({
       success: true,
