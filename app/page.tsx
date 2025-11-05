@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import MemberDashboard from "./components/MemberDashboard";
 import DynamicDashboardContent from "./components/DynamicDashboardContent";
+import ClickableMiniStatCard from "./components/ClickableMiniStatCard";
 import { neon } from "@neondatabase/serverless";
 import type { Session } from "next-auth";
 import Link from "next/link";
@@ -440,10 +441,17 @@ function QuickActionCard({ href, icon, title, description, color }: {
 
   const adminStats = extendedStats[0];
 
-  // Get recent decline reasons for Admin/Coach
-  const recentDeclines = (userRole === "admin" || userRole === "coach")
+  // Get decline reasons for THE NEXT upcoming training only (Admin/Coach)
+  const nextTrainingDeclines = (userRole === "admin" || userRole === "coach")
     ? userRole === "admin"
       ? await sql`
+          WITH next_training AS (
+            SELECT id, training_date, start_time
+            FROM trainings
+            WHERE training_date >= CURRENT_DATE
+            ORDER BY training_date ASC, start_time ASC
+            LIMIT 1
+          )
           SELECT 
             ta.decline_reason,
             ta.updated_at,
@@ -457,11 +465,18 @@ function QuickActionCard({ href, icon, title, description, color }: {
           LEFT JOIN teams ON t.team_id = teams.id
           WHERE ta.status = 'declined' 
             AND ta.decline_reason IS NOT NULL
-            AND ta.updated_at >= CURRENT_DATE - INTERVAL '7 days'
-          ORDER BY ta.updated_at DESC
-          LIMIT 10
+            AND t.id = (SELECT id FROM next_training)
+          ORDER BY m.last_name ASC, m.first_name ASC
         `
       : await sql`
+          WITH next_training AS (
+            SELECT id, training_date, start_time
+            FROM trainings
+            WHERE training_date >= CURRENT_DATE
+              AND team_id = ANY(${coachTeamIdList})
+            ORDER BY training_date ASC, start_time ASC
+            LIMIT 1
+          )
           SELECT 
             ta.decline_reason,
             ta.updated_at,
@@ -475,10 +490,8 @@ function QuickActionCard({ href, icon, title, description, color }: {
           LEFT JOIN teams ON t.team_id = teams.id
           WHERE ta.status = 'declined' 
             AND ta.decline_reason IS NOT NULL
-            AND ta.updated_at >= CURRENT_DATE - INTERVAL '7 days'
-            AND t.team_id = ANY(${coachTeamIdList})
-          ORDER BY ta.updated_at DESC
-          LIMIT 10
+            AND t.id = (SELECT id FROM next_training)
+          ORDER BY m.last_name ASC, m.first_name ASC
         `
     : [];
 
@@ -550,18 +563,40 @@ function QuickActionCard({ href, icon, title, description, color }: {
             value={adminStats.new_members || 0}
             color="gray"
           />
-          <MiniStatCard
-            icon={<CheckCircle className="w-5 h-5" />}
-            title={userRole === "coach" ? "Zusagen (Meine Teams)" : "Zusagen"}
-            value={adminStats.training_accepted || 0}
-            color="black"
-          />
-          <MiniStatCard
-            icon={<XCircle className="w-5 h-5" />}
-            title={userRole === "coach" ? "Absagen (Meine Teams)" : "Absagen"}
-            value={adminStats.training_declined || 0}
-            color="red"
-          />
+          {userRole === "coach" ? (
+            <ClickableMiniStatCard
+              icon={<CheckCircle className="w-5 h-5" />}
+              title="Zusagen (Meine Teams)"
+              value={adminStats.training_accepted || 0}
+              color="black"
+              status="accepted"
+              coachTeamIds={coachTeamIdList}
+            />
+          ) : (
+            <MiniStatCard
+              icon={<CheckCircle className="w-5 h-5" />}
+              title="Zusagen"
+              value={adminStats.training_accepted || 0}
+              color="black"
+            />
+          )}
+          {userRole === "coach" ? (
+            <ClickableMiniStatCard
+              icon={<XCircle className="w-5 h-5" />}
+              title="Absagen (Meine Teams)"
+              value={adminStats.training_declined || 0}
+              color="red"
+              status="declined"
+              coachTeamIds={coachTeamIdList}
+            />
+          ) : (
+            <MiniStatCard
+              icon={<XCircle className="w-5 h-5" />}
+              title="Absagen"
+              value={adminStats.training_declined || 0}
+              color="red"
+            />
+          )}
           <MiniStatCard
             icon={<Bell className="w-5 h-5" />}
             title="Anstehende Events"
@@ -592,135 +627,130 @@ function QuickActionCard({ href, icon, title, description, color }: {
           </div>
         )}
 
-        {/* System-Übersicht mit Training-Statistiken */}
-        <div className={`card ${userRole === "coach" ? "lg:col-span-2" : ""}`}>
-          <div className="card-header">
-            <div className="flex items-center gap-3">
-              <Trophy className="w-5 h-5" />
-              <h2 className="text-lg font-semibold">System-Übersicht</h2>
+        {/* System-Übersicht mit Training-Statistiken - nur für Admins */}
+        {userRole === "admin" && (
+          <div className="card">
+            <div className="card-header">
+              <div className="flex items-center gap-3">
+                <Trophy className="w-5 h-5" />
+                <h2 className="text-lg font-semibold">System-Übersicht</h2>
+              </div>
+            </div>
+            <div className="card-body">
+              {/* Basis-Statistiken */}
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="space-y-3">
+                  <InfoRow label="Teams" value={stats.teams} />
+                  <InfoRow label="Mitglieder" value={stats.members} />
+                </div>
+                <div className="space-y-3">
+                  <InfoRow label="Events" value={stats.events} />
+                  <InfoRow label="Trainings" value={stats.trainings} />
+                </div>
+              </div>
+
+              {/* Training-Statistiken */}
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-4 flex items-center gap-2">
+                  <Dumbbell className="w-4 h-4" />
+                  Training-Teilnahme (kommende Trainings)
+                </h3>
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="text-center p-4 bg-black/5 dark:bg-black/20 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <CheckCircle className="w-5 h-5 text-black dark:text-white" />
+                    </div>
+                    <p className="text-2xl font-bold text-black dark:text-white">
+                      {adminStats.training_accepted || 0}
+                    </p>
+                    <p className="text-xs text-green-700 dark:text-green-300 font-medium">Zusagen</p>
+                  </div>
+                  <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <p className="text-2xl font-bold text-red-600 dark:text-red-400">
+                      {adminStats.training_declined || 0}
+                    </p>
+                    <p className="text-xs text-red-700 dark:text-red-300 font-medium">Absagen</p>
+                  </div>
+                  <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                    <div className="flex items-center justify-center gap-2 mb-2">
+                      <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                    </div>
+                    <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
+                      {adminStats.training_pending || 0}
+                    </p>
+                    <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">Ausstehend</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Nachrichten-Statistik */}
+              <div className="pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
+                <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
+                      <Bell className="w-5 h-5 text-red-600 dark:text-red-400" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-red-900 dark:text-red-100">
+                        Neue Kommentare
+                      </p>
+                      <p className="text-xs text-red-700 dark:text-red-300">
+                        Letzte 7 Tage
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-3xl font-bold text-red-600 dark:text-red-400">
+                      {adminStats.unread_comments || 0}
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="card-body">
-            {/* Basis-Statistiken */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="space-y-3">
-                <InfoRow label="Teams" value={stats.teams} />
-                <InfoRow label="Mitglieder" value={stats.members} />
-              </div>
-              <div className="space-y-3">
-                <InfoRow label="Events" value={stats.events} />
-                <InfoRow label="Trainings" value={stats.trainings} />
-              </div>
-            </div>
+        )}
+      </div>
 
-            {/* Training-Statistiken */}
-            <div className="pt-6 border-t border-gray-200 dark:border-gray-700">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-50 mb-4 flex items-center gap-2">
-                <Dumbbell className="w-4 h-4" />
-                Training-Teilnahme (kommende Trainings)
-              </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-black/5 dark:bg-black/20 rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <CheckCircle className="w-5 h-5 text-black dark:text-white" />
-                  </div>
-                  <p className="text-2xl font-bold text-black dark:text-white">
-                    {adminStats.training_accepted || 0}
-                  </p>
-                  <p className="text-xs text-green-700 dark:text-green-300 font-medium">Zusagen</p>
-                </div>
-                <div className="text-center p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <XCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-red-600 dark:text-red-400">
-                    {adminStats.training_declined || 0}
-                  </p>
-                  <p className="text-xs text-red-700 dark:text-red-300 font-medium">Absagen</p>
-                </div>
-                <div className="text-center p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Clock className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                  </div>
-                  <p className="text-2xl font-bold text-gray-600 dark:text-gray-400">
-                    {adminStats.training_pending || 0}
-                  </p>
-                  <p className="text-xs text-gray-700 dark:text-gray-300 font-medium">Ausstehend</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Nachrichten-Statistik */}
-            <div className="pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-              <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
-                    <Bell className="w-5 h-5 text-red-600 dark:text-red-400" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-red-900 dark:text-red-100">
-                      Neue Kommentare
-                    </p>
-                    <p className="text-xs text-red-700 dark:text-red-300">
-                      Letzte 7 Tage
-                    </p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-3xl font-bold text-red-600 dark:text-red-400">
-                    {adminStats.unread_comments || 0}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Decline Reasons */}
-        {(userRole === "admin" || userRole === "coach") && recentDeclines.length > 0 && (
+      {/* Next Training Declines - Only the next one */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Next Training Declines - Only the next one */}
+        {(userRole === "admin" || userRole === "coach") && nextTrainingDeclines.length > 0 && (
           <div className="card lg:col-span-2">
             <div className="card-header">
               <div className="flex items-center gap-3">
                 <XCircle className="w-5 h-5 text-red-600" />
-                <h2 className="text-lg font-semibold">Letzte Absagen mit Begründung</h2>
-                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">Letzte 7 Tage</span>
+                <h2 className="text-lg font-semibold">Absagen für nächstes Training</h2>
+                <span className="ml-auto text-sm text-gray-500 dark:text-gray-400">
+                  {nextTrainingDeclines[0] && new Date(nextTrainingDeclines[0].training_date).toLocaleDateString('de-DE', { 
+                    weekday: 'short', 
+                    day: '2-digit', 
+                    month: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </span>
               </div>
             </div>
             <div className="card-body">
               <div className="space-y-3">
-                {recentDeclines.map((decline: any, index: number) => (
+                {nextTrainingDeclines.map((decline: any, index: number) => (
                   <div
                     key={index}
-                    className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg"
+                    className="p-4 bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-800 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/20 transition-colors"
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <User className="w-4 h-4 text-red-600 dark:text-red-400" />
-                        <span className="font-medium text-gray-900 dark:text-gray-100">
-                          {decline.member_name}
+                    <div className="flex items-center gap-2 mb-2">
+                      <User className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
+                      <span className="font-medium text-gray-900 dark:text-gray-100">
+                        {decline.member_name}
+                      </span>
+                      {decline.team_name && (
+                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                          ({decline.team_name})
                         </span>
-                        {decline.team_name && (
-                          <span className="text-sm text-gray-500 dark:text-gray-400">
-                            ({decline.team_name})
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                        <Clock className="w-4 h-4" />
-                        {new Date(decline.updated_at).toLocaleDateString('de-DE', {
-                          day: '2-digit',
-                          month: '2-digit',
-                          year: 'numeric'
-                        })}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 mb-2">
-                      <Calendar className="w-4 h-4" />
-                      Training: {new Date(decline.training_date).toLocaleDateString('de-DE', {
-                        weekday: 'short',
-                        day: '2-digit',
-                        month: '2-digit'
-                      })} um {decline.start_time.substring(0, 5)} Uhr
+                      )}
                     </div>
                     <div className="pl-6 text-sm text-red-800 dark:text-red-300 italic">
                       "{decline.decline_reason}"

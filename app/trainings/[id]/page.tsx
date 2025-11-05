@@ -284,64 +284,6 @@ export default async function TrainingDetailPage({ params }: { params: { id: str
         </div>
       )}
 
-      {/* Teilnehmerliste für Coaches/Admins */}
-      {attendance.length > 0 && canEdit && (
-        <div className="card">
-          <div className="card-header">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-50 flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Teilnehmerliste ({attendance.length})
-            </h2>
-          </div>
-          <div className="card-body">
-            <div className="space-y-2">
-              {attendance.map((attendee: any) => (
-                <div
-                  key={attendee.id}
-                  className="flex items-center justify-between p-3 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold">
-                      {attendee.first_name[0]}{attendee.last_name[0]}
-                    </div>
-                    <div>
-                      <p className="font-medium text-slate-900 dark:text-slate-50">
-                        {attendee.first_name} {attendee.last_name}
-                      </p>
-                      {attendee.comment && (
-                        <p className="text-sm text-slate-600 dark:text-slate-400">
-                          {attendee.comment}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                  <div>
-                    {attendee.status === "accepted" && (
-                      <span className="badge badge-green flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" />
-                        Zugesagt
-                      </span>
-                    )}
-                    {attendee.status === "declined" && (
-                      <span className="badge badge-red flex items-center gap-1">
-                        <XCircle className="w-3 h-3" />
-                        Abgesagt
-                      </span>
-                    )}
-                    {attendee.status === "pending" && (
-                      <span className="badge badge-gray flex items-center gap-1">
-                        <Clock3 className="w-3 h-3" />
-                        Ausstehend
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Info für Parents wenn keine Anmeldung */}
       {userRole === "parent" && !currentUserMemberId && (
         <div className="card bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800">
