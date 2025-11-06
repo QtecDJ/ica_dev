@@ -137,18 +137,18 @@ export async function PUT(
         }
       }
 
-      // Update teams.coach_id for backwards compatibility (set to primary coach)
+      // Update teams.coach for backwards compatibility (set to primary coach as string)
       const primaryCoach = coaches.find(c => c.is_primary);
       if (primaryCoach) {
         await sql`
           UPDATE teams 
-          SET coach_id = ${primaryCoach.coach_id}
+          SET coach = ${primaryCoach.coach_id.toString()}
           WHERE id = ${teamId}
         `;
       } else {
         await sql`
           UPDATE teams 
-          SET coach_id = NULL
+          SET coach = NULL
           WHERE id = ${teamId}
         `;
       }
@@ -271,11 +271,11 @@ export async function POST(
       VALUES (${teamId}, ${coach_id}, ${role}, ${is_primary})
     `;
 
-    // Update teams.coach_id if this is the primary coach
+    // Update teams.coach if this is the primary coach (coach column is VARCHAR)
     if (is_primary) {
       await sql`
         UPDATE teams 
-        SET coach_id = ${coach_id}
+        SET coach = ${coach_id.toString()}
         WHERE id = ${teamId}
       `;
     }

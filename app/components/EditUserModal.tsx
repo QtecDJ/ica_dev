@@ -27,7 +27,7 @@ interface Member {
 interface Team {
   id: number;
   name: string;
-  coach_id: number | null;
+  coach: string | null; // Coach ist VARCHAR, speichert User ID als String
 }
 
 interface Props {
@@ -45,7 +45,7 @@ export default function EditUserModal({ user, members, teams, onClose }: Props) 
     email: user.email || "",
     role: user.role,
     member_id: user.member_id?.toString() || "",
-    teamId: teams.find(t => t.coach_id === user.id)?.id?.toString() || "",
+    teamId: teams.find(t => t.coach === user.id.toString())?.id?.toString() || "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -269,7 +269,7 @@ export default function EditUserModal({ user, members, teams, onClose }: Props) 
                   {teams.map((team) => (
                     <option key={team.id} value={team.id}>
                       {team.name}
-                      {team.coach_id && team.coach_id !== user.id && " (bereits vergeben)"}
+                      {team.coach && team.coach !== user.id.toString() && " (bereits vergeben)"}
                     </option>
                   ))}
                 </select>

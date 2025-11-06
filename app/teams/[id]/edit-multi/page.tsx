@@ -136,18 +136,18 @@ export default async function EditTeamPage({ params }: { params: { id: string } 
         }
       }
 
-      // Update teams.coach_id for backwards compatibility (set to primary coach)
+      // Update teams.coach for backwards compatibility (set to primary coach as string)
       const primaryCoach = coaches.find(c => c.is_primary);
       if (primaryCoach) {
         await sql`
           UPDATE teams 
-          SET coach_id = ${primaryCoach.coach_id}
+          SET coach = ${primaryCoach.coach_id.toString()}
           WHERE id = ${teamIdParam}
         `;
       } else {
         await sql`
           UPDATE teams 
-          SET coach_id = NULL
+          SET coach = NULL
           WHERE id = ${teamIdParam}
         `;
       }

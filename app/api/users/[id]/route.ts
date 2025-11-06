@@ -252,10 +252,10 @@ export async function DELETE(
         console.log("No team_coaches table or no assignments found:", err);
       }
 
-      // 5. Update teams coach_id to NULL if this user is a coach (legacy system)
+      // 5. Update teams coach to NULL if this user is a coach (coach column is VARCHAR)
       try {
         const updatedTeams = await sql`
-          UPDATE teams SET coach_id = NULL WHERE coach_id = ${userId}
+          UPDATE teams SET coach = NULL WHERE coach = ${userId.toString()}
         `;
         console.log(`Updated ${updatedTeams.length} teams to remove coach reference`);
       } catch (err) {
