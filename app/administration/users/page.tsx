@@ -54,17 +54,30 @@ export default function UsersManagementPage() {
     try {
       setLoading(true);
       
+      console.log('🔍 Fetching users from API...');
       const response = await fetch('/api/administration/users');
+      console.log('📡 Response status:', response.status);
+      
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        const errorText = await response.text();
+        console.error('❌ API Error:', errorText);
+        throw new Error(`Failed to fetch users: ${response.status}`);
       }
       
       const data = await response.json();
+      console.log('✅ Data received:', {
+        users: data.users?.length || 0,
+        members: data.members?.length || 0,
+        teams: data.teams?.length || 0
+      });
+      console.log('👥 Users:', data.users);
+      
       setUsers(data.users || []);
       setMembers(data.members || []);
       setTeams(data.teams || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('💥 Error fetching data:', error);
+      alert('Fehler beim Laden der Benutzerdaten. Bitte Konsole prüfen.');
     } finally {
       setLoading(false);
     }

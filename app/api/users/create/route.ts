@@ -18,14 +18,14 @@ function generateSecurePassword(): string {
 export async function POST(request: Request) {
   const session = (await getServerSession(authOptions)) as Session | null;
 
-  // Check if user is authenticated and is an admin
+  // Check if user is authenticated and is an admin or manager
   if (!session?.user) {
     return NextResponse.json({ error: "Nicht autorisiert" }, { status: 401 });
   }
 
-  if (session.user.role !== "admin") {
+  if (session.user.role !== "admin" && session.user.role !== "manager") {
     return NextResponse.json(
-      { error: "Nur Administratoren können Benutzer erstellen" },
+      { error: "Nur Administratoren und Manager können Benutzer erstellen" },
       { status: 403 }
     );
   }

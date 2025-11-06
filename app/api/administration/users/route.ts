@@ -7,12 +7,18 @@ const sql = neon(process.env.DATABASE_URL!);
 
 export async function GET() {
   try {
+    console.log('🔐 API Route: /api/administration/users called');
     const session = await getServerSession(authOptions);
+    
+    console.log('👤 Session user:', session?.user?.email, 'Role:', session?.user?.role);
     
     // Nur Admins und Manager dürfen die Daten abrufen
     if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
+      console.log('❌ Unauthorized access attempt');
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    
+    console.log('✅ Authorization passed');
 
     // Hole alle Benutzer mit ihren verknüpften Mitgliedern
     const usersRaw = await sql`
@@ -54,8 +60,14 @@ export async function GET() {
 
     // Hole alle Teams für Coach-Zuweisung
     const teams = await sql`
-      SELECT id, name, coach_id FROM teams ORDER BY name
+      SELECT id, name, coach FROM teams ORDER BY name
     `;
+
+    console.log('📊 Data counts:', {
+      users: users.length,
+      members: members.length,
+      teams: teams.length
+    });
 
     return NextResponse.json({
       users,
@@ -63,7 +75,7 @@ export async function GET() {
       teams
     });
   } catch (error) {
-    console.error('Error fetching administration data:', error);
+    console.error('💥 Error fetching administration data:', error);
     return NextResponse.json(
       { error: 'Failed to fetch administration data' },
       { status: 500 }
