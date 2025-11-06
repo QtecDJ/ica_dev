@@ -21,7 +21,7 @@ interface User {
 interface Team {
   id: number;
   name: string;
-  coach_id: number | null;
+  coach: number | null;
 }
 
 interface Member {

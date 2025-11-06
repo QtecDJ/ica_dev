@@ -105,59 +105,26 @@ export async function PATCH(
       );
     }
 
-    // Coach-Team-Zuweisung mit Multi-Coach-System aktualisieren
-    if (roles.includes("coach")) {
+    // Coach-Team-Zuweisung aktualisieren
+    if (roles.includes("coach") && data.teamId) {
       try {
-        // Entferne alle bestehenden Coach-Zuweisungen für diesen User
-        await sql`
-          DELETE FROM team_coaches 
-          WHERE coach_id = ${userId}
-        `;
-
-        // Entferne auch alte teams.coach_id Referenzen (Rückwärtskompatibilität)
+        const teamId = parseInt(data.teamId);
+        
+        // Entferne alte Coach-Zuweisung von diesem Team
         await sql`
           UPDATE teams 
-          SET coach_id = NULL 
-          WHERE coach_id = ${userId}
+          SET coach = NULL 
+          WHERE coach = ${userId}
         `;
         
-        // Füge neue Zuweisung hinzu, falls ein Team ausgewählt wurde
-        if (data.teamId) {
-          const teamId = parseInt(data.teamId);
-          
-          // Prüfe ob das Team bereits einen Primary Coach hat
-          const existingPrimaryCoach = await sql`
-            SELECT coach_id FROM team_coaches 
-            WHERE team_id = ${teamId} AND is_primary = true
-          `;
-
-          const isPrimary = existingPrimaryCoach.length === 0; // Wird Primary wenn noch keiner da ist
-
-          // Füge Coach zum Team hinzu
-          await sql`
-            INSERT INTO team_coaches (team_id, coach_id, role, is_primary)
-            VALUES (${teamId}, ${userId}, 'head_coach', ${isPrimary})
-          `;
-
-          // Update teams.coach_id für Rückwärtskompatibilität (falls Primary Coach)
-          if (isPrimary) {
-            await sql`
-              UPDATE teams
-              SET coach_id = ${userId}
-              WHERE id = ${teamId}
-            `;
-          }
-        }
+        // Setze neuen Coach
+        await sql`
+          UPDATE teams
+          SET coach = ${userId}
+          WHERE id = ${teamId}
+        `;
       } catch (error) {
         console.error("Error updating coach team assignment:", error);
-        // Fallback zum alten System falls Multi-Coach fehlschlägt
-        if (data.teamId) {
-          await sql`
-            UPDATE teams
-            SET coach_id = ${userId}
-            WHERE id = ${parseInt(data.teamId)}
-          `;
-        }
       }
     }
 
