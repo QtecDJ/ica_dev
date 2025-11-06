@@ -31,7 +31,7 @@ export default async function UserManagementPage() {
   const sql = neon(process.env.DATABASE_URL!);
   
   // Get all users with their member information
-  const users = await sql`
+  const usersResult = await sql`
     SELECT 
       u.id,
       u.username,
@@ -53,6 +53,17 @@ export default async function UserManagementPage() {
       END,
       u.name
   `;
+
+  const users = usersResult as Array<{
+    id: number;
+    username: string;
+    name: string;
+    email: string;
+    role: string;
+    member_id: number | null;
+    first_name: string | null;
+    last_name: string | null;
+  }>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-20 sm:pb-8">
