@@ -43,7 +43,7 @@ export default function UsersManagementPage() {
   useEffect(() => {
     if (status === "loading") return;
     
-    if (!session || session.user.role !== "admin") {
+    if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
       router.push("/dashboard");
       return;
     }
@@ -71,7 +71,7 @@ export default function UsersManagementPage() {
   };
 
   useEffect(() => {
-    if (session?.user.role === "admin") {
+    if (session?.user.role === "admin" || session?.user.role === "manager") {
       fetchData();
     }
   }, [session]);
@@ -89,7 +89,7 @@ export default function UsersManagementPage() {
     );
   }
 
-  if (!session || session.user.role !== "admin") {
+  if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
     return null;
   }
 

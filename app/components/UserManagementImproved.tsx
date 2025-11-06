@@ -51,9 +51,23 @@ const AVAILABLE_ROLES = {
       "Vollzugriff auf alle Funktionen",
       "Benutzer erstellen und verwalten", 
       "System-Einstellungen ändern",
-      "Alle Daten einsehen und bearbeiten"
+      "Alle Daten einsehen und bearbeiten",
+      "Kann Rollen vergeben"
     ],
     priority: 1
+  },
+  manager: {
+    label: "Manager",
+    color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+    permissions: [
+      "Fast vollständiger Zugriff",
+      "Benutzer erstellen (keine Rollenvergabe)",
+      "Mitglieder und Teams verwalten",
+      "Trainings und Events verwalten",
+      "KEINE System-Einstellungen",
+      "KEINE Rollenvergabe"
+    ],
+    priority: 2
   },
   coach: {
     label: "Coach",
@@ -64,7 +78,7 @@ const AVAILABLE_ROLES = {
       "Kommentare und Bewertungen schreiben",
       "Mitgliederprofile bearbeiten"
     ],
-    priority: 2
+    priority: 3
   },
   parent: {
     label: "Elternteil", 
@@ -75,7 +89,7 @@ const AVAILABLE_ROLES = {
       "Kommunikation mit Coaches",
       "Eigene Kontaktdaten verwalten"
     ],
-    priority: 3
+    priority: 4
   },
   member: {
     label: "Mitglied",
@@ -86,7 +100,7 @@ const AVAILABLE_ROLES = {
       "Kommentare lesen",
       "Teamkameraden anzeigen"
     ],
-    priority: 4
+    priority: 5
   }
 };
 

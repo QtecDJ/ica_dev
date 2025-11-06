@@ -9,8 +9,8 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions);
     
-    // Nur Admins dürfen die Daten abrufen
-    if (!session || session.user.role !== "admin") {
+    // Nur Admins und Manager dürfen die Daten abrufen
+    if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
