@@ -6,7 +6,7 @@ import { User, Mail, Key, Shield, Users, Download, AlertCircle } from "lucide-re
 interface Team {
   id: number;
   name: string;
-  coach: number | null;
+  coach: string | null; // Coach ist der Name als String, nicht ID
 }
 
 interface Member {

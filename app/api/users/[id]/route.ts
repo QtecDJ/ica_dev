@@ -110,17 +110,17 @@ export async function PATCH(
       try {
         const teamId = parseInt(data.teamId);
         
-        // Entferne alte Coach-Zuweisung von diesem Team
+        // Entferne alte Coach-Zuweisung von diesem Team (coach Spalte ist VARCHAR, also String)
         await sql`
           UPDATE teams 
           SET coach = NULL 
-          WHERE coach = ${userId}
+          WHERE coach = ${userId.toString()}
         `;
         
-        // Setze neuen Coach
+        // Setze neuen Coach (User ID als String)
         await sql`
           UPDATE teams
-          SET coach = ${userId}
+          SET coach = ${userId.toString()}
           WHERE id = ${teamId}
         `;
       } catch (error) {

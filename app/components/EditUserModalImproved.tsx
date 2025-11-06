@@ -21,7 +21,7 @@ interface User {
 interface Team {
   id: number;
   name: string;
-  coach: number | null;
+  coach: string | null; // Coach ist der Name, nicht die ID!
 }
 
 interface Member {
@@ -49,7 +49,8 @@ interface Props {
 
 export default function EditUserModalImproved({ user, members, teams, availableRoles, onClose, onUserUpdate }: Props) {
   // Finde das Team, bei dem dieser User als Coach eingetragen ist
-  const currentTeam = teams.find(team => team.coach === user.id);
+  // coach Spalte enthält User ID als String
+  const currentTeam = teams.find(team => team.coach === user.id.toString());
   
   const [formData, setFormData] = useState({
     name: user.name,

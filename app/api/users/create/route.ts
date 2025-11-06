@@ -128,10 +128,10 @@ export async function POST(request: Request) {
     const finalTeamId = team_id || teamId;
     if (userRoles.includes("coach") && finalTeamId) {
       try {
-        // Setze Coach für das Team
+        // Setze Coach für das Team (User ID als String, da coach Spalte VARCHAR ist)
         await sql`
           UPDATE teams
-          SET coach = ${userId}
+          SET coach = ${userId.toString()}
           WHERE id = ${parseInt(finalTeamId)}
         `;
 
