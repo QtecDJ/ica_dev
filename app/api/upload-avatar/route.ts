@@ -1,9 +1,19 @@
-import { writeFile } from 'fs/promises';
-import { join } from 'path';
 import { NextRequest, NextResponse } from 'next/server';
+import { put } from '@vercel/blob';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth-utils';
+import { neon } from '@neondatabase/serverless';
+
+const sql = neon(process.env.DATABASE_URL!);
 
 export async function POST(request: NextRequest) {
   try {
+    // Validate session
+    const session = await getServerSession(authOptions);
+    if (!session?.user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
     
@@ -22,22 +32,34 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'File too large. Max size is 5MB.' }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // Upload to Vercel Blob
+    const blob = await put(`avatars/${session.user.id}-${Date.now()}.${file.name.split('.').pop()}`, file, {
+      access: 'public',
+    });
 
-    // Create unique filename
-    const timestamp = Date.now();
-    const extension = file.name.split('.').pop();
-    const filename = `avatar_${timestamp}.${extension}`;
-    const path = join(process.cwd(), 'public', 'avatars', filename);
-
-    // Write file
-    await writeFile(path, buffer);
-
-    // Return the public URL
-    const avatarUrl = `/avatars/${filename}`;
+    // Update user avatar in database
+    const userId = session.user.id;
     
-    return NextResponse.json({ avatarUrl, success: true });
+    // Check if user has a member_id (for coach/member/parent)
+    if (session.user.role !== 'admin') {
+      const memberResult = await sql`
+        SELECT member_id FROM users WHERE id = ${userId}
+      `;
+      
+      if (memberResult.length > 0 && memberResult[0].member_id) {
+        // Update member avatar
+        await sql`
+          UPDATE members 
+          SET avatar_url = ${blob.url}
+          WHERE id = ${memberResult[0].member_id}
+        `;
+      }
+    }
+    
+    return NextResponse.json({ 
+      avatarUrl: blob.url, 
+      success: true 
+    });
   } catch (error) {
     console.error('Error uploading avatar:', error);
     return NextResponse.json({ error: 'Failed to upload avatar' }, { status: 500 });
