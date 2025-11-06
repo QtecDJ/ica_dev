@@ -74,22 +74,35 @@ export default function NewMemberForm({ teams }: { teams: any[] }) {
         </div>
 
         <div>
-          <label htmlFor="team_id" className="block text-sm font-medium text-gray-700 mb-2">
-            Team
+          <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 mb-2">
+            Nationalität
           </label>
-          <select
-            id="team_id"
-            name="team_id"
+          <input
+            type="text"
+            id="nationality"
+            name="nationality"
+            placeholder="z.B. Deutsch"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Kein Team</option>
-            {teams.map((team) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            ))}
-          </select>
+          />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="team_id" className="block text-sm font-medium text-gray-700 mb-2">
+          Team
+        </label>
+        <select
+          id="team_id"
+          name="team_id"
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Kein Team</option>
+          {teams.map((team) => (
+            <option key={team.id} value={team.id}>
+              {team.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

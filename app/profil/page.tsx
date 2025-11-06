@@ -38,6 +38,7 @@ export default async function ProfilPage() {
           m.first_name,
           m.last_name,
           m.birth_date,
+          m.nationality,
           m.email,
           m.phone,
           m.avatar_url,
@@ -63,6 +64,7 @@ export default async function ProfilPage() {
           m.first_name,
           m.last_name,
           m.birth_date,
+          m.nationality,
           m.email,
           m.phone,
           m.avatar_url,
@@ -235,6 +237,21 @@ export default async function ProfilPage() {
                     </div>
                   )}
 
+                  {/* Nationality */}
+                  {memberData.nationality && (
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                        <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+                      </div>
+                      <div>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Nationalität</p>
+                        <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50">
+                          {memberData.nationality}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Team */}
                   {memberData.team_name && (
                     <div className="flex items-center gap-3">
@@ -351,6 +368,21 @@ export default async function ProfilPage() {
                             <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Alter</p>
                             <p className="font-medium text-sm sm:text-base text-slate-900 dark:text-slate-50">
                               {calculateAge(child.birth_date)} Jahre
+                            </p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Nationality */}
+                      {child.nationality && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                            <UsersIcon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Nationalität</p>
+                            <p className="font-medium text-sm sm:text-base text-slate-900 dark:text-slate-50">
+                              {child.nationality}
                             </p>
                           </div>
                         </div>
