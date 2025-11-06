@@ -28,7 +28,7 @@ interface Member {
 interface Team {
   id: number;
   name: string;
-  coach_id: number | null;
+  coach: number | null;
 }
 
 export default function UsersManagementPage() {
