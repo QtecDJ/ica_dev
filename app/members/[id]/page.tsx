@@ -1,11 +1,10 @@
-import { getMember, getTeam, getMemberComments, getMemberAttendance } from "@/app/actions";
+import { getMember, getTeam } from "@/app/actions";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, Mail, Phone, Calendar, Users, User as UserIcon, Edit } from "lucide-react";
+import { ArrowLeft, Mail, Phone, Calendar, Users, User as UserIcon, Edit, Award } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
-import CommentsSection from "@/app/components/CommentsSection";
 import type { Session } from "next-auth";
 
 export default async function MemberProfilePage({ params }: { params: { id: string } }) {
@@ -17,18 +16,6 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
   }
 
   const team = member.team_id ? await getTeam(member.team_id) : null;
-  const comments = await getMemberComments(parseInt(params.id));
-  const attendance = await getMemberAttendance(parseInt(params.id));
-
-  // Check if user can comment (admin or coach)
-  const canComment =
-    session?.user && ["admin", "coach"].includes(session.user.role);
-
-  // Filter comments based on role
-  const visibleComments: any[] =
-    session?.user && ["admin", "coach"].includes(session.user.role)
-      ? comments
-      : comments.filter((c: any) => !c.is_private);
 
   const calculateAge = (birthDate: string) => {
     const today = new Date();
@@ -61,245 +48,193 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
         </Link>
       </div>
 
-      {/* Profile Card */}
-      <div className="card">
-        <div className="card-header">
-          <div className="flex items-center justify-center -mt-8 mb-4">
-            <div className="relative">
-              <div className="w-32 h-32 rounded-full border-4 border-white dark:border-slate-900 shadow-xl overflow-hidden bg-slate-100 dark:bg-slate-800">
-                {member.avatar_url ? (
-                  <Image
-                    src={member.avatar_url}
-                    alt={`${member.first_name} ${member.last_name}`}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <UserIcon className="w-16 h-16 text-slate-400" />
+      {/* Member Profile Card */}
+      <div className="bg-white dark:bg-slate-800 rounded-2xl sm:rounded-3xl shadow-xl border border-slate-200/50 dark:border-slate-700/50 overflow-hidden">
+        <div className="p-4 sm:p-6 lg:p-8">
+          {/* Member Header */}
+          <div className="flex items-center gap-3 sm:gap-4 mb-6">
+            <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 flex-shrink-0 shadow-xl">
+              {member.avatar_url ? (
+                <Image
+                  src={member.avatar_url}
+                  alt={`${member.first_name} ${member.last_name}`}
+                  width={96}
+                  height={96}
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-2xl sm:text-3xl">
+                  {member.first_name[0]}{member.last_name[0]}
+                </div>
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
+                {member.first_name} {member.last_name}
+              </h1>
+              <div className="flex flex-wrap items-center gap-2">
+                {team && (
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400">
+                    <Users className="w-4 h-4" />
+                    <span>{team.name}</span>
+                    {team.level && (
+                      <>
+                        <span>•</span>
+                        <span>{team.level}</span>
+                      </>
+                    )}
                   </div>
                 )}
-              </div>
-              <div className="absolute -bottom-2 -right-2 w-10 h-10 bg-red-600 text-white rounded-full flex items-center justify-center font-bold shadow-lg border-4 border-white dark:border-slate-900">
-                {member.id}
+                {member.user_role && (
+                  <span className={`inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium ${
+                    member.user_role === "admin" ? "bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400" :
+                    member.user_role === "coach" ? "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400" :
+                    member.user_role === "member" ? "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400" :
+                    "bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400"
+                  }`}>
+                    {member.user_role === "admin" ? "Administrator" :
+                     member.user_role === "coach" ? "Coach" :
+                     member.user_role === "member" ? "Mitglied" :
+                     "Elternteil"}
+                  </span>
+                )}
               </div>
             </div>
           </div>
-          
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-              {member.first_name} {member.last_name}
-            </h1>
-            <div className="flex flex-wrap items-center justify-center gap-2 mb-2">
-              {team && (
-                <div className="inline-flex items-center gap-2 badge badge-blue">
-                  <Users className="w-4 h-4" />
-                  <span>{team.name}</span>
-                  <span>•</span>
-                  <span>{team.level}</span>
-                </div>
-              )}
-              {member.user_role && (
-                <span className={
-                  member.user_role === "admin" ? "badge badge-red" :
-                  member.user_role === "coach" ? "badge badge-blue" :
-                  member.user_role === "member" ? "badge badge-green" :
-                  "badge badge-purple"
-                }>
-                  {member.user_role === "admin" ? "Administrator" :
-                   member.user_role === "coach" ? "Coach" :
-                   member.user_role === "member" ? "Mitglied" :
-                   "Elternteil"}
-                </span>
-              )}
+
+          {/* Member Info Grid */}
+          <div className="grid sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
+            {/* Age */}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 flex items-center justify-center flex-shrink-0">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Alter</p>
+                <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50">
+                  {calculateAge(member.birth_date)} Jahre
+                </p>
+              </div>
             </div>
-            {member.username && (
-              <p className="text-slate-600 dark:text-slate-400 text-sm">
-                @{member.username}
-              </p>
+
+            {/* Team Coach */}
+            {team?.coach && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0">
+                  <Award className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Coach</p>
+                  <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50">
+                    {team.coach}
+                  </p>
+                </div>
+              </div>
             )}
-          </div>
-        </div>
 
-        <div className="card-body">
-          {/* Info Grid */}
-          <div className="grid md:grid-cols-2 gap-6 mb-6">
-            {/* Personal Info */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <UserIcon className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                Persönliche Daten
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <Calendar className="w-5 h-5 text-slate-400 mt-0.5" />
-                  <div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Geburtsdatum</p>
-                    <p className="font-medium text-slate-900 dark:text-slate-50">
-                      {new Date(member.birth_date).toLocaleDateString("de-DE")}
-                    </p>
-                  </div>
+            {/* Email */}
+            {member.email && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-5 h-5 sm:w-6 sm:h-6" />
                 </div>
-                <div className="flex items-start gap-3">
-                  <div className="w-5 h-5 flex items-center justify-center text-xl">🎂</div>
-                  <div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400">Alter</p>
-                    <p className="font-medium text-slate-900 dark:text-slate-50">
-                      {calculateAge(member.birth_date)} Jahre
-                    </p>
-                  </div>
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Email</p>
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="font-semibold text-sm sm:text-base text-red-600 dark:text-red-400 hover:underline truncate block"
+                  >
+                    {member.email}
+                  </a>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Contact Info */}
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <Mail className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-                Kontakt
-              </h3>
-              <div className="space-y-3">
-                {member.email && (
-                  <div className="flex items-start gap-3">
-                    <Mail className="w-5 h-5 text-slate-400 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">Email</p>
-                      <a
-                        href={`mailto:${member.email}`}
-                        className="font-medium text-red-600 dark:text-red-400 hover:underline break-all"
-                      >
-                        {member.email}
-                      </a>
-                    </div>
-                  </div>
-                )}
-                {member.phone && (
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-5 h-5 text-slate-400 mt-0.5" />
-                    <div>
-                      <p className="text-xs text-slate-600 dark:text-slate-400">Telefon</p>
-                      <a
-                        href={`tel:${member.phone}`}
-                        className="font-medium text-red-600 dark:text-red-400 hover:underline"
-                      >
-                        {member.phone}
-                      </a>
-                    </div>
-                  </div>
-                )}
-                {!member.email && !member.phone && (
-                  <p className="text-slate-500 dark:text-slate-400 text-sm">Keine Kontaktdaten hinterlegt</p>
-                )}
+            {/* Phone */}
+            {member.phone && (
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-5 h-5 sm:w-6 sm:h-6" />
+                </div>
+                <div>
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Telefon</p>
+                  <a
+                    href={`tel:${member.phone}`}
+                    className="font-semibold text-sm sm:text-base text-red-600 dark:text-red-400 hover:underline"
+                  >
+                    {member.phone}
+                  </a>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           {/* Parent/Guardian Info */}
           {(member.parent_name || member.parent_email || member.parent_phone) && (
             <div className="pt-6 border-t border-slate-200 dark:border-slate-700">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-50 uppercase tracking-wide mb-3 flex items-center gap-2">
-                <Users className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-slate-50 mb-4 flex items-center gap-2">
+                <Users className="w-5 h-5 text-green-600 dark:text-green-400" />
                 Erziehungsberechtigte(r)
               </h3>
-              <div className="grid md:grid-cols-3 gap-4">
+              <div className="grid sm:grid-cols-2 gap-4">
                 {member.parent_name && (
-                  <div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Name</p>
-                    <p className="font-medium text-slate-900 dark:text-slate-50">{member.parent_name}</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center flex-shrink-0">
+                      <UserIcon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Name</p>
+                      <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50">{member.parent_name}</p>
+                    </div>
                   </div>
                 )}
                 {member.parent_email && (
-                  <div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Email</p>
-                    <a
-                      href={`mailto:${member.parent_email}`}
-                      className="font-medium text-red-600 dark:text-red-400 hover:underline break-all"
-                    >
-                      {member.parent_email}
-                    </a>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Email</p>
+                      <a
+                        href={`mailto:${member.parent_email}`}
+                        className="font-semibold text-sm sm:text-base text-red-600 dark:text-red-400 hover:underline truncate block"
+                      >
+                        {member.parent_email}
+                      </a>
+                    </div>
                   </div>
                 )}
                 {member.parent_phone && (
-                  <div>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Telefon</p>
-                    <a
-                      href={`tel:${member.parent_phone}`}
-                      className="font-medium text-red-600 dark:text-red-400 hover:underline"
-                    >
-                      {member.parent_phone}
-                    </a>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400 flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Telefon</p>
+                      <a
+                        href={`tel:${member.parent_phone}`}
+                        className="font-semibold text-sm sm:text-base text-red-600 dark:text-red-400 hover:underline"
+                      >
+                        {member.parent_phone}
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>
             </div>
           )}
-        </div>
 
-        <div className="card-footer">
-          <p className="text-xs text-slate-600 dark:text-slate-400 text-center">
-            Mitglied seit {new Date(member.created_at).toLocaleDateString("de-DE")}
-          </p>
+          {/* Member Since */}
+          <div className="pt-6 border-t border-slate-200 dark:border-slate-700 mt-6">
+            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 text-center">
+              Mitglied seit {new Date(member.created_at).toLocaleDateString("de-DE", { 
+                month: 'long', 
+                year: 'numeric' 
+              })}
+            </p>
+          </div>
         </div>
       </div>
-
-      {/* Training Attendance History */}
-      {attendance && attendance.length > 0 && (
-        <div className="card">
-          <div className="card-header">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-              Trainingsteilnahme
-            </h2>
-          </div>
-          <div className="card-body">
-            <div className="space-y-3">
-              {attendance.map((att: any) => (
-                <div
-                  key={att.id}
-                  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 bg-slate-50 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700"
-                >
-                  <div className="flex-1">
-                    <p className="font-semibold text-slate-900 dark:text-slate-50">
-                      {new Date(att.training_date).toLocaleDateString("de-DE", {
-                        weekday: "long",
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">
-                      {att.start_time.slice(0, 5)} - {att.end_time.slice(0, 5)} • {att.location}
-                    </p>
-                    {att.team_name && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{att.team_name}</p>
-                    )}
-                  </div>
-                  <div>
-                    {att.status === "accepted" && (
-                      <span className="badge badge-green">Zugesagt</span>
-                    )}
-                    {att.status === "declined" && (
-                      <span className="badge badge-red">Abgesagt</span>
-                    )}
-                    {att.status !== "accepted" && att.status !== "declined" && (
-                      <span className="badge badge-gray">Ausstehend</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Comments Section */}
-      {session?.user && (
-        <CommentsSection
-          comments={visibleComments}
-          authorId={session.user.id}
-          memberId={parseInt(params.id)}
-          canComment={canComment || false}
-        />
-      )}
     </div>
   );
 }
