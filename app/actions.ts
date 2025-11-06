@@ -176,6 +176,7 @@ export async function createMember(formData: FormData) {
     const firstName = formData.get("first_name") as string;
     const lastName = formData.get("last_name") as string;
     const birthDate = formData.get("birth_date") as string;
+    const nationality = formData.get("nationality") as string;
     const teamIdStr = formData.get("team_id") as string;
     const teamId = teamIdStr && teamIdStr !== "" ? parseInt(teamIdStr) : null;
     const email = formData.get("email") as string;
@@ -187,8 +188,8 @@ export async function createMember(formData: FormData) {
 
     // Erstelle das Member
     const newMember = await sql`
-      INSERT INTO members (first_name, last_name, birth_date, team_id, email, phone, parent_name, parent_email, parent_phone, avatar_url)
-      VALUES (${firstName}, ${lastName}, ${birthDate}, ${teamId}, ${email || null}, ${phone || null}, ${parentName || null}, ${parentEmail || null}, ${parentPhone || null}, ${avatarUrl || null})
+      INSERT INTO members (first_name, last_name, birth_date, nationality, team_id, email, phone, parent_name, parent_email, parent_phone, avatar_url)
+      VALUES (${firstName}, ${lastName}, ${birthDate}, ${nationality || null}, ${teamId}, ${email || null}, ${phone || null}, ${parentName || null}, ${parentEmail || null}, ${parentPhone || null}, ${avatarUrl || null})
       RETURNING id
     `;
 
@@ -266,6 +267,7 @@ export async function updateMember(id: number, formData: FormData) {
     const firstName = formData.get("first_name") as string;
     const lastName = formData.get("last_name") as string;
     const birthDate = formData.get("birth_date") as string;
+    const nationality = formData.get("nationality") as string;
     const teamIdStr = formData.get("team_id") as string;
     const teamId = teamIdStr && teamIdStr !== "" ? parseInt(teamIdStr) : null;
     const email = formData.get("email") as string;
@@ -278,7 +280,7 @@ export async function updateMember(id: number, formData: FormData) {
     await sql`
       UPDATE members 
       SET first_name = ${firstName}, last_name = ${lastName}, birth_date = ${birthDate},
-          team_id = ${teamId}, email = ${email || null}, phone = ${phone || null},
+          nationality = ${nationality || null}, team_id = ${teamId}, email = ${email || null}, phone = ${phone || null},
           parent_name = ${parentName || null}, parent_email = ${parentEmail || null}, parent_phone = ${parentPhone || null},
           avatar_url = ${avatarUrl || null}, updated_at = CURRENT_TIMESTAMP
       WHERE id = ${id}

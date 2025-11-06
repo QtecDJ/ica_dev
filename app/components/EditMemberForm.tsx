@@ -70,30 +70,44 @@ export default function EditMemberForm({ member, teams }: { member: any; teams: 
             type="date"
             id="birth_date"
             name="birth_date"
-            defaultValue={member.birth_date}
+            defaultValue={member.birth_date ? new Date(member.birth_date).toISOString().split('T')[0] : ''}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
           />
         </div>
 
         <div>
-          <label htmlFor="team_id" className="block text-sm font-medium text-gray-700 mb-2">
-            Team
+          <label htmlFor="nationality" className="block text-sm font-medium text-gray-700 mb-2">
+            Nationalität
           </label>
-          <select
-            id="team_id"
-            name="team_id"
-            defaultValue={member.team_id || ""}
+          <input
+            type="text"
+            id="nationality"
+            name="nationality"
+            defaultValue={member.nationality || ''}
+            placeholder="z.B. Deutsch"
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-          >
-            <option value="">Kein Team</option>
-            {teams.map((team) => (
-              <option key={team.id} value={team.id}>
-                {team.name}
-              </option>
-            ))}
-          </select>
+          />
         </div>
+      </div>
+
+      <div>
+        <label htmlFor="team_id" className="block text-sm font-medium text-gray-700 mb-2">
+          Team
+        </label>
+        <select
+          id="team_id"
+          name="team_id"
+          defaultValue={member.team_id || ""}
+          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Kein Team</option>
+          {teams.map((team) => (
+            <option key={team.id} value={team.id}>
+              {team.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
@@ -121,53 +135,6 @@ export default function EditMemberForm({ member, teams }: { member: any; teams: 
             defaultValue={member.phone}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
           />
-        </div>
-      </div>
-
-      <div className="border-t pt-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Elterninformationen</h3>
-        
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="parent_name" className="block text-sm font-medium text-gray-700 mb-2">
-              Name Erziehungsberechtigte(r)
-            </label>
-            <input
-              type="text"
-              id="parent_name"
-              name="parent_name"
-              defaultValue={member.parent_name}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label htmlFor="parent_email" className="block text-sm font-medium text-gray-700 mb-2">
-                Eltern Email
-              </label>
-              <input
-                type="email"
-                id="parent_email"
-                name="parent_email"
-                defaultValue={member.parent_email}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="parent_phone" className="block text-sm font-medium text-gray-700 mb-2">
-                Eltern Telefon
-              </label>
-              <input
-                type="tel"
-                id="parent_phone"
-                name="parent_phone"
-                defaultValue={member.parent_phone}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-          </div>
         </div>
       </div>
 

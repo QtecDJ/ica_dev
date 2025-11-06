@@ -23,6 +23,7 @@ export default async function MemberProfilePage({ params }: { params: { id: stri
     first_name: member.first_name,
     last_name: member.last_name,
     birth_date: member.birth_date,
+    nationality: member.nationality,
     email: member.email,
     phone: member.phone,
     avatar_url: member.avatar_url,

@@ -7,6 +7,7 @@ type ProfileViewProps = {
     first_name: string;
     last_name: string;
     birth_date: string;
+    nationality?: string;
     email?: string;
     phone?: string;
     avatar_url?: string;
@@ -115,6 +116,21 @@ export default function ProfileView({ member, userRole, showAvatarUpload = false
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Alter</p>
                 <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50">
                   {calculateAge(member.birth_date)} Jahre
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Nationality */}
+          {member.nationality && (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-indigo-100 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center flex-shrink-0">
+                <UsersIcon className="w-5 h-5 sm:w-6 sm:h-6" />
+              </div>
+              <div>
+                <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Nationalität</p>
+                <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50">
+                  {member.nationality}
                 </p>
               </div>
             </div>
