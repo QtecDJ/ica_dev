@@ -48,12 +48,15 @@ interface Props {
 }
 
 export default function EditUserModalImproved({ user, members, teams, availableRoles, onClose, onUserUpdate }: Props) {
+  // Finde das Team, bei dem dieser User als Coach eingetragen ist
+  const currentTeam = teams.find(team => team.coach === user.id);
+  
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email || "",
     roles: user.roles || [user.role],
     member_id: user.member_id?.toString() || "",
-    team_id: "", // Für Coach-Team-Zuweisung
+    team_id: currentTeam?.id.toString() || "", // Aktuelles Team des Coaches
     status: user.status || 'active',
     resetPassword: false,
   });

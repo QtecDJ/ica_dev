@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     }
 
     // Validate roles
-    const validRoles = ["admin", "coach", "member", "parent"];
+    const validRoles = ["admin", "manager", "coach", "member", "parent"];
     for (const userRole of userRoles) {
       if (!validRoles.includes(userRole)) {
         return NextResponse.json(
@@ -124,45 +124,20 @@ export async function POST(request: Request) {
 
     const userId = result[0].id;
 
-    // Coach-Team-Zuweisung mit Multi-Coach-System
+    // Coach-Team-Zuweisung
     const finalTeamId = team_id || teamId;
     if (userRoles.includes("coach") && finalTeamId) {
       try {
-        // Prüfe ob das Team bereits einen Primary Coach hat
-        const existingPrimaryCoach = await sql`
-          SELECT coach_id FROM team_coaches 
-          WHERE team_id = ${parseInt(finalTeamId)} AND is_primary = true
-        `;
-
-        const isPrimary = existingPrimaryCoach.length === 0; // Wird Primary wenn noch keiner da ist
-
-        // Füge Coach zum Team hinzu
-        await sql`
-          INSERT INTO team_coaches (team_id, coach_id, role, is_primary)
-          VALUES (${parseInt(finalTeamId)}, ${userId}, 'head_coach', ${isPrimary})
-          ON CONFLICT (team_id, coach_id) DO UPDATE SET
-            role = 'head_coach',
-            is_primary = ${isPrimary}
-        `;
-
-        // Update teams.coach_id für Rückwärtskompatibilität (falls Primary Coach)
-        if (isPrimary) {
-          await sql`
-            UPDATE teams
-            SET coach_id = ${userId}
-            WHERE id = ${parseInt(finalTeamId)}
-          `;
-        }
-
-        console.log(`Coach ${name} wurde Team ${finalTeamId} zugewiesen (Primary: ${isPrimary})`);
-      } catch (error) {
-        console.error("Error assigning coach to team:", error);
-        // Fallback zum alten System falls Multi-Coach fehlschlägt
+        // Setze Coach für das Team
         await sql`
           UPDATE teams
-          SET coach_id = ${userId}
+          SET coach = ${userId}
           WHERE id = ${parseInt(finalTeamId)}
         `;
+
+        console.log(`Coach ${name} wurde Team ${finalTeamId} zugewiesen`);
+      } catch (error) {
+        console.error("Error assigning coach to team:", error);
       }
     }
 
