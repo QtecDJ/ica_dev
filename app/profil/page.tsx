@@ -85,6 +85,8 @@ export default async function ProfilPage() {
     switch (role) {
       case 'admin':
         return { label: 'Administrator', color: 'text-red-600 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20', icon: Crown };
+      case 'manager':
+        return { label: 'Manager', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-900/20', icon: Shield };
       case 'coach':
         return { label: 'Coach', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-900/20', icon: Shield };
       case 'parent':

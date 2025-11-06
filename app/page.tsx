@@ -364,8 +364,8 @@ function QuickActionCard({ href, icon, title, description, color }: {
   
   const coachTeamIdList = coachTeamIds.map((t: any) => t.team_id);
   
-  // Extended Stats für Admin/Coach mit Training-Statistiken
-  const extendedStats = userRole === "admin"
+  // Extended Stats für Admin/Manager/Coach mit Training-Statistiken
+  const extendedStats = (userRole === "admin" || userRole === "manager")
     ? await sql`
         WITH training_stats AS (
           SELECT 
@@ -430,8 +430,8 @@ function QuickActionCard({ href, icon, title, description, color }: {
   const adminStats = extendedStats[0];
 
   // Get decline reasons for THE NEXT upcoming training only (Admin/Coach)
-  const nextTrainingDeclines = (userRole === "admin" || userRole === "coach")
-    ? userRole === "admin"
+  const nextTrainingDeclines = (userRole === "admin" || userRole === "manager" || userRole === "coach")
+    ? (userRole === "admin" || userRole === "manager")
       ? await sql`
           WITH next_training AS (
             SELECT id, training_date, start_time
@@ -484,7 +484,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
     : [];
 
   // Auto-delete old trainings (older than 30 days)
-  if (userRole === "admin") {
+  if (userRole === "admin" || userRole === "manager") {
     try {
       await sql`
         DELETE FROM trainings
@@ -542,8 +542,8 @@ function QuickActionCard({ href, icon, title, description, color }: {
         />
       </div>
 
-      {/* Extended Stats for Admin & Coach */}
-      {(userRole === "admin" || userRole === "coach") && (
+      {/* Extended Stats for Admin, Manager & Coach */}
+      {(userRole === "admin" || userRole === "manager" || userRole === "coach") && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <MiniStatCard
             icon={<UserPlus className="w-5 h-5" />}
@@ -596,8 +596,8 @@ function QuickActionCard({ href, icon, title, description, color }: {
 
       {/* Quick Actions & System Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Schnellzugriff - nur für Admins */}
-        {userRole === "admin" && (
+        {/* Schnellzugriff - für Admins und Manager */}
+        {(userRole === "admin" || userRole === "manager") && (
           <div className="card">
             <div className="card-header">
               <div className="flex items-center gap-3">
@@ -615,8 +615,8 @@ function QuickActionCard({ href, icon, title, description, color }: {
           </div>
         )}
 
-        {/* System-Übersicht mit Training-Statistiken - nur für Admins */}
-        {userRole === "admin" && (
+        {/* System-Übersicht mit Training-Statistiken - für Admins und Manager */}
+        {(userRole === "admin" || userRole === "manager") && (
           <div className="card">
             <div className="card-header">
               <div className="flex items-center gap-3">
@@ -682,7 +682,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
       {/* Next Training Declines - Only the next one */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Next Training Declines - Only the next one */}
-        {(userRole === "admin" || userRole === "coach") && nextTrainingDeclines.length > 0 && (
+        {(userRole === "admin" || userRole === "manager" || userRole === "coach") && nextTrainingDeclines.length > 0 && (
           <div className="card lg:col-span-2">
             <div className="card-header">
               <div className="flex items-center gap-3">

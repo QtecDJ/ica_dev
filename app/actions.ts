@@ -797,3 +797,27 @@ export async function addParentChild(parentUserId: string, childMemberId: number
     return { success: false, error: "Fehler beim Hinzufügen der Beziehung" };
   }
 }
+
+export async function updateUserRole(userId: number, newRole: string) {
+  try {
+    // Validate role
+    const validRoles = ['admin', 'manager', 'coach', 'parent', 'member'];
+    if (!validRoles.includes(newRole)) {
+      return { success: false, error: "Ungültige Rolle" };
+    }
+
+    await sql`
+      UPDATE users
+      SET role = ${newRole}, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ${userId}
+    `;
+
+    revalidatePath("/");
+    revalidatePath("/settings/users");
+    
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    return { success: false, error: "Fehler beim Aktualisieren der Rolle" };
+  }
+}

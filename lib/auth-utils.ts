@@ -77,8 +77,8 @@ export async function requireRole(allowedRoles: string[]) {
 }
 
 export function canAccessMember(session: any, memberId: number): boolean {
-  // Admin and Coach can access all members
-  if (session.user.role === "admin" || session.user.role === "coach") {
+  // Admin, Manager and Coach can access all members
+  if (session.user.role === "admin" || session.user.role === "manager" || session.user.role === "coach") {
     return true;
   }
 
@@ -89,4 +89,12 @@ export function canAccessMember(session: any, memberId: number): boolean {
 
   // Parents need to check parent_children table (handled in component)
   return false;
+}
+
+export function isAdmin(session: any): boolean {
+  return session?.user?.role === "admin";
+}
+
+export function isAdminOrManager(session: any): boolean {
+  return session?.user?.role === "admin" || session?.user?.role === "manager";
 }
