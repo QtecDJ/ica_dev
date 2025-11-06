@@ -386,11 +386,6 @@ function QuickActionCard({ href, icon, title, description, color }: {
           SELECT COUNT(*) as new_members_30d
           FROM members
           WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
-        ),
-        comment_stats AS (
-          SELECT COUNT(*) as unread_comments
-          FROM comments
-          WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
         )
         SELECT 
           (SELECT upcoming_trainings FROM training_stats) as upcoming_trainings,
@@ -398,8 +393,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
           (SELECT total_declined FROM training_stats) as training_declined,
           (SELECT total_pending FROM training_stats) as training_pending,
           (SELECT upcoming_events_count FROM upcoming_events) as upcoming_events,
-          (SELECT new_members_30d FROM recent_members) as new_members,
-          (SELECT unread_comments FROM comment_stats) as unread_comments
+          (SELECT new_members_30d FROM recent_members) as new_members
       `
     : await sql`
         WITH training_stats AS (
@@ -423,11 +417,6 @@ function QuickActionCard({ href, icon, title, description, color }: {
           FROM members
           WHERE created_at >= CURRENT_DATE - INTERVAL '30 days'
             AND team_id = ANY(${coachTeamIdList})
-        ),
-        comment_stats AS (
-          SELECT COUNT(*) as unread_comments
-          FROM comments
-          WHERE created_at >= CURRENT_DATE - INTERVAL '7 days'
         )
         SELECT 
           (SELECT upcoming_trainings FROM training_stats) as upcoming_trainings,
@@ -435,8 +424,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
           (SELECT total_declined FROM training_stats) as training_declined,
           (SELECT total_pending FROM training_stats) as training_pending,
           (SELECT upcoming_events_count FROM upcoming_events) as upcoming_events,
-          (SELECT new_members_30d FROM recent_members) as new_members,
-          (SELECT unread_comments FROM comment_stats) as unread_comments
+          (SELECT new_members_30d FROM recent_members) as new_members
       `;
 
   const adminStats = extendedStats[0];
@@ -686,29 +674,6 @@ function QuickActionCard({ href, icon, title, description, color }: {
                 </div>
               </div>
 
-              {/* Nachrichten-Statistik */}
-              <div className="pt-6 border-t border-gray-200 dark:border-gray-700 mt-6">
-                <div className="flex items-center justify-between p-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center">
-                      <Bell className="w-5 h-5 text-red-600 dark:text-red-400" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-red-900 dark:text-red-100">
-                        Neue Kommentare
-                      </p>
-                      <p className="text-xs text-red-700 dark:text-red-300">
-                        Letzte 7 Tage
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-3xl font-bold text-red-600 dark:text-red-400">
-                      {adminStats.unread_comments || 0}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         )}

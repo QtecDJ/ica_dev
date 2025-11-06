@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { updateAttendanceStatus } from "../actions";
-import { CheckCircle, XCircle, Clock, MessageSquare, AlertCircle } from "lucide-react";
+import { CheckCircle, XCircle, Clock, AlertCircle } from "lucide-react";
 
 type AttendanceButtonsProps = {
   trainingId: number;
   memberId: number;
   currentStatus?: "accepted" | "declined" | "pending";
-  currentComment?: string;
   currentDeclineReason?: string;
 };
 
@@ -16,13 +15,10 @@ export default function AttendanceButtons({
   trainingId,
   memberId,
   currentStatus,
-  currentComment,
   currentDeclineReason,
 }: AttendanceButtonsProps) {
   const [status, setStatus] = useState(currentStatus || "pending");
-  const [comment, setComment] = useState(currentComment || "");
   const [declineReason, setDeclineReason] = useState(currentDeclineReason || "");
-  const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showDeclineDialog, setShowDeclineDialog] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +36,8 @@ export default function AttendanceButtons({
       trainingId,
       memberId,
       newStatus,
-      comment
+      "", // No comment
+      "" // No decline reason for accept/pending
     );
     if (result.success) {
       setStatus(newStatus);
@@ -62,7 +59,7 @@ export default function AttendanceButtons({
       trainingId,
       memberId,
       "declined",
-      comment,
+      "", // No comment
       declineReason
     );
     if (result.success) {
@@ -72,13 +69,6 @@ export default function AttendanceButtons({
       setError(result.error || "Fehler beim Aktualisieren");
     }
     setIsLoading(false);
-  }
-
-  async function handleCommentSubmit() {
-    setIsLoading(true);
-    await updateAttendanceStatus(trainingId, memberId, status, comment);
-    setIsLoading(false);
-    setIsEditing(false);
   }
 
   return (
@@ -140,54 +130,7 @@ export default function AttendanceButtons({
             <p className="text-sm text-red-700">{declineReason}</p>
           </div>
         )}
-
-      {/* Comment Section */}
-      <div className="mt-4">
-        <button
-          onClick={() => setIsEditing(!isEditing)}
-          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors"
-        >
-          <MessageSquare className="w-4 h-4" />
-          {comment || isEditing ? "Kommentar bearbeiten" : "Kommentar hinzufügen"}
-        </button>
-
-        {isEditing && (
-          <div className="mt-3">
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Füge einen Kommentar hinzu..."
-              className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-all text-sm"
-              rows={3}
-            />
-            <div className="flex gap-2 mt-2">
-              <button
-                onClick={handleCommentSubmit}
-                disabled={isLoading}
-                className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
-              >
-                Speichern
-              </button>
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setComment(currentComment || "");
-                }}
-                className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Abbrechen
-              </button>
-            </div>
-          </div>
-        )}
-
-        {comment && !isEditing && (
-          <div className="mt-2 p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-700">{comment}</p>
-          </div>
-        )}
       </div>
-    </div>
 
     {/* Decline Reason Dialog */}
     {showDeclineDialog && (
