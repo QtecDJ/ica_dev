@@ -9,9 +9,11 @@ export default function AdminFloatingButton() {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const userRole = session?.user?.role;
+  const userRoles = (session?.user as any)?.roles || [userRole];
 
-  // Nur für Admins anzeigen
-  if (userRole !== "admin") {
+  // Nur für Admins anzeigen (check roles array)
+  const isAdmin = userRoles.includes("admin");
+  if (!isAdmin) {
     return null;
   }
 

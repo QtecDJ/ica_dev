@@ -29,27 +29,37 @@ export default function MobileBottomNav() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const userRole = session?.user?.role;
+  const userRoles = (session?.user as any)?.roles || [userRole];
   const memberId = session?.user?.memberId;
   const [activeIndex, setActiveIndex] = useState(0);
+
+  // Helper functions for role checking
+  const hasRole = (role: string) => userRoles.includes(role);
+  const hasAnyRole = (roles: string[]) => roles.some(role => userRoles.includes(role));
+
+  // Check if user is ONLY member (no admin/manager/coach roles)
+  const isOnlyMember = hasRole("member") && !hasAnyRole(["admin", "manager", "coach"]);
+  // Check if user is ONLY parent (no admin/manager/coach roles)
+  const isOnlyParent = hasRole("parent") && !hasAnyRole(["admin", "manager", "coach", "member"]);
 
   // Different navigation based on role
   let navItems: NavItem[] = [];
 
-  if (userRole === "member") {
+  if (isOnlyMember) {
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/profil", label: "Profil", icon: <IconUser className="w-5 h-5" stroke={2} />, isActive: false },
     ];
-  } else if (userRole === "parent") {
+  } else if (isOnlyParent) {
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/profil", label: "Kind", icon: <IconUser className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
     ];
-  } else if (userRole === "admin" || userRole === "manager") {
+  } else if (hasAnyRole(["admin", "manager"])) {
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
@@ -57,7 +67,7 @@ export default function MobileBottomNav() {
       { href: "/administration", label: "Admin", icon: <IconShield className="w-5 h-5" stroke={2} />, isActive: false },
     ];
   } else {
-    // Coach
+    // Coach (only)
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },

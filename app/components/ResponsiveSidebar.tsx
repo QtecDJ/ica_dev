@@ -25,12 +25,22 @@ export default function ResponsiveSidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
   const userRole = session?.user?.role;
+  const userRoles = (session?.user as any)?.roles || [userRole];
   const memberId = session?.user?.memberId;
+
+  // Helper functions for role checking
+  const hasRole = (role: string) => userRoles.includes(role);
+  const hasAnyRole = (roles: string[]) => roles.some(role => userRoles.includes(role));
 
   // Different navigation based on role
   let navItems: Array<{ href: string; label: string; iconName: string }> = [];
   
-  if (userRole === "member") {
+  // Check if user is ONLY member (no admin/manager/coach roles)
+  const isOnlyMember = hasRole("member") && !hasAnyRole(["admin", "manager", "coach"]);
+  // Check if user is ONLY parent (no admin/manager/coach roles)
+  const isOnlyParent = hasRole("parent") && !hasAnyRole(["admin", "manager", "coach", "member"]);
+  
+  if (isOnlyMember) {
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/profil", label: "Mein Profil", iconName: "UserIcon" },
@@ -39,7 +49,7 @@ export default function ResponsiveSidebar() {
       { href: "/events", label: "Events", iconName: "Calendar" },
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
     ];
-  } else if (userRole === "parent") {
+  } else if (isOnlyParent) {
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/profil", label: "Mein Kind", iconName: "UserIcon" },
@@ -49,6 +59,7 @@ export default function ResponsiveSidebar() {
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
     ];
   } else {
+    // Admin, Manager, or Coach navigation
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/teams", label: "Teams", iconName: "Trophy" },
@@ -60,8 +71,8 @@ export default function ResponsiveSidebar() {
     ];
   }
   
-  // Admin und Manager haben Zugriff auf Administration
-  if (userRole === "admin" || userRole === "manager") {
+  // Admin und Manager haben Zugriff auf Administration (check roles array)
+  if (hasAnyRole(["admin", "manager"])) {
     navItems.push({ href: "/administration", label: "Administration", iconName: "Shield" });
   }
 
