@@ -24,7 +24,7 @@ const handler = NextAuth({
         try {
           const sql = neon(process.env.DATABASE_URL!);
           const result = await sql`
-            SELECT id, username, password_hash, role, member_id, name
+            SELECT id, username, password_hash, role, roles, member_id, name
             FROM users
             WHERE username = ${username}
           `;
@@ -44,6 +44,7 @@ const handler = NextAuth({
             email: user.username,
             name: user.name,
             role: user.role,
+            roles: user.roles || [],
             memberId: user.member_id,
           };
         } catch (error) {
