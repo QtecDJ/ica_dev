@@ -14,8 +14,11 @@ import CleanupButton from "@/app/components/CleanupButton";
 export default async function AdministrationPage() {
   // Admins und Manager dürfen diese Seite sehen
   const session = await requireRole(["admin", "manager"]);
-  const isAdmin = session.user.role === "admin";
-  const isManager = session.user.role === "manager";
+  
+  // Check roles array instead of single role
+  const userRoles = (session.user as any).roles || [session.user.role];
+  const isAdmin = userRoles.includes("admin");
+  const isManager = userRoles.includes("manager") && !isAdmin; // Manager but not admin
 
   // Admin-Sections mit Zugriffskontrolle
   const allSections = [

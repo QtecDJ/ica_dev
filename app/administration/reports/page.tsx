@@ -12,7 +12,11 @@ export const metadata: Metadata = {
 export default async function AdminReportsPage() {
   const session = await getServerSession(authOptions);
   
-  if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
+  // Check roles array for access
+  const userRoles = (session?.user as any)?.roles || [session?.user?.role];
+  const hasAccess = userRoles.includes("admin") || userRoles.includes("manager");
+  
+  if (!session || !hasAccess) {
     redirect("/");
   }
 

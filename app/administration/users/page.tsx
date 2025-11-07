@@ -38,12 +38,15 @@ export default function UsersManagementPage() {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Überprüfe Berechtigung
+  // Überprüfe Berechtigung mit Multi-Rollen-System
   useEffect(() => {
     if (status === "loading") return;
     
-    if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
-      router.push("/dashboard");
+    const userRoles = (session?.user as any)?.roles || [session?.user?.role];
+    const hasAccess = userRoles.includes("admin") || userRoles.includes("manager");
+    
+    if (!session || !hasAccess) {
+      router.push("/");
       return;
     }
   }, [session, status, router]);
@@ -101,7 +104,10 @@ export default function UsersManagementPage() {
     );
   }
 
-  if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
+  const userRoles = (session?.user as any)?.roles || [session?.user?.role];
+  const hasAccess = userRoles.includes("admin") || userRoles.includes("manager");
+  
+  if (!session || !hasAccess) {
     return null;
   }
 

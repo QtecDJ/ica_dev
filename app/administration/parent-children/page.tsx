@@ -12,8 +12,11 @@ export const metadata: Metadata = {
 export default async function ParentChildManagementPage() {
   const session = await requireAuth();
   
-  // Allow admins and managers
-  if (session.user.role !== "admin" && session.user.role !== "manager") {
+  // Allow admins and managers (check roles array)
+  const userRoles = (session.user as any).roles || [session.user.role];
+  const hasAccess = userRoles.includes("admin") || userRoles.includes("manager");
+  
+  if (!hasAccess) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
