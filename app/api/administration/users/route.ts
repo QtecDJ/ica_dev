@@ -58,9 +58,9 @@ export async function GET() {
       ORDER BY m.first_name, m.last_name
     `;
 
-    // Hole alle Teams für Coach-Zuweisung
+    // Hole alle Teams für Coach-Zuweisung (coach column wurde entfernt, nur team_coaches table)
     const teams = await sql`
-      SELECT id, name, coach FROM teams ORDER BY name
+      SELECT id, name FROM teams ORDER BY name
     `;
 
     console.log('📊 Data counts:', {

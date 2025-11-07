@@ -21,7 +21,6 @@ interface User {
 interface Team {
   id: number;
   name: string;
-  coach: string | null; // Coach ist der Name, nicht die ID!
 }
 
 interface Member {
@@ -48,16 +47,14 @@ interface Props {
 }
 
 export default function EditUserModalImproved({ user, members, teams, availableRoles, onClose, onUserUpdate }: Props) {
-  // Finde das Team, bei dem dieser User als Coach eingetragen ist
-  // coach Spalte enthält User ID als String
-  const currentTeam = teams.find(team => team.coach === user.id.toString());
+  // Team-Zuweisungen werden nun über team_coaches table verwaltet, nicht mehr über teams.coach
   
   const [formData, setFormData] = useState({
     name: user.name,
     email: user.email || "",
     roles: user.roles || [user.role],
     member_id: user.member_id?.toString() || "",
-    team_id: currentTeam?.id.toString() || "", // Aktuelles Team des Coaches
+    team_id: "", // Team wird nicht mehr hier gesetzt, sondern über team_coaches
     status: user.status || 'active',
     resetPassword: false,
   });

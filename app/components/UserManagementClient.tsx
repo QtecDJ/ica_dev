@@ -2,8 +2,8 @@
 
 import { useState, useMemo } from "react";
 import { UserPlus, Search, Edit, Key, Shield, Users, X } from "lucide-react";
-import CreateUserForm from "./CreateUserForm";
-import EditUserModal from "./EditUserModal";
+import CreateUserFormImproved from "./CreateUserFormImproved";
+import EditUserModalImproved from "./EditUserModalImproved";
 
 interface User {
   id: number;
@@ -28,7 +28,6 @@ interface Member {
 interface Team {
   id: number;
   name: string;
-  coach_id: number | null;
 }
 
 interface Props {
@@ -36,6 +35,40 @@ interface Props {
   members: Member[];
   teams: Team[];
 }
+
+// Verfügbare Rollen
+const AVAILABLE_ROLES = {
+  admin: {
+    label: "Administrator",
+    color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    permissions: ["Vollzugriff auf alle Funktionen"],
+    priority: 1,
+  },
+  manager: {
+    label: "Manager", 
+    color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200",
+    permissions: ["Benutzerverwaltung", "Team-Verwaltung"],
+    priority: 2,
+  },
+  coach: {
+    label: "Coach",
+    color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    permissions: ["Team-Management", "Training erstellen"],
+    priority: 3,
+  },
+  member: {
+    label: "Mitglied",
+    color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    permissions: ["Profil ansehen", "Trainings zu-/absagen"],
+    priority: 4,
+  },
+  parent: {
+    label: "Elternteil",
+    color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200",
+    permissions: ["Profile der Kinder ansehen"],
+    priority: 5,
+  },
+};
 
 export default function UserManagementClient({ users, members, teams }: Props) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -132,7 +165,12 @@ export default function UserManagementClient({ users, members, teams }: Props) {
             </div>
           </div>
           <div className="card-body">
-            <CreateUserForm onSuccess={() => setShowCreateForm(false)} teams={teams} />
+            <CreateUserFormImproved 
+              onSuccess={() => setShowCreateForm(false)} 
+              teams={teams}
+              members={members}
+              availableRoles={AVAILABLE_ROLES}
+            />
           </div>
         </div>
       )}
@@ -268,10 +306,11 @@ export default function UserManagementClient({ users, members, teams }: Props) {
 
       {/* Edit Modal */}
       {editingUser && (
-        <EditUserModal
+        <EditUserModalImproved
           user={editingUser}
           members={members}
           teams={teams}
+          availableRoles={AVAILABLE_ROLES}
           onClose={() => setEditingUser(null)}
         />
       )}

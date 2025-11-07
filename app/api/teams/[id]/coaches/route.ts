@@ -137,21 +137,7 @@ export async function PUT(
         }
       }
 
-      // Update teams.coach for backwards compatibility (set to primary coach as string)
-      const primaryCoach = coaches.find(c => c.is_primary);
-      if (primaryCoach) {
-        await sql`
-          UPDATE teams 
-          SET coach = ${primaryCoach.coach_id.toString()}
-          WHERE id = ${teamId}
-        `;
-      } else {
-        await sql`
-          UPDATE teams 
-          SET coach = NULL
-          WHERE id = ${teamId}
-        `;
-      }
+      // teams.coach column has been removed - team_coaches table is now the single source of truth
     } catch (error) {
       console.error("Error updating team coaches:", error);
       throw new Error("Failed to update team coaches");
@@ -271,14 +257,7 @@ export async function POST(
       VALUES (${teamId}, ${coach_id}, ${role}, ${is_primary})
     `;
 
-    // Update teams.coach if this is the primary coach (coach column is VARCHAR)
-    if (is_primary) {
-      await sql`
-        UPDATE teams 
-        SET coach = ${coach_id.toString()}
-        WHERE id = ${teamId}
-      `;
-    }
+    // teams.coach column has been removed - team_coaches is the single source of truth
 
     return NextResponse.json({
       success: true,

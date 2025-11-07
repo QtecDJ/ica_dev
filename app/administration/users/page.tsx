@@ -28,7 +28,6 @@ interface Member {
 interface Team {
   id: number;
   name: string;
-  coach: string | null; // Coach ist der Name als String, nicht ID
 }
 
 export default function UsersManagementPage() {
