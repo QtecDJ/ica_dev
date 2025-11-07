@@ -19,6 +19,14 @@
 .DS_Store
 *.pem
 
+# user uploads
+public/avatars/*.jpeg
+public/avatars/*.jpg
+public/avatars/*.png
+public/avatars/*.gif
+public/avatars/*.webp
+!public/avatars/.gitkeep
+
 # debug
 npm-debug.log*
 yarn-debug.log*
