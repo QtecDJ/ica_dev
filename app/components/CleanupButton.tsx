@@ -1,8 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Trash2, RefreshCw, Calendar, CheckCircle, XCircle, AlertCircle } from "lucide-react";
 
 interface CleanupResult {
@@ -59,21 +57,20 @@ export default function CleanupButton() {
   };
 
   return (
-    <Card className="border-orange-200 dark:border-orange-900">
-      <CardHeader>
-        <div className="flex items-center gap-3">
+    <div className="card border-orange-200 dark:border-orange-900">
+      <div className="card-body">
+        <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
             <Trash2 className="w-6 h-6 text-orange-600 dark:text-orange-400" />
           </div>
           <div>
-            <CardTitle className="text-xl">Alte Trainings löschen</CardTitle>
-            <CardDescription>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-50">Alte Trainings löschen</h2>
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Entfernt Trainings und Attendance-Daten, die älter als 1 Tag sind
-            </CardDescription>
+            </p>
           </div>
         </div>
-      </CardHeader>
-      <CardContent className="space-y-4">
+        <div className="space-y-4">
         {/* Info Box */}
         <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
           <div className="flex gap-3">
@@ -93,12 +90,10 @@ export default function CleanupButton() {
         </div>
 
         {/* Action Button */}
-        <Button
+        <button
           onClick={handleCleanup}
           disabled={loading}
-          variant="destructive"
-          className="w-full"
-          size="lg"
+          className="w-full btn btn-danger"
         >
           {loading ? (
             <>
@@ -111,7 +106,7 @@ export default function CleanupButton() {
               Jetzt manuell ausführen
             </>
           )}
-        </Button>
+        </button>
 
         {/* Result Display */}
         {result && (
@@ -206,7 +201,8 @@ export default function CleanupButton() {
             </div>
           </div>
         )}
-      </CardContent>
-    </Card>
+        </div>
+      </div>
+    </div>
   );
 }
