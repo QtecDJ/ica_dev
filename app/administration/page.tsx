@@ -9,6 +9,7 @@ import {
   Shield,
   Link2
 } from "lucide-react";
+import CleanupButton from "@/app/components/CleanupButton";
 
 export default async function AdministrationPage() {
   // Admins und Manager dürfen diese Seite sehen
@@ -120,6 +121,9 @@ export default async function AdministrationPage() {
           </Link>
         ))}
       </div>
+
+      {/* Cleanup Button */}
+      <CleanupButton />
 
       {/* Quick Info - angepasst für Manager */}
       <div className={`card ${isManager ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'}`}>
