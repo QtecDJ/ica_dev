@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, Calendar, Clock, MapPin } from "lucide-react";
 
 interface TeamMember {
   member_id: string;
   first_name: string;
   last_name: string;
   team_name: string;
+  training_date: string;
+  start_time: string;
+  end_time: string;
+  location?: string;
   status: "accepted" | "declined" | "pending";
   decline_reason?: string;
+  updated_at: string;
 }
 
 interface ClickableMiniStatCardProps {
@@ -128,41 +133,96 @@ export default function ClickableMiniStatCard({
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {members.map((member) => (
-                    <div
-                      key={member.member_id}
-                      className={`p-4 rounded-lg border-2 ${
-                        status === "accepted"
-                          ? "bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800"
-                          : "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0">
-                          {member.first_name[0]}
-                          {member.last_name[0]}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <p className="font-medium text-slate-900 dark:text-slate-50">
-                              {member.first_name} {member.last_name}
-                            </p>
-                            {member.team_name && (
-                              <span className="text-xs px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full">
-                                {member.team_name}
-                              </span>
-                            )}
+                <div className="space-y-6">
+                  {(() => {
+                    // Group members by training date
+                    const grouped = members.reduce((acc, member) => {
+                      const dateKey = member.training_date;
+                      if (!acc[dateKey]) {
+                        acc[dateKey] = [];
+                      }
+                      acc[dateKey].push(member);
+                      return acc;
+                    }, {} as Record<string, typeof members>);
+
+                    return Object.entries(grouped).map(([date, items]) => {
+                      const firstItem = items[0];
+                      const trainingDate = new Date(date);
+                      
+                      return (
+                        <div key={date} className="border-2 border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+                          {/* Training Header */}
+                          <div className={`p-4 ${
+                            status === "accepted"
+                              ? "bg-black/5 dark:bg-black/20"
+                              : "bg-red-50 dark:bg-red-900/20"
+                          }`}>
+                            <div className="flex flex-wrap items-center gap-3 text-sm">
+                              <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-slate-50">
+                                <Calendar className="w-4 h-4" />
+                                {trainingDate.toLocaleDateString("de-DE", {
+                                  weekday: "long",
+                                  day: "2-digit",
+                                  month: "long",
+                                  year: "numeric"
+                                })}
+                              </div>
+                              {firstItem.start_time && (
+                                <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                                  <Clock className="w-4 h-4" />
+                                  {firstItem.start_time} - {firstItem.end_time}
+                                </div>
+                              )}
+                              {firstItem.location && (
+                                <div className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
+                                  <MapPin className="w-4 h-4" />
+                                  {firstItem.location}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          {member.decline_reason && (
-                            <p className="mt-1 text-sm text-red-800 dark:text-red-300 italic">
-                              "{member.decline_reason}"
-                            </p>
-                          )}
+
+                          {/* Members List */}
+                          <div className="p-4 space-y-2">
+                            {items.map((member) => (
+                              <div
+                                key={`${member.member_id}-${date}`}
+                                className={`p-3 rounded-lg border ${
+                                  status === "accepted"
+                                    ? "bg-green-50 dark:bg-green-900/10 border-green-200 dark:border-green-800"
+                                    : "bg-red-50 dark:bg-red-900/10 border-red-200 dark:border-red-800"
+                                }`}
+                              >
+                                <div className="flex items-start gap-3">
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold flex-shrink-0 text-sm">
+                                    {member.first_name[0]}
+                                    {member.last_name[0]}
+                                  </div>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <p className="font-medium text-slate-900 dark:text-slate-50">
+                                        {member.first_name} {member.last_name}
+                                      </p>
+                                      {member.team_name && (
+                                        <span className="text-xs px-2 py-1 bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-full">
+                                          {member.team_name}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {member.decline_reason && (
+                                      <p className="mt-1 text-sm text-red-800 dark:text-red-300 italic">
+                                        "{member.decline_reason}"
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    });
+                  })()}
                 </div>
               )}
             </div>

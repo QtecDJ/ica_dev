@@ -6,6 +6,7 @@ import { neon } from "@neondatabase/serverless";
 import AvatarUploadSection from "@/app/components/AvatarUploadSection";
 import { User, Calendar, Award, Mail, Phone, Crown, Shield, Users as UsersIcon, Settings as SettingsIcon } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 const sql = neon(process.env.DATABASE_URL!);
 
@@ -45,10 +46,20 @@ export default async function ProfilPage() {
           m.created_at,
           t.name as team_name,
           t.level as team_level,
-          t.coach as team_coach
+          COALESCE(
+            STRING_AGG(
+              DISTINCT CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END,
+              ', ' ORDER BY CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END
+            ),
+            'Kein Coach'
+          ) as team_coach
         FROM members m
         LEFT JOIN teams t ON m.team_id = t.id
+        LEFT JOIN team_coaches tc ON t.id = tc.team_id
+        LEFT JOIN users u ON tc.coach_id = u.id
         WHERE m.id = ${userData[0].member_id}
+        GROUP BY m.id, m.first_name, m.last_name, m.birth_date, m.nationality, 
+                 m.email, m.phone, m.avatar_url, m.created_at, t.name, t.level
       `;
       
       if (memberResult.length > 0) {
@@ -71,16 +82,29 @@ export default async function ProfilPage() {
           m.created_at,
           t.name as team_name,
           t.level as team_level,
-          t.coach as team_coach
+          COALESCE(
+            STRING_AGG(
+              DISTINCT CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END,
+              ', ' ORDER BY CASE WHEN tc.is_primary THEN '👑 ' || u.name ELSE u.name END
+            ),
+            'Kein Coach'
+          ) as team_coach
         FROM members m
         LEFT JOIN teams t ON m.team_id = t.id
         LEFT JOIN parent_children pc ON pc.child_member_id = m.id
+        LEFT JOIN team_coaches tc ON t.id = tc.team_id
+        LEFT JOIN users u ON tc.coach_id = u.id
         WHERE pc.parent_user_id = ${userId}
+        GROUP BY m.id, m.first_name, m.last_name, m.birth_date, m.nationality,
+                 m.email, m.phone, m.avatar_url, m.created_at, t.name, t.level
         ORDER BY m.first_name, m.last_name
       `;
     }
   }
 
+  // Get user's roles from session
+  const userRoles = (session.user as any).roles || [userRole];
+  
   const getRoleInfo = (role: string) => {
     switch (role) {
       case 'admin':
@@ -96,7 +120,14 @@ export default async function ProfilPage() {
     }
   };
 
-  const roleInfo = getRoleInfo(userRole);
+  // Determine primary role (highest priority)
+  let primaryRole = userRole;
+  if (userRoles.includes('admin')) primaryRole = 'admin';
+  else if (userRoles.includes('manager')) primaryRole = 'manager';
+  else if (userRoles.includes('coach')) primaryRole = 'coach';
+  else if (userRoles.includes('parent')) primaryRole = 'parent';
+
+  const roleInfo = getRoleInfo(primaryRole);
   const RoleIcon = roleInfo.icon;
 
   const calculateAge = (birthDate: string) => {
@@ -186,11 +217,28 @@ export default async function ProfilPage() {
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl ${roleInfo.bg} ${roleInfo.color} flex items-center justify-center flex-shrink-0`}>
                     <RoleIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                   </div>
-                  <div>
-                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">Rolle</p>
+                  <div className="min-w-0">
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+                      {userRoles.length > 1 ? 'Rollen' : 'Rolle'}
+                    </p>
                     <p className="font-semibold text-sm sm:text-base text-slate-900 dark:text-slate-50">
                       {roleInfo.label}
                     </p>
+                    {userRoles.length > 1 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {userRoles.filter((r: string) => r !== primaryRole).map((role: string) => {
+                          const info = getRoleInfo(role);
+                          return (
+                            <span 
+                              key={role}
+                              className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-medium ${info.bg} ${info.color}`}
+                            >
+                              {info.label}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -323,12 +371,14 @@ export default async function ProfilPage() {
                   <div className="p-4 sm:p-6 lg:p-8">
                     {/* Child Header */}
                     <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 flex-shrink-0">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 flex-shrink-0 relative">
                         {child.avatar_url ? (
-                          <img
+                          <Image
                             src={child.avatar_url}
                             alt={`${child.first_name} ${child.last_name}`}
-                            className="object-cover w-full h-full"
+                            fill
+                            className="object-cover"
+                            unoptimized
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-lg sm:text-xl">

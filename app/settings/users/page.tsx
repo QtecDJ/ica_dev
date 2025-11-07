@@ -5,7 +5,7 @@ import { neon } from "@neondatabase/serverless";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import type { Session } from "next-auth";
-import UserRoleManager from "@/app/components/UserRoleManager";
+import UserRoleManagerMulti from "@/app/components/UserRoleManagerMulti";
 
 export default async function UserManagementPage() {
   const session = (await getServerSession(authOptions)) as Session | null;
@@ -38,6 +38,7 @@ export default async function UserManagementPage() {
       u.name,
       u.email,
       u.role,
+      u.roles,
       u.member_id,
       m.first_name,
       m.last_name
@@ -54,12 +55,16 @@ export default async function UserManagementPage() {
       u.name
   `;
 
-  const users = usersResult as Array<{
+  const users = usersResult.map(user => ({
+    ...user,
+    roles: user.roles && Array.isArray(user.roles) && user.roles.length > 0 ? user.roles : [user.role]
+  })) as Array<{
     id: number;
     username: string;
     name: string;
     email: string;
     role: string;
+    roles: string[];
     member_id: number | null;
     first_name: string | null;
     last_name: string | null;
@@ -100,10 +105,11 @@ export default async function UserManagementPage() {
             <Shield className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
             <div>
               <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-1">
-                Rollenverwaltung - Nur für Administratoren
+                Mehrfach-Rollenverwaltung - Nur für Administratoren
               </h3>
               <p className="text-sm text-blue-800 dark:text-blue-300">
-                Als Administrator kannst du hier Benutzerrollen zuweisen. Die <strong>Manager</strong>-Rolle hat fast alle Admin-Rechte, 
+                Als Administrator kannst du hier Benutzerrollen zuweisen. Benutzer können <strong>mehrere Rollen gleichzeitig</strong> haben 
+                (z.B. Coach + Manager). Die <strong>Manager</strong>-Rolle hat fast alle Admin-Rechte, 
                 kann aber keine System-Einstellungen ändern und keine Rollen vergeben.
               </p>
             </div>
@@ -120,7 +126,7 @@ export default async function UserManagementPage() {
               </h2>
             </div>
 
-            <UserRoleManager users={users} />
+            <UserRoleManagerMulti users={users} />
           </div>
         </div>
       </div>

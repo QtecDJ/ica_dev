@@ -86,6 +86,7 @@ export default function AvatarUploadSection({
             fill
             className="object-cover"
             sizes="(max-width: 640px) 96px, 128px"
+            unoptimized
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">

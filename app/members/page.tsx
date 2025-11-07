@@ -16,77 +16,47 @@ export default async function MembersPage() {
   const userRole = session?.user?.role;
   const userId = session?.user?.id;
   
-  // Only admin, coach, and member can see members (with different filtering)
-  if (userRole !== "admin" && userRole !== "coach" && userRole !== "member") {
-    redirect("/profil");
+  // Alle rollen können Mitglieder sehen
+  if (!session?.user) {
+    redirect("/login");
   }
 
   let members: any[] = [];
 
-  if (userRole === "admin") {
-    // Admins see all members
+  if (userRole === "admin" || userRole === "manager") {
+    // Admin und Manager sehen ALLE Mitglieder
     members = await getMembers();
   } else if (userRole === "coach") {
-    // Coaches see only coaches from their own team(s)
-    // First get teams where user is a coach
-    const coachTeams = await sql`
-      SELECT DISTINCT t.id, t.name
-      FROM teams t
-      JOIN team_coaches tc ON t.id = tc.team_id
+    // Coach sieht nur Mitglieder seiner zugewiesenen Teams
+    members = await sql`
+      SELECT DISTINCT m.*, t.name as team_name
+      FROM members m
+      LEFT JOIN teams t ON m.team_id = t.id
+      INNER JOIN team_coaches tc ON t.id = tc.team_id
       WHERE tc.coach_id = ${userId}
+      ORDER BY m.last_name, m.first_name
     `;
-    
-    // Check if coach is also a member and get their team
-    const coachMemberTeam = await sql`
-      SELECT DISTINCT m.team_id
-      FROM users u
-      JOIN members m ON u.member_id = m.id
-      WHERE u.id = ${userId} AND m.team_id IS NOT NULL
-    `;
-    
-    // Collect all team IDs (both coached teams and own member team)
-    let teamIds = coachTeams.map(team => team.id);
-    if (coachMemberTeam.length > 0) {
-      const memberTeamId = coachMemberTeam[0].team_id;
-      if (!teamIds.includes(memberTeamId)) {
-        teamIds.push(memberTeamId);
-      }
-    }
-    
-    if (teamIds.length > 0) {
-      // Get only coaches from these teams
-      members = await sql`
-        SELECT DISTINCT u.id as user_id, m.*, t.name as team_name, u.role
-        FROM members m
-        LEFT JOIN teams t ON m.team_id = t.id
-        LEFT JOIN users u ON u.member_id = m.id
-        WHERE m.team_id = ANY(${teamIds}) 
-        AND u.role = 'coach'
-        ORDER BY m.last_name, m.first_name
-      `;
-    }
   } else if (userRole === "member") {
-    // Members see only coaches from their own team
-    const memberInfo = await sql`
-      SELECT m.team_id
+    // Members sehen nur Mitglieder ihres eigenen Teams
+    members = await sql`
+      SELECT DISTINCT m2.*, t.name as team_name
       FROM users u
-      JOIN members m ON u.member_id = m.id
-      WHERE u.id = ${userId}
+      INNER JOIN members m ON u.member_id = m.id
+      LEFT JOIN teams t ON m.team_id = t.id
+      INNER JOIN members m2 ON m2.team_id = t.id
+      WHERE u.id = ${userId} AND m.team_id IS NOT NULL
+      ORDER BY m2.last_name, m2.first_name
     `;
-    
-    if (memberInfo.length > 0 && memberInfo[0].team_id) {
-      const teamId = memberInfo[0].team_id;
-      // Get only coaches from the member's team
-      members = await sql`
-        SELECT DISTINCT u.id as user_id, m.*, t.name as team_name, u.role
-        FROM members m
-        LEFT JOIN teams t ON m.team_id = t.id
-        LEFT JOIN users u ON u.member_id = m.id
-        WHERE m.team_id = ${teamId} 
-        AND u.role = 'coach'
-        ORDER BY m.last_name, m.first_name
-      `;
-    }
+  } else if (userRole === "parent") {
+    // Parents sehen ihre Kinder
+    members = await sql`
+      SELECT DISTINCT m.*, t.name as team_name
+      FROM members m
+      LEFT JOIN teams t ON m.team_id = t.id
+      INNER JOIN parent_children pc ON pc.child_member_id = m.id
+      WHERE pc.parent_user_id = ${userId}
+      ORDER BY m.last_name, m.first_name
+    `;
   }
 
   return (
@@ -95,16 +65,16 @@ export default async function MembersPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">
-            {userRole === "admin" ? "Mitglieder" : "Meine Coaches"}
+            Mitglieder
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {userRole === "admin" 
-              ? `${members.length} ${members.length === 1 ? 'Mitglied' : 'Mitglieder'} insgesamt`
-              : `${members.length} ${members.length === 1 ? 'Coach' : 'Coaches'} in deinem Team`
-            }
+            {members.length} {members.length === 1 ? 'Mitglied' : 'Mitglieder'}
+            {userRole === "coach" && " in deinen Teams"}
+            {userRole === "member" && " in deinem Team"}
+            {userRole === "parent" && " (deine Kinder)"}
           </p>
         </div>
-        {userRole === "admin" && (
+        {(userRole === "admin" || userRole === "manager") && (
           <Link href="/members/new" className="btn btn-primary">
             <Plus className="w-5 h-5" />
             Neues Mitglied
@@ -181,14 +151,18 @@ export default async function MembersPage() {
                           >
                             <Eye className="w-4 h-4" />
                           </Link>
-                          <Link
-                            href={`/members/${member.id}/edit`}
-                            className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
-                            title="Bearbeiten"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Link>
-                          <DeleteButton id={member.id} action={deleteMember} />
+                          {(userRole === "admin" || userRole === "manager") && (
+                            <>
+                              <Link
+                                href={`/members/${member.id}/edit`}
+                                className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                                title="Bearbeiten"
+                              >
+                                <Pencil className="w-4 h-4" />
+                              </Link>
+                              <DeleteButton id={member.id} action={deleteMember} />
+                            </>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -241,13 +215,17 @@ export default async function MembersPage() {
                       >
                         <Eye className="w-5 h-5" />
                       </Link>
-                      <Link
-                        href={`/members/${member.id}/edit`}
-                        className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
-                      >
-                        <Pencil className="w-5 h-5" />
-                      </Link>
-                      <DeleteButton id={member.id} action={deleteMember} />
+                      {(userRole === "admin" || userRole === "manager") && (
+                        <>
+                          <Link
+                            href={`/members/${member.id}/edit`}
+                            className="text-gray-600 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                          >
+                            <Pencil className="w-5 h-5" />
+                          </Link>
+                          <DeleteButton id={member.id} action={deleteMember} />
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="space-y-2 text-sm">

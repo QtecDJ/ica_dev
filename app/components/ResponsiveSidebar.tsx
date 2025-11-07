@@ -10,14 +10,15 @@ import {
   IconUser, 
   IconMessageCircle, 
   IconShield, 
-  IconSettings 
+  IconSettings,
+  IconMail
 } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import LogoutButton from "./LogoutButton";
 import MobileBottomNav from "./MobileBottomNav";
 import AdminFloatingButton from "./AdminFloatingButton";
-import UnreadMessagesBadge from "./UnreadMessagesBadge";
+import UnreadEmailsBadge from "./UnreadEmailsBadge";
 import SettingsDropdown from "./SettingsDropdown";
 
 export default function ResponsiveSidebar() {
@@ -33,7 +34,7 @@ export default function ResponsiveSidebar() {
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/profil", label: "Mein Profil", iconName: "UserIcon" },
-      { href: "/messages", label: "Nachrichten", iconName: "MessageCircle" },
+      { href: "/emails", label: "Postfach", iconName: "Mail" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
       { href: "/events", label: "Events", iconName: "Calendar" },
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
@@ -42,7 +43,7 @@ export default function ResponsiveSidebar() {
     navItems = [
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/profil", label: "Mein Kind", iconName: "UserIcon" },
-      { href: "/messages", label: "Nachrichten", iconName: "MessageCircle" },
+      { href: "/emails", label: "Postfach", iconName: "Mail" },
       { href: "/events", label: "Events", iconName: "Calendar" },
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
@@ -52,14 +53,15 @@ export default function ResponsiveSidebar() {
       { href: "/", label: "Dashboard", iconName: "Home" },
       { href: "/teams", label: "Teams", iconName: "Trophy" },
       { href: "/members", label: "Mitglieder", iconName: "Users" },
-      { href: "/messages", label: "Nachrichten", iconName: "MessageCircle" },
+      { href: "/emails", label: "Postfach", iconName: "Mail" },
       { href: "/events", label: "Events", iconName: "Calendar" },
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
     ];
   }
   
-  if (userRole === "admin") {
+  // Admin und Manager haben Zugriff auf Administration
+  if (userRole === "admin" || userRole === "manager") {
     navItems.push({ href: "/administration", label: "Administration", iconName: "Shield" });
   }
 
@@ -132,12 +134,12 @@ export default function ResponsiveSidebar() {
                       {item.iconName === "Dumbbell" && <IconBarbell className="w-5 h-5" stroke={2.5} />}
                       {item.iconName === "Shield" && <IconShield className="w-5 h-5" stroke={2.5} />}
                       {item.iconName === "UserIcon" && <IconUser className="w-5 h-5" stroke={2.5} />}
-                      {item.iconName === "MessageCircle" && <IconMessageCircle className="w-5 h-5" stroke={2.5} />}
+                      {item.iconName === "Mail" && <IconMail className="w-5 h-5" stroke={2.5} />}
                     </div>
                     <span className={`text-sm font-semibold flex-1 ${active ? 'text-red-600 dark:text-red-400' : ''}`}>{item.label}</span>
                     
-                    {/* Badge für ungelesene Nachrichten */}
-                    {item.iconName === "MessageCircle" && <UnreadMessagesBadge className="ml-2" />}
+                    {/* Badge für ungelesene Emails */}
+                    {item.iconName === "Mail" && <UnreadEmailsBadge className="ml-2" />}
                     
                     {/* Shimmer effect on hover */}
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700 rounded-2xl" />
@@ -156,25 +158,35 @@ export default function ResponsiveSidebar() {
             
             {session?.user && (
               <>
-                <div className="flex items-center gap-3 mb-4 relative z-10">
-                  <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-red-500/30 ring-2 ring-red-100 dark:ring-red-900/50 group-hover:scale-105 transition-transform duration-300">
-                    {session.user.name?.charAt(0)?.toUpperCase()}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-bold mb-0.5">
+                <Link href="/profil" className="flex items-center gap-3 mb-4 relative z-10 cursor-pointer hover:opacity-80 transition-opacity">
+                  {session.user.image ? (
+                    <img 
+                      src={session.user.image} 
+                      alt={session.user.name || "User"} 
+                      className="w-12 h-12 rounded-2xl object-cover shadow-lg ring-2 ring-red-100 dark:ring-red-900/50 group-hover:scale-105 transition-transform duration-300"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-red-500/30 ring-2 ring-red-100 dark:ring-red-900/50 group-hover:scale-105 transition-transform duration-300">
+                      {session.user.name?.charAt(0)?.toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 dark:text-gray-50 truncate">
+                      {session.user.name || ""}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
                       {userRole === "admin"
                         ? "Administrator"
+                        : userRole === "manager"
+                        ? "Manager"
                         : userRole === "coach"
                         ? "Coach"
                         : userRole === "parent"
                         ? "Elternteil"
                         : "Mitglied"}
                     </p>
-                    <p className="text-sm font-bold text-gray-900 dark:text-gray-50 truncate">
-                      {session.user.name || ""}
-                    </p>
                   </div>
-                </div>
+                </Link>
               </>
             )}
             <div className="flex gap-2 relative z-10">

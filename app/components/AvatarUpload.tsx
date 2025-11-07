@@ -70,17 +70,18 @@ export default function AvatarUpload({ currentAvatar, onAvatarChange }: AvatarUp
       </label>
       
       <div className="flex items-center gap-6">
-        <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-300">
+        <div className="relative w-32 h-32 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 border-2 border-gray-300 dark:border-gray-600">
           {preview ? (
             <Image
               src={preview}
               alt="Avatar preview"
               fill
               className="object-cover"
+              unoptimized
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-              <User className="w-16 h-16 text-gray-400" />
+              <User className="w-16 h-16 text-gray-400 dark:text-gray-500" />
             </div>
           )}
         </div>

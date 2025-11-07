@@ -8,13 +8,13 @@ import {
   IconCalendar, 
   IconBarbell, 
   IconUser, 
-  IconMessageCircle, 
+  IconMail, 
   IconShield 
 } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import UnreadMessagesBadge from "./UnreadMessagesBadge";
+import UnreadEmailsBadge from "./UnreadEmailsBadge";
 import MobileSettingsDropdown from "./MobileSettingsDropdown";
 
 interface NavItem {
@@ -38,7 +38,7 @@ export default function MobileBottomNav() {
   if (userRole === "member") {
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/profil", label: "Profil", icon: <IconUser className="w-5 h-5" stroke={2} />, isActive: false },
     ];
@@ -46,13 +46,13 @@ export default function MobileBottomNav() {
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/profil", label: "Kind", icon: <IconUser className="w-5 h-5" stroke={2} />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
     ];
-  } else if (userRole === "admin") {
+  } else if (userRole === "admin" || userRole === "manager") {
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/teams", label: "Teams", icon: <IconTrophy className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/administration", label: "Admin", icon: <IconShield className="w-5 h-5" stroke={2} />, isActive: false },
     ];
@@ -60,7 +60,7 @@ export default function MobileBottomNav() {
     // Coach
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
-      { href: "/messages", label: "Chat", icon: <IconMessageCircle className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/teams", label: "Teams", icon: <IconTrophy className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
     ];
@@ -159,10 +159,10 @@ export default function MobileBottomNav() {
                 `}>
                   {item.icon}
                   
-                  {/* Badge für ungelesene Nachrichten */}
-                  {item.label === "Chat" && (
+                  {/* Badge für ungelesene Emails */}
+                  {item.label === "Post" && (
                     <div className="absolute -top-1.5 -right-1.5">
-                      <UnreadMessagesBadge />
+                      <UnreadEmailsBadge />
                     </div>
                   )}
                 </div>

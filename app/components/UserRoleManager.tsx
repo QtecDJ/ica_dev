@@ -10,6 +10,7 @@ type UserData = {
   name: string;
   email: string;
   role: string;
+  roles?: string[];
   member_id: number | null;
   first_name: string | null;
   last_name: string | null;
@@ -18,6 +19,13 @@ type UserData = {
 export default function UserRoleManager({ users }: { users: UserData[] }) {
   const [updating, setUpdating] = useState<number | null>(null);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [userRoles, setUserRoles] = useState<{ [key: number]: string[] }>(() => {
+    const initial: { [key: number]: string[] } = {};
+    users.forEach(user => {
+      initial[user.id] = user.roles || [user.role];
+    });
+    return initial;
+  });
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -70,8 +78,11 @@ export default function UserRoleManager({ users }: { users: UserData[] }) {
     const result = await updateUserRole(userId, newRole);
 
     if (result.success) {
-      setMessage({ type: 'success', text: 'Rolle erfolgreich aktualisiert!' });
-      setTimeout(() => setMessage(null), 3000);
+      setMessage({ 
+        type: 'success', 
+        text: 'Rolle erfolgreich aktualisiert! Der Benutzer muss sich abmelden und neu anmelden, damit die neue Rolle aktiv wird.' 
+      });
+      setTimeout(() => setMessage(null), 8000);
       // Reload page to reflect changes
       window.location.reload();
     } else {
@@ -143,6 +154,20 @@ export default function UserRoleManager({ users }: { users: UserData[] }) {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* Important Notice */}
+      <div className="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900/20 rounded-xl border border-yellow-200 dark:border-yellow-800">
+        <div className="flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-yellow-600 dark:text-yellow-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <h3 className="font-semibold text-yellow-900 dark:text-yellow-100 mb-1">Wichtiger Hinweis</h3>
+            <p className="text-sm text-yellow-800 dark:text-yellow-200">
+              Nach einer Rollenänderung muss sich der betroffene Benutzer <strong>abmelden und neu anmelden</strong>, 
+              damit die neue Rolle aktiv wird und im Profil angezeigt wird.
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Role Descriptions */}

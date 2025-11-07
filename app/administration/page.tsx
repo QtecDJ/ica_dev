@@ -11,17 +11,21 @@ import {
 } from "lucide-react";
 
 export default async function AdministrationPage() {
-  // Nur Admins dürfen diese Seite sehen
-  await requireRole(["admin"]);
+  // Admins und Manager dürfen diese Seite sehen
+  const session = await requireRole(["admin", "manager"]);
+  const isAdmin = session.user.role === "admin";
+  const isManager = session.user.role === "manager";
 
-  const adminSections = [
+  // Admin-Sections mit Zugriffskontrolle
+  const allSections = [
     {
       title: "Benutzerverwaltung",
       description: "Benutzer erstellen, bearbeiten und Rollen zuweisen",
       icon: Users,
       href: "/administration/users",
       color: "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
-      stats: "Benutzer, Rollen & Teams"
+      stats: "Benutzer, Rollen & Teams",
+      managerAccess: true // Manager können Benutzer verwalten
     },
     {
       title: "Eltern-Kind-Beziehungen",
@@ -29,7 +33,8 @@ export default async function AdministrationPage() {
       icon: Link2,
       href: "/administration/parent-children",
       color: "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400",
-      stats: "Familienverbindungen"
+      stats: "Familienverbindungen",
+      managerAccess: true // Manager können Familienbeziehungen verwalten
     },
     {
       title: "Dashboard Inhalte",
@@ -37,7 +42,8 @@ export default async function AdministrationPage() {
       icon: MessageSquare,
       href: "/administration/dashboard-content",
       color: "bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400",
-      stats: "Content Management"
+      stats: "Content Management",
+      managerAccess: true // Manager können Content verwalten
     },
     {
       title: "Berichte & Analytics",
@@ -45,7 +51,8 @@ export default async function AdministrationPage() {
       icon: UserCog,
       href: "/administration/reports",
       color: "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400",
-      stats: "Datenanalyse"
+      stats: "Datenanalyse",
+      managerAccess: true // Manager können Berichte einsehen
     },
     {
       title: "System-Einstellungen",
@@ -53,9 +60,15 @@ export default async function AdministrationPage() {
       icon: Settings,
       href: "/administration/system",
       color: "bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400",
-      stats: "System & Wartung"
+      stats: "System & Wartung",
+      managerAccess: false // NUR Admins können System-Einstellungen ändern
     }
   ];
+
+  // Filtere Sections basierend auf Rolle
+  const adminSections = isAdmin 
+    ? allSections 
+    : allSections.filter(section => section.managerAccess);
 
   return (
     <div className="space-y-6">
@@ -108,20 +121,21 @@ export default async function AdministrationPage() {
         ))}
       </div>
 
-      {/* Quick Info */}
-      <div className="card bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
+      {/* Quick Info - angepasst für Manager */}
+      <div className={`card ${isManager ? 'bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800' : 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'}`}>
         <div className="card-body">
           <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-600 dark:bg-blue-500 flex items-center justify-center flex-shrink-0">
+            <div className={`w-10 h-10 rounded-lg ${isManager ? 'bg-purple-600 dark:bg-purple-500' : 'bg-blue-600 dark:bg-blue-500'} flex items-center justify-center flex-shrink-0`}>
               <Shield className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-blue-900 dark:text-blue-100 mb-2">
-                Administrator-Bereich
+              <h3 className={`font-semibold ${isManager ? 'text-purple-900 dark:text-purple-100' : 'text-blue-900 dark:text-blue-100'} mb-2`}>
+                {isManager ? "Manager-Bereich" : "Administrator-Bereich"}
               </h3>
-              <p className="text-sm text-blue-800 dark:text-blue-200">
-                Dieser Bereich ist nur für Administratoren zugänglich. Alle Änderungen hier wirken sich direkt auf das System aus.
-                Bitte handle mit Vorsicht bei sensiblen Daten und System-Einstellungen.
+              <p className={`text-sm ${isManager ? 'text-purple-800 dark:text-purple-200' : 'text-blue-800 dark:text-blue-200'}`}>
+                {isManager 
+                  ? "Als Manager hast du eingeschränkten Zugriff auf Verwaltungsfunktionen. Du kannst Benutzer, Inhalte und Berichte verwalten."
+                  : "Dieser Bereich ist nur für Administratoren zugänglich. Alle Änderungen hier wirken sich direkt auf das System aus. Bitte handle mit Vorsicht bei sensiblen Daten und System-Einstellungen."}
               </p>
             </div>
           </div>

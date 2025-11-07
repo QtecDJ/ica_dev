@@ -113,10 +113,10 @@ export default function MemberDashboard({
           color="green"
         />
         <QuickActionCard
-          href="/messages"
+          href="/emails"
           icon={<MessageCircle className="w-6 h-6" />}
-          title="Nachrichten"
-          description="Chat"
+          title="Postfach"
+          description="E-Mails"
           color="yellow"
         />
         <QuickActionCard
@@ -325,7 +325,7 @@ export default function MemberDashboard({
                       </div>
                     </div>
                     <Link
-                      href={`/messages/new?to=${coach.id}`}
+                      href={`/emails/new?to=${coach.id}`}
                       className="btn btn-secondary text-xs"
                     >
                       Nachricht

@@ -1,5 +1,6 @@
 import { User, Calendar, Award, Mail, Phone, Crown, Shield, Users as UsersIcon } from "lucide-react";
 import AvatarUploadSection from "./AvatarUploadSection";
+import Image from "next/image";
 
 type ProfileViewProps = {
   member: {
@@ -65,12 +66,14 @@ export default function ProfileView({ member, userRole, showAvatarUpload = false
               userName={userName || `${member.first_name} ${member.last_name}`}
             />
           ) : (
-            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 flex-shrink-0 shadow-xl mb-4">
+            <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-600 flex-shrink-0 shadow-xl mb-4 relative">
               {member.avatar_url ? (
-                <img
+                <Image
                   src={member.avatar_url}
                   alt={`${member.first_name} ${member.last_name}`}
-                  className="object-cover w-full h-full"
+                  fill
+                  className="object-cover"
+                  unoptimized
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-slate-600 dark:text-slate-400 font-bold text-3xl sm:text-4xl">

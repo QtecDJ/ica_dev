@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 export default async function ParentChildManagementPage() {
   const session = await requireAuth();
   
-  // Only allow admins
-  if (session.user.role !== "admin") {
+  // Allow admins and managers
+  if (session.user.role !== "admin" && session.user.role !== "manager") {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600 mb-4">Zugriff verweigert</h1>
-          <p className="text-slate-600">Diese Seite ist nur für Administratoren verfügbar.</p>
+          <p className="text-slate-600">Diese Seite ist nur für Administratoren und Manager verfügbar.</p>
         </div>
       </div>
     );

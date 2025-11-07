@@ -29,7 +29,7 @@ export const authOptions = {
           
           const sql = neon(process.env.DATABASE_URL);
           const result = await sql`
-            SELECT id, username, password_hash, role, member_id, name
+            SELECT id, username, password_hash, role, roles, member_id, name
             FROM users
             WHERE username = ${username}
           `;
@@ -44,11 +44,17 @@ export const authOptions = {
 
           if (!passwordMatch) return null;
 
+          // Use roles array if available, fallback to single role
+          const userRoles = user.roles && Array.isArray(user.roles) && user.roles.length > 0 
+            ? user.roles 
+            : [user.role];
+
           return {
             id: user.id.toString(),
             email: user.username,
             name: user.name,
-            role: user.role,
+            role: user.role, // Primary role for backwards compatibility
+            roles: userRoles, // All roles
             memberId: user.member_id,
           };
         } catch (error) {
@@ -68,9 +74,33 @@ export async function requireAuth() {
   return session as any;
 }
 
+// Check if user has ANY of the allowed roles
+export function hasAnyRole(session: any, allowedRoles: string[]): boolean {
+  if (!session?.user) return false;
+  
+  const userRoles = (session.user as any).roles || [(session.user as any).role];
+  return allowedRoles.some(role => userRoles.includes(role));
+}
+
+// Check if user has ALL of the required roles
+export function hasAllRoles(session: any, requiredRoles: string[]): boolean {
+  if (!session?.user) return false;
+  
+  const userRoles = (session.user as any).roles || [(session.user as any).role];
+  return requiredRoles.every(role => userRoles.includes(role));
+}
+
+// Check if user has a specific role
+export function hasRole(session: any, role: string): boolean {
+  if (!session?.user) return false;
+  
+  const userRoles = (session.user as any).roles || [(session.user as any).role];
+  return userRoles.includes(role);
+}
+
 export async function requireRole(allowedRoles: string[]) {
   const session = await requireAuth();
-  if (!allowedRoles.includes((session.user as any).role)) {
+  if (!hasAnyRole(session, allowedRoles)) {
     redirect("/");
   }
   return session;
@@ -78,12 +108,12 @@ export async function requireRole(allowedRoles: string[]) {
 
 export function canAccessMember(session: any, memberId: number): boolean {
   // Admin, Manager and Coach can access all members
-  if (session.user.role === "admin" || session.user.role === "manager" || session.user.role === "coach") {
+  if (hasAnyRole(session, ["admin", "manager", "coach"])) {
     return true;
   }
 
   // Members can only access their own profile
-  if (session.user.role === "member" && session.user.memberId === memberId) {
+  if (hasRole(session, "member") && session.user.memberId === memberId) {
     return true;
   }
 
@@ -92,9 +122,9 @@ export function canAccessMember(session: any, memberId: number): boolean {
 }
 
 export function isAdmin(session: any): boolean {
-  return session?.user?.role === "admin";
+  return hasRole(session, "admin");
 }
 
 export function isAdminOrManager(session: any): boolean {
-  return session?.user?.role === "admin" || session?.user?.role === "manager";
+  return hasAnyRole(session, ["admin", "manager"]);
 }

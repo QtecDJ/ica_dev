@@ -9,6 +9,7 @@ export const authConfig: Partial<NextAuthOptions> = {
       if (user) {
         token.id = user.id;
         token.role = (user as any).role;
+        token.roles = (user as any).roles || [(user as any).role];
         token.memberId = (user as any).memberId;
       }
       return token;
@@ -17,6 +18,7 @@ export const authConfig: Partial<NextAuthOptions> = {
       if (token && session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.roles = token.roles as string[];
         session.user.memberId = token.memberId as number | null;
       }
       return session;

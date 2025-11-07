@@ -13,12 +13,15 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const userRole = session.user.role;
+    // Check if user has coach, admin, or manager role (multi-role support)
+    const userRoles = (session.user as any).roles || [(session.user as any).role];
+    const hasCoachAccess = userRoles.includes("coach") || userRoles.includes("admin") || userRoles.includes("manager");
     
-    // Only coaches and admins can access this
-    if (userRole !== "coach" && userRole !== "admin") {
+    if (!hasCoachAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
+    
+    const isCoach = userRoles.includes("coach");
 
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
@@ -30,10 +33,10 @@ export async function GET(request: NextRequest) {
 
     const teamIds = teamIdsParam.split(",");
 
-    console.log("🔍 API Request:", { status, teamIds, userRole, userId: session.user.id });
+    console.log("🔍 API Request:", { status, teamIds, userRoles, userId: session.user.id });
 
-    // Verify coach has access to these teams
-    if (userRole === "coach") {
+    // Verify coach has access to these teams (skip check for admin/manager)
+    if (isCoach && !userRoles.includes("admin") && !userRoles.includes("manager")) {
       const coachTeams = await sql`
         SELECT team_id 
         FROM team_coaches 
@@ -77,8 +80,13 @@ export async function GET(request: NextRequest) {
         m.first_name,
         m.last_name,
         tm.name as team_name,
+        t.training_date,
+        t.start_time,
+        t.end_time,
+        t.location,
         ta.status,
-        ta.decline_reason
+        ta.decline_reason,
+        ta.updated_at
       FROM training_attendance ta
       JOIN members m ON ta.member_id = m.id
       JOIN trainings t ON ta.training_id = t.id
@@ -86,7 +94,7 @@ export async function GET(request: NextRequest) {
       WHERE ta.training_id = ANY(${trainingIds})
         AND ta.status = ${status}
         AND m.team_id = ANY(${teamIds})
-      ORDER BY tm.name ASC, m.last_name ASC, m.first_name ASC
+      ORDER BY t.training_date ASC, t.start_time ASC, tm.name ASC, m.last_name ASC, m.first_name ASC
     `;
 
     console.log(`👥 Found ${members.length} members with status ${status}`);

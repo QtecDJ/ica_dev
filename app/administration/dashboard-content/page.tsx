@@ -11,7 +11,7 @@ const sql = neon(process.env.DATABASE_URL!);
 export default async function DashboardContentPage() {
   const session = await getServerSession(authOptions);
 
-  if (!session || session.user.role !== "admin") {
+  if (!session || (session.user.role !== "admin" && session.user.role !== "manager")) {
     redirect("/");
   }
 

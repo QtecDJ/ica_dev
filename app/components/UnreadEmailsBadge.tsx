@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-interface UnreadMessagesBadgeProps {
+interface UnreadEmailsBadgeProps {
   className?: string;
 }
 
-export default function UnreadMessagesBadge({ className = "" }: UnreadMessagesBadgeProps) {
+export default function UnreadEmailsBadge({ className = "" }: UnreadEmailsBadgeProps) {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -21,10 +21,10 @@ export default function UnreadMessagesBadge({ className = "" }: UnreadMessagesBa
 
   const fetchUnreadCount = async () => {
     try {
-      const response = await fetch("/api/messages/unread-count");
+      const response = await fetch("/api/emails/unread-count");
       if (response.ok) {
         const data = await response.json();
-        setUnreadCount(data.unreadCount || 0);
+        setUnreadCount(data.unread_count || 0);
       }
     } catch (error) {
       console.error("Error fetching unread count:", error);

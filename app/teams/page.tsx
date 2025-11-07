@@ -2,7 +2,7 @@ import { getTeams, deleteTeam } from "../actions";
 import { Plus, Pencil, Trash2, Trophy, Users } from "lucide-react";
 import Link from "next/link";
 import DeleteButton from "../components/DeleteButton";
-import { requireAuth } from "@/lib/auth-utils";
+import { requireAuth, hasAnyRole } from "@/lib/auth-utils";
 import { neon } from "@neondatabase/serverless";
 
 export default async function TeamsPage() {
@@ -11,18 +11,22 @@ export default async function TeamsPage() {
   const userRole = session.user.role;
   const userId = session.user.id;
 
-  // Restrict access
-  if (userRole !== "admin" && userRole !== "coach") {
-    throw new Error("Unauthorized");
+  // Restrict access - check if user has admin OR coach role
+  if (!hasAnyRole(session, ["admin", "coach", "manager"])) {
+    throw new Error("Unauthorized - Nur Admins, Manager und Coaches haben Zugriff auf Teams");
   }
+  
+  // Determine effective role for data access
+  const isAdmin = hasAnyRole(session, ["admin", "manager"]);
+  const isCoach = hasAnyRole(session, ["coach"]);
 
   const sql = neon(process.env.DATABASE_URL!);
   
   // Get teams based on role
   let teams: any[];
   
-  if (userRole === "admin") {
-    // Admins see all teams with coach count and member count
+  if (isAdmin) {
+    // Admins and Managers see all teams with coach count and member count
     teams = await sql`
       SELECT 
         t.id,
@@ -40,12 +44,12 @@ export default async function TeamsPage() {
         COUNT(DISTINCT m.id) as member_count
       FROM teams t
       LEFT JOIN team_coaches tc ON t.id = tc.team_id
-      LEFT JOIN users u ON tc.coach_id = u.id AND u.role IN ('coach', 'admin')
+      LEFT JOIN users u ON tc.coach_id = u.id AND (u.roles @> '["coach"]'::jsonb OR u.role IN ('coach', 'admin'))
       LEFT JOIN members m ON t.id = m.team_id
       GROUP BY t.id, t.name, t.level, t.created_at
       ORDER BY t.name
     `;
-  } else if (userRole === "coach") {
+  } else if (isCoach) {
     // Coaches see teams they are assigned to with ALL coaches displayed
     teams = await sql`
       SELECT 
@@ -65,7 +69,7 @@ export default async function TeamsPage() {
       FROM teams t
       JOIN team_coaches tc_user ON t.id = tc_user.team_id AND tc_user.coach_id = ${userId}
       LEFT JOIN team_coaches tc_all ON t.id = tc_all.team_id
-      LEFT JOIN users u ON tc_all.coach_id = u.id AND u.role IN ('coach', 'admin')
+      LEFT JOIN users u ON tc_all.coach_id = u.id AND (u.roles @> '["coach"]'::jsonb OR u.role IN ('coach', 'admin'))
       LEFT JOIN members m ON t.id = m.team_id
       GROUP BY t.id, t.name, t.level, t.created_at
       ORDER BY t.name
@@ -74,8 +78,8 @@ export default async function TeamsPage() {
     teams = [];
   }
 
-  // Only admins can create new teams
-  const canCreateTeam = userRole === "admin";
+  // Only admins and managers can create new teams
+  const canCreateTeam = isAdmin;
 
   return (
     <div className="space-y-6">
@@ -84,7 +88,7 @@ export default async function TeamsPage() {
         <div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50">Teams</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
-            {teams.length} {teams.length === 1 ? 'Team' : 'Teams'} {userRole === "coach" ? "unter deiner Leitung" : "insgesamt"}
+            {teams.length} {teams.length === 1 ? 'Team' : 'Teams'} {isCoach && !isAdmin ? "unter deiner Leitung" : "insgesamt"}
           </p>
         </div>
         {canCreateTeam && (
@@ -109,7 +113,7 @@ export default async function TeamsPage() {
                     <th>Mitglieder</th>
                     <th>Coaches</th>
                     <th>Erstellt</th>
-                    {userRole === "admin" && <th className="text-right">Aktionen</th>}
+                    {isAdmin && <th className="text-right">Aktionen</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -156,7 +160,7 @@ export default async function TeamsPage() {
                       <td className="text-gray-600 dark:text-gray-400">
                         {new Date(team.created_at).toLocaleDateString("de-DE")}
                       </td>
-                      {userRole === "admin" && (
+                      {isAdmin && (
                         <td>
                           <div className="flex justify-end gap-2">
                             <Link
@@ -203,7 +207,7 @@ export default async function TeamsPage() {
                         </span>
                       </div>
                     </div>
-                    {userRole === "admin" && (
+                    {isAdmin && (
                       <div className="flex gap-2">
                         <Link
                           href={`/teams/${team.id}/edit-multi`}

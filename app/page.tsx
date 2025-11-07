@@ -1,10 +1,11 @@
 import { getStats, getMember, getTeam } from "./actions";
 import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, XCircle, Bell, ArrowRight, User, Clock, MapPin } from "lucide-react";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth-utils";
+import { authOptions, hasRole, hasAnyRole } from "@/lib/auth-utils";
 import MemberDashboard from "./components/MemberDashboard";
 import DynamicDashboardContent from "./components/DynamicDashboardContent";
 import ClickableMiniStatCard from "./components/ClickableMiniStatCard";
+import ClickableMiniStatCardAdmin from "./components/ClickableMiniStatCardAdmin";
 import { neon } from "@neondatabase/serverless";
 import type { Session } from "next-auth";
 import Link from "next/link";
@@ -18,13 +19,20 @@ export default async function Home() {
   const userRole = session?.user?.role;
   const memberId = session?.user?.memberId;
 
-  // If user is a parent, show parent dashboard
-  if (userRole === "parent" && session?.user?.id) {
+  // Check if user has specific roles (multi-role support)
+  const isAdmin = hasAnyRole(session, ["admin"]);
+  const isManager = hasAnyRole(session, ["manager"]);
+  const isCoach = hasAnyRole(session, ["coach"]);
+  const isParent = hasRole(session, "parent");
+  const isMember = hasRole(session, "member");
+  
+  // If user ONLY has parent role (and no other admin/manager/coach roles), show parent dashboard
+  if (isParent && !isAdmin && !isManager && !isCoach && session?.user?.id) {
     return <ParentDashboard userId={session.user.id} userName={session.user.name} />;
   }
 
-  // If user is a member, show member dashboard
-  if (userRole === "member" && memberId) {
+  // If user ONLY has member role (and no other admin/manager/coach roles), show member dashboard
+  if (isMember && !isAdmin && !isManager && !isCoach && memberId) {
     const member = await getMember(memberId);
     
     if (member) {
@@ -64,7 +72,7 @@ export default async function Home() {
       // Get coaches from own team only
       const coaches = member.team_id
         ? await sql`
-            SELECT DISTINCT u.id, u.name, m.email
+            SELECT DISTINCT u.id, u.name, m.email, tc.is_primary
             FROM team_coaches tc
             JOIN users u ON tc.coach_id = u.id
             LEFT JOIN members m ON u.member_id = m.id
@@ -353,8 +361,8 @@ function QuickActionCard({ href, icon, title, description, color }: {
   // Admin/Coach Dashboard
   const stats = await getStats();
   
-  // Get coach's team IDs if user is a coach
-  const coachTeamIds = userRole === "coach" 
+  // Get coach's team IDs if user has coach role
+  const coachTeamIds = isCoach
     ? await sql`
         SELECT team_id 
         FROM team_coaches 
@@ -365,7 +373,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
   const coachTeamIdList = coachTeamIds.map((t: any) => t.team_id);
   
   // Extended Stats für Admin/Manager/Coach mit Training-Statistiken
-  const extendedStats = (userRole === "admin" || userRole === "manager")
+  const extendedStats = (isAdmin || isManager)
     ? await sql`
         WITH training_stats AS (
           SELECT 
@@ -429,9 +437,9 @@ function QuickActionCard({ href, icon, title, description, color }: {
 
   const adminStats = extendedStats[0];
 
-  // Get decline reasons for THE NEXT upcoming training only (Admin/Coach)
-  const nextTrainingDeclines = (userRole === "admin" || userRole === "manager" || userRole === "coach")
-    ? (userRole === "admin" || userRole === "manager")
+  // Get decline reasons for THE NEXT upcoming training only (Admin/Manager/Coach)
+  const nextTrainingDeclines = (isAdmin || isManager || isCoach)
+    ? (isAdmin || isManager)
       ? await sql`
           WITH next_training AS (
             SELECT id, training_date, start_time
@@ -484,7 +492,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
     : [];
 
   // Auto-delete old trainings (older than 30 days)
-  if (userRole === "admin" || userRole === "manager") {
+  if (isAdmin || isManager) {
     try {
       await sql`
         DELETE FROM trainings
@@ -543,15 +551,10 @@ function QuickActionCard({ href, icon, title, description, color }: {
       </div>
 
       {/* Extended Stats for Admin, Manager & Coach */}
-      {(userRole === "admin" || userRole === "manager" || userRole === "coach") && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-          <MiniStatCard
-            icon={<UserPlus className="w-5 h-5" />}
-            title={userRole === "coach" ? "Neue Mitglieder (30 Tage)" : "Neue (30 Tage)"}
-            value={adminStats.new_members || 0}
-            color="gray"
-          />
-          {userRole === "coach" ? (
+      {(isAdmin || isManager || isCoach) && (
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Show coach-specific stats if user is ONLY coach OR if coach with teams */}
+          {isCoach && !isAdmin && !isManager ? (
             <ClickableMiniStatCard
               icon={<CheckCircle className="w-5 h-5" />}
               title="Zusagen (Meine Teams)"
@@ -561,14 +564,15 @@ function QuickActionCard({ href, icon, title, description, color }: {
               coachTeamIds={coachTeamIdList}
             />
           ) : (
-            <MiniStatCard
+            <ClickableMiniStatCardAdmin
               icon={<CheckCircle className="w-5 h-5" />}
               title="Zusagen"
               value={adminStats.training_accepted || 0}
               color="black"
+              status="accepted"
             />
           )}
-          {userRole === "coach" ? (
+          {isCoach && !isAdmin && !isManager ? (
             <ClickableMiniStatCard
               icon={<XCircle className="w-5 h-5" />}
               title="Absagen (Meine Teams)"
@@ -578,11 +582,12 @@ function QuickActionCard({ href, icon, title, description, color }: {
               coachTeamIds={coachTeamIdList}
             />
           ) : (
-            <MiniStatCard
+            <ClickableMiniStatCardAdmin
               icon={<XCircle className="w-5 h-5" />}
               title="Absagen"
               value={adminStats.training_declined || 0}
               color="red"
+              status="declined"
             />
           )}
           <MiniStatCard
@@ -597,7 +602,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
       {/* Quick Actions & System Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Schnellzugriff - für Admins und Manager */}
-        {(userRole === "admin" || userRole === "manager") && (
+        {(isAdmin || isManager) && (
           <div className="card">
             <div className="card-header">
               <div className="flex items-center gap-3">
@@ -616,7 +621,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
         )}
 
         {/* System-Übersicht mit Training-Statistiken - für Admins und Manager */}
-        {(userRole === "admin" || userRole === "manager") && (
+        {(isAdmin || isManager) && (
           <div className="card">
             <div className="card-header">
               <div className="flex items-center gap-3">
@@ -682,7 +687,7 @@ function QuickActionCard({ href, icon, title, description, color }: {
       {/* Next Training Declines - Only the next one */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Next Training Declines - Only the next one */}
-        {(userRole === "admin" || userRole === "manager" || userRole === "coach") && nextTrainingDeclines.length > 0 && (
+        {(isAdmin || isManager || isCoach) && nextTrainingDeclines.length > 0 && (
           <div className="card lg:col-span-2">
             <div className="card-header">
               <div className="flex items-center gap-3">
