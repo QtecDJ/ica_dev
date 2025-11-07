@@ -39,7 +39,7 @@ export default function MobileSettingsDropdown() {
 
   return (
     <div className="relative w-full" ref={dropdownRef}>
-      {/* Settings Button - Mobile Style */}
+      {/* User Avatar Button - Mobile Style */}
       <button
         onClick={toggleDropdown}
         className={`w-full flex flex-col items-center justify-center min-h-[60px] px-2 py-2 rounded-xl transition-all duration-300 ease-out active:scale-95 touch-manipulation ${
@@ -57,15 +57,15 @@ export default function MobileSettingsDropdown() {
           }
         `} />
         
-        {/* Icon container with bounce animation */}
+        {/* User Avatar with bounce animation */}
         <div className={`
-          relative z-10 p-2 rounded-lg transition-all duration-300
+          relative z-10 w-9 h-9 rounded-lg bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-semibold text-sm transition-all duration-300
           ${isOpen 
-            ? 'transform -translate-y-0.5 bg-red-100 dark:bg-red-900/30' 
+            ? 'transform -translate-y-0.5 shadow-lg' 
             : 'transform translate-y-0'
           }
         `}>
-          <Settings className="w-5 h-5" />
+          {session?.user?.name?.charAt(0)?.toUpperCase() || '?'}
         </div>
         
         {/* Label with smooth opacity */}
@@ -76,7 +76,7 @@ export default function MobileSettingsDropdown() {
             : 'opacity-70 transform translate-y-0.5'
           }
         `}>
-          Settings
+          Profil
         </span>
         
         {/* Active dot indicator */}
@@ -92,21 +92,27 @@ export default function MobileSettingsDropdown() {
 
       {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <div className="absolute bottom-full right-0 mb-2 w-48 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg py-2 z-50">
-          {/* User Info */}
+        <div className="absolute bottom-full right-0 mb-2 w-56 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden z-50">
+          {/* User Info Header - Clickable to Profile */}
           {session?.user && (
-            <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700">
+            <Link
+              href={session?.user?.role === "member" ? `/members/${session.user.memberId}` : "/profil"}
+              onClick={closeDropdown}
+              className="block px-4 py-3 bg-gradient-to-r from-red-50 to-orange-50 dark:from-slate-800 dark:to-slate-800 border-b border-slate-200 dark:border-slate-700 active:from-red-100 active:to-orange-100 dark:active:from-slate-700 dark:active:to-slate-700 transition-colors"
+            >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center text-white font-semibold text-sm">
+                <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-red-600 rounded-lg flex items-center justify-center text-white font-semibold">
                   {session.user.name?.charAt(0)?.toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 dark:text-slate-50 truncate">
+                  <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
                     {session.user.name}
                   </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 truncate">
                     {session.user.role === "admin"
                       ? "Administrator"
+                      : session.user.role === "manager"
+                      ? "Manager"
                       : session.user.role === "coach"
                       ? "Coach"
                       : session.user.role === "parent"
@@ -114,27 +120,18 @@ export default function MobileSettingsDropdown() {
                       : "Mitglied"}
                   </p>
                 </div>
+                <User className="w-4 h-4 text-slate-400" />
               </div>
-            </div>
+            </Link>
           )}
 
           {/* Menu Items */}
           <div className="py-1">
-            {/* Profile Link */}
-            <Link
-              href={session?.user?.role === "member" ? `/members/${session.user.memberId}` : "/profil"}
-              onClick={closeDropdown}
-              className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-            >
-              <User className="w-4 h-4" />
-              Profil anzeigen
-            </Link>
-
-            {/* Settings Link */}
+            {/* Settings Link - Smaller */}
             <Link
               href="/settings"
               onClick={closeDropdown}
-              className="flex items-center gap-3 px-4 py-2 text-sm text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+              className="flex items-center gap-3 px-4 py-2.5 text-sm text-slate-700 dark:text-slate-300 active:bg-slate-50 dark:active:bg-slate-700 transition-colors"
             >
               <Settings className="w-4 h-4" />
               Einstellungen
@@ -146,7 +143,7 @@ export default function MobileSettingsDropdown() {
             {/* Logout */}
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 active:bg-red-50 dark:active:bg-red-900/20 transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Abmelden
