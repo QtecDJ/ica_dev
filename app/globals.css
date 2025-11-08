@@ -634,7 +634,177 @@ body {
 }
 
 /* ============================================
-   🖨️ PRINT STYLES
+   � REGELWERK HTML CONTENT - MOBILE OPTIMIZED
+   ============================================ */
+
+.regelwerk-content {
+  /* Base styling */
+  @apply text-gray-700 dark:text-gray-300;
+  @apply leading-relaxed;
+  
+  /* Responsive typography */
+  font-size: clamp(14px, 2.5vw, 16px);
+  line-height: 1.7;
+}
+
+.regelwerk-content h1,
+.regelwerk-content h2,
+.regelwerk-content h3,
+.regelwerk-content h4,
+.regelwerk-content h5,
+.regelwerk-content h6 {
+  @apply font-semibold text-gray-900 dark:text-gray-100;
+  @apply mb-3 mt-6;
+  line-height: 1.3;
+  scroll-margin-top: 2rem;
+}
+
+.regelwerk-content h1 { font-size: clamp(20px, 4vw, 28px); }
+.regelwerk-content h2 { font-size: clamp(18px, 3.5vw, 24px); }
+.regelwerk-content h3 { font-size: clamp(16px, 3vw, 20px); }
+.regelwerk-content h4 { font-size: clamp(15px, 2.8vw, 18px); }
+
+.regelwerk-content p {
+  @apply mb-4;
+  word-wrap: break-word;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+}
+
+.regelwerk-content ul,
+.regelwerk-content ol {
+  @apply ml-6 mb-4;
+}
+
+.regelwerk-content li {
+  @apply mb-2;
+  word-wrap: break-word;
+}
+
+.regelwerk-content ul li {
+  @apply list-disc;
+}
+
+.regelwerk-content ol li {
+  @apply list-decimal;
+}
+
+.regelwerk-content a {
+  @apply text-purple-600 dark:text-purple-400 underline;
+  @apply hover:text-purple-700 dark:hover:text-purple-300;
+  @apply transition-colors;
+  word-wrap: break-word;
+  /* Touch-optimized tap target */
+  min-height: 44px;
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.regelwerk-content strong,
+.regelwerk-content b {
+  @apply font-semibold text-gray-900 dark:text-gray-100;
+}
+
+.regelwerk-content em,
+.regelwerk-content i {
+  @apply italic;
+}
+
+.regelwerk-content code {
+  @apply bg-gray-100 dark:bg-gray-800;
+  @apply text-purple-600 dark:text-purple-400;
+  @apply px-2 py-1 rounded;
+  @apply text-sm;
+  font-family: 'Courier New', monospace;
+  word-wrap: break-word;
+}
+
+.regelwerk-content pre {
+  @apply bg-gray-100 dark:bg-gray-800;
+  @apply p-4 rounded-lg;
+  @apply overflow-x-auto;
+  @apply mb-4;
+}
+
+.regelwerk-content pre code {
+  @apply p-0 bg-transparent;
+}
+
+.regelwerk-content blockquote {
+  @apply border-l-4 border-purple-500;
+  @apply pl-4 italic;
+  @apply text-gray-600 dark:text-gray-400;
+  @apply my-4;
+}
+
+.regelwerk-content img {
+  @apply rounded-lg shadow-md;
+  @apply max-w-full h-auto;
+  @apply my-4;
+  display: block;
+}
+
+.regelwerk-content table {
+  @apply w-full border-collapse;
+  @apply mb-4;
+  @apply overflow-x-auto;
+  display: block;
+}
+
+.regelwerk-content th,
+.regelwerk-content td {
+  @apply border border-gray-300 dark:border-gray-700;
+  @apply px-3 py-2;
+  @apply text-left;
+  min-width: 100px;
+}
+
+.regelwerk-content th {
+  @apply bg-gray-100 dark:bg-gray-800;
+  @apply font-semibold;
+}
+
+.regelwerk-content hr {
+  @apply border-t-2 border-gray-200 dark:border-gray-700;
+  @apply my-6;
+}
+
+/* Mobile-specific optimizations */
+@media (max-width: 640px) {
+  .regelwerk-content {
+    font-size: 15px;
+  }
+  
+  .regelwerk-content h1 { font-size: 22px; }
+  .regelwerk-content h2 { font-size: 20px; }
+  .regelwerk-content h3 { font-size: 18px; }
+  .regelwerk-content h4 { font-size: 16px; }
+  
+  .regelwerk-content table {
+    font-size: 13px;
+  }
+  
+  .regelwerk-content th,
+  .regelwerk-content td {
+    @apply px-2 py-1;
+    min-width: 80px;
+  }
+  
+  .regelwerk-content ul,
+  .regelwerk-content ol {
+    @apply ml-4;
+  }
+}
+
+/* Prevent text overflow on mobile */
+.regelwerk-content * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ============================================
+   �🖨️ PRINT STYLES
    ============================================ */
 
 @media print {
@@ -644,5 +814,15 @@ body {
   
   .card {
     @apply shadow-none border-2 border-black;
+  }
+  
+  .regelwerk-content {
+    font-size: 12pt;
+    color: black;
+  }
+  
+  .regelwerk-content a {
+    color: black;
+    text-decoration: underline;
   }
 }

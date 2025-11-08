@@ -23,9 +23,10 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
         try {
           const sql = neon(process.env.DATABASE_URL!);
           const result = await sql`
-            SELECT id, username, password_hash, role, roles, member_id, name
-            FROM users
-            WHERE username = ${username}
+            SELECT u.id, u.username, u.password_hash, u.role, u.roles, u.member_id, u.name, m.avatar_url
+            FROM users u
+            LEFT JOIN members m ON u.member_id = m.id
+            WHERE u.username = ${username}
           `;
 
           if (result.length === 0) return null;
@@ -45,6 +46,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
             role: user.role,
             roles: user.roles || [],
             memberId: user.member_id,
+            image: user.avatar_url || null,
           };
         } catch (error) {
           console.error("Auth error:", error);

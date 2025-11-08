@@ -11,6 +11,7 @@ export const authConfig: Partial<NextAuthOptions> = {
         token.role = (user as any).role;
         token.roles = (user as any).roles || [(user as any).role];
         token.memberId = (user as any).memberId;
+        token.picture = user.image; // Save avatar_url to JWT token
       }
       return token;
     },
@@ -20,6 +21,7 @@ export const authConfig: Partial<NextAuthOptions> = {
         session.user.role = token.role as string;
         session.user.roles = token.roles as string[];
         session.user.memberId = token.memberId as number | null;
+        session.user.image = token.picture as string | null; // Transfer avatar to session
       }
       return session;
     },

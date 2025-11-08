@@ -116,7 +116,7 @@ export default async function SettingsPage() {
               </div>
             </div>
             
-            <PasswordChangeForm userId={user.id} />
+            <PasswordChangeForm userId={Number(user.id)} />
           </div>
         </div>
 

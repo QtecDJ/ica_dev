@@ -7,7 +7,8 @@ import {
   Settings,
   ChevronRight,
   Shield,
-  Link2
+  Link2,
+  BookMarked
 } from "lucide-react";
 import CleanupButton from "@/app/components/CleanupButton";
 
@@ -57,6 +58,15 @@ export default async function AdministrationPage() {
       color: "bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400",
       stats: "Datenanalyse",
       managerAccess: true // Manager können Berichte einsehen
+    },
+    {
+      title: "Regelwerke",
+      description: "Regelwerke erstellen und Coaches zuweisen",
+      icon: BookMarked,
+      href: "/administration/regelwerke",
+      color: "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400",
+      stats: "Regelwerk-Management",
+      managerAccess: true // Manager können Regelwerke verwalten
     },
     {
       title: "System-Einstellungen",

@@ -1,5 +1,5 @@
 import { getStats, getMember, getTeam } from "./actions";
-import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, XCircle, Bell, ArrowRight, User, Clock, MapPin } from "lucide-react";
+import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, XCircle, Bell, ArrowRight, User, Clock, MapPin, BookMarked } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions, hasRole, hasAnyRole } from "@/lib/auth-utils";
 import MemberDashboard from "./components/MemberDashboard";
@@ -616,6 +616,33 @@ function QuickActionCard({ href, icon, title, description, color }: {
               <QuickLink href="/events" title="Events planen" />
               <QuickLink href="/trainings" title="Trainings planen" />
               <QuickLink href="/users" title="Benutzerverwaltung" />
+              <QuickLink href="/administration/regelwerke" title="Regelwerke verwalten" />
+            </div>
+          </div>
+        )}
+
+        {/* Regelwerk Schnellzugriff - für Coaches und Manager */}
+        {(isCoach || isManager) && !isAdmin && (
+          <div className="card">
+            <div className="card-header">
+              <div className="flex items-center gap-3">
+                <BookMarked className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+                <h2 className="text-lg font-semibold">Regelwerke</h2>
+              </div>
+            </div>
+            <div className="card-body">
+              <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                {isManager 
+                  ? "Hier findest du alle wichtigen Regelwerke und Richtlinien"
+                  : "Hier findest du alle wichtigen Regelwerke für dein Team"}
+              </p>
+              <Link 
+                href="/regelwerke"
+                className="btn-primary w-full flex items-center justify-center gap-2"
+              >
+                <BookMarked className="w-5 h-5" />
+                Regelwerke ansehen
+              </Link>
             </div>
           </div>
         )}

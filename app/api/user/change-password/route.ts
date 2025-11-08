@@ -18,8 +18,11 @@ export async function POST(request: NextRequest) {
 
     const { userId, currentPassword, newPassword } = await request.json();
 
+    // Convert userId to string for comparison (session.user.id is always string)
+    const userIdStr = String(userId);
+
     // Verify user can only change their own password (unless admin)
-    if (session.user.id !== userId && session.user.role !== "admin") {
+    if (session.user.id !== userIdStr && session.user.role !== "admin") {
       return NextResponse.json(
         { error: "Keine Berechtigung" },
         { status: 403 }
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
     const user = await sql`
       SELECT password_hash 
       FROM users 
-      WHERE id = ${userId}
+      WHERE id = ${userIdStr}
     `;
 
     if (user.length === 0) {
@@ -72,7 +75,7 @@ export async function POST(request: NextRequest) {
       UPDATE users 
       SET password_hash = ${newPasswordHash},
           updated_at = CURRENT_TIMESTAMP
-      WHERE id = ${userId}
+      WHERE id = ${userIdStr}
     `;
 
     return NextResponse.json(
