@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { neon } from "@neondatabase/serverless";
-import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
+import { hashPassword, comparePassword } from "@/lib/password-utils";
 
 // Force Node.js runtime (bcryptjs doesn't work in Edge runtime)
 export const runtime = 'nodejs';
@@ -62,7 +62,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify current password
-    const isValid = await bcrypt.compare(currentPassword, user[0].password_hash);
+    const isValid = await comparePassword(currentPassword, user[0].password_hash);
     if (!isValid) {
       return NextResponse.json(
         { error: "Das aktuelle Passwort ist falsch" },
@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash new password
-    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+    const newPasswordHash = await hashPassword(newPassword, 10);
 
     // Update password
     await sql`
