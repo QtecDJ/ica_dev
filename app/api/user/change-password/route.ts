@@ -3,6 +3,9 @@ import { neon } from "@neondatabase/serverless";
 import bcrypt from "bcryptjs";
 import { auth } from "@/auth";
 
+// Force Node.js runtime (bcryptjs doesn't work in Edge runtime)
+export const runtime = 'nodejs';
+
 const sql = neon(process.env.DATABASE_URL!);
 
 export async function POST(request: NextRequest) {

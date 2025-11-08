@@ -5,6 +5,9 @@ import { authConfig } from "@/auth.config";
 import { neon } from "@neondatabase/serverless";
 import bcrypt from "bcryptjs";
 
+// Force Node.js runtime (bcryptjs doesn't work in Edge runtime)
+export const runtime = 'nodejs';
+
 const handler = NextAuth({
   ...authConfig,
   providers: [
