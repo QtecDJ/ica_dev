@@ -54,8 +54,8 @@ export default async function RegelwerkePage() {
   }
 
   return <RegelwerkeView 
-    kategorien={kategorien}
-    regelwerke={regelwerke}
+    kategorien={kategorien as any}
+    regelwerke={regelwerke as any}
     isAdmin={isAdmin || isManager}
   />;
 }

@@ -43,9 +43,9 @@ export default async function RegelwerkePage() {
   `;
 
   return <RegelwerkeAdmin 
-    initialKategorien={kategorien} 
-    initialRegelwerke={regelwerke}
-    coaches={coaches}
-    teams={teams}
+    initialKategorien={kategorien as any} 
+    initialRegelwerke={regelwerke as any}
+    coaches={coaches as any}
+    teams={teams as any}
   />;
 }
