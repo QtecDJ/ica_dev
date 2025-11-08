@@ -53,9 +53,15 @@ export default async function RegelwerkePage() {
     `;
   }
 
-  return <RegelwerkeView 
-    kategorien={kategorien as any}
-    regelwerke={regelwerke as any}
-    isAdmin={isAdmin || isManager}
-  />;
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 pb-20 lg:pb-8">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 max-w-7xl">
+        <RegelwerkeView 
+          kategorien={kategorien as any}
+          regelwerke={regelwerke as any}
+          isAdmin={isAdmin || isManager}
+        />
+      </div>
+    </div>
+  );
 }

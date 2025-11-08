@@ -67,18 +67,18 @@ export default function RegelwerkeView({ kategorien, regelwerke, isAdmin }: Prop
   const unreadCount = regelwerke.filter(r => !r.gelesen).length;
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
+    <div className="space-y-4 sm:space-y-6">
+      {/* Header - Mobile optimiert */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-50 flex items-center gap-3">
-            <BookMarked className="w-8 h-8 text-purple-600 dark:text-purple-400" />
-            Regelwerke
+        <div className="min-w-0">
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-50 flex items-center gap-2 sm:gap-3">
+            <BookMarked className="w-6 h-6 sm:w-8 sm:h-8 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+            <span className="truncate">Regelwerke</span>
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-1">
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 mt-1">
             {isAdmin ? "Alle Regelwerke (Admin/Manager-Ansicht)" : "Deine zugewiesenen Regelwerke"}
             {!isAdmin && unreadCount > 0 && (
-              <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 text-xs font-medium rounded-full">
+              <span className="ml-2 px-2 py-1 bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300 text-xs font-medium rounded-full whitespace-nowrap">
                 {unreadCount} ungelesen
               </span>
             )}
@@ -86,32 +86,32 @@ export default function RegelwerkeView({ kategorien, regelwerke, isAdmin }: Prop
         </div>
       </div>
 
-      {/* Search & Filters */}
+      {/* Search & Filters - Mobile optimiert */}
       <div className="card">
-        <div className="card-body space-y-4">
+        <div className="card-body space-y-3 sm:space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Regelwerke durchsuchen..."
-              className="input pl-10"
+              className="input pl-9 sm:pl-10 text-sm sm:text-base"
             />
           </div>
 
           {/* Filters */}
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2">
-              <Filter className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</span>
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 dark:text-gray-400" />
+              <span className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Filter:</span>
             </div>
             
             {!isAdmin && (
               <button
                 onClick={() => setShowUnreadOnly(!showUnreadOnly)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                   showUnreadOnly
                     ? 'bg-red-600 text-white'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -123,13 +123,14 @@ export default function RegelwerkeView({ kategorien, regelwerke, isAdmin }: Prop
 
             <button
               onClick={() => setSelectedKategorie(null)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                 selectedKategorie === null
                   ? 'bg-purple-600 text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
               }`}
             >
-              Alle Kategorien ({regelwerke.length})
+              <span className="hidden sm:inline">Alle Kategorien</span>
+              <span className="sm:hidden">Alle</span> ({regelwerke.length})
             </button>
 
             {kategorien.map(kat => {
@@ -140,7 +141,7 @@ export default function RegelwerkeView({ kategorien, regelwerke, isAdmin }: Prop
                 <button
                   key={kat.id}
                   onClick={() => setSelectedKategorie(kat.id)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg text-xs sm:text-sm font-medium transition-colors ${
                     selectedKategorie === kat.id
                       ? 'text-white'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -217,12 +218,13 @@ export default function RegelwerkeView({ kategorien, regelwerke, isAdmin }: Prop
                   </div>
                 </div>
 
-                {/* Content */}
-                <div className={`bg-gray-50 dark:bg-gray-800 rounded-lg p-4 ${
+                {/* Content - Mobile optimiert mit overflow-x hidden */}
+                <div className={`bg-gray-50 dark:bg-gray-800 rounded-lg p-3 sm:p-4 overflow-x-hidden ${
                   expandedRegelwerk === regelwerk.id ? '' : 'max-h-32 overflow-hidden relative'
                 }`}>
                   <div 
                     className="regelwerk-content"
+                    style={{ maxWidth: '100%', overflowX: 'hidden' }}
                     dangerouslySetInnerHTML={{ __html: regelwerk.inhalt }}
                   />
                   {expandedRegelwerk !== regelwerk.id && (
@@ -230,23 +232,25 @@ export default function RegelwerkeView({ kategorien, regelwerke, isAdmin }: Prop
                   )}
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-3 mt-4">
+                {/* Actions - Mobile optimiert */}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-3 sm:mt-4">
                   <button
                     onClick={() => setExpandedRegelwerk(
                       expandedRegelwerk === regelwerk.id ? null : regelwerk.id
                     )}
-                    className="btn-secondary flex-1 flex items-center justify-center gap-2"
+                    className="btn-secondary flex-1 flex items-center justify-center gap-2 text-sm sm:text-base py-2 sm:py-2.5"
                   >
                     {expandedRegelwerk === regelwerk.id ? (
                       <>
                         <ChevronUp className="w-4 h-4" />
-                        Weniger anzeigen
+                        <span className="hidden sm:inline">Weniger anzeigen</span>
+                        <span className="sm:hidden">Weniger</span>
                       </>
                     ) : (
                       <>
                         <ChevronDown className="w-4 h-4" />
-                        Vollständig anzeigen
+                        <span className="hidden sm:inline">Vollständig anzeigen</span>
+                        <span className="sm:hidden">Mehr</span>
                       </>
                     )}
                   </button>
@@ -254,10 +258,11 @@ export default function RegelwerkeView({ kategorien, regelwerke, isAdmin }: Prop
                   {!isAdmin && !regelwerk.gelesen && (
                     <button
                       onClick={() => handleMarkAsRead(regelwerk.id)}
-                      className="btn-primary flex items-center gap-2"
+                      className="btn-primary flex items-center justify-center gap-2 text-sm sm:text-base py-2 sm:py-2.5"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      Als gelesen markieren
+                      <span className="hidden sm:inline">Als gelesen markieren</span>
+                      <span className="sm:hidden">Gelesen</span>
                     </button>
                   )}
                 </div>

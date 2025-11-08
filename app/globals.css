@@ -748,8 +748,9 @@ body {
 .regelwerk-content table {
   @apply w-full border-collapse;
   @apply mb-4;
-  @apply overflow-x-auto;
   display: block;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
 }
 
 .regelwerk-content th,
@@ -758,6 +759,9 @@ body {
   @apply px-3 py-2;
   @apply text-left;
   min-width: 100px;
+  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .regelwerk-content th {
@@ -801,6 +805,18 @@ body {
 .regelwerk-content * {
   max-width: 100%;
   box-sizing: border-box;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Specific fix for wide content */
+.regelwerk-content {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+.regelwerk-content > * {
+  max-width: 100%;
 }
 
 /* ============================================
