@@ -596,6 +596,49 @@ export async function getStats() {
   }
 }
 
+// Get stats filtered by coach's teams
+export async function getStatsForCoach(teamIds: number[]) {
+  try {
+    if (!teamIds || teamIds.length === 0) {
+      return { teams: 0, members: 0, events: 0, trainings: 0 };
+    }
+
+    const [teamsCount] = await sql`
+      SELECT COUNT(*) as count 
+      FROM teams 
+      WHERE id = ANY(${teamIds})
+    `;
+    
+    const [membersCount] = await sql`
+      SELECT COUNT(*) as count 
+      FROM members 
+      WHERE team_id = ANY(${teamIds})
+    `;
+    
+    const [eventsCount] = await sql`
+      SELECT COUNT(*) as count 
+      FROM events 
+      WHERE team_id = ANY(${teamIds})
+    `;
+    
+    const [trainingsCount] = await sql`
+      SELECT COUNT(*) as count 
+      FROM trainings 
+      WHERE team_id = ANY(${teamIds})
+    `;
+
+    return {
+      teams: teamsCount.count,
+      members: membersCount.count,
+      events: eventsCount.count,
+      trainings: trainingsCount.count,
+    };
+  } catch (error) {
+    console.error("Error fetching coach stats:", error);
+    return { teams: 0, members: 0, events: 0, trainings: 0 };
+  }
+}
+
 // Training Attendance Actions
 export type TrainingAttendance = {
   id: number;

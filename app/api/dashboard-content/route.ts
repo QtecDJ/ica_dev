@@ -5,6 +5,8 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL!);
 
+export const dynamic = 'force-dynamic';
+
 // GET - Dashboard-Inhalte für aktuellen User abrufen
 export async function GET(request: Request) {
   try {

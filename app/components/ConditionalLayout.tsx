@@ -23,10 +23,6 @@ export default function ConditionalLayout({
       <div className="flex h-screen bg-slate-50 dark:bg-slate-900 overflow-hidden">
         <ResponsiveSidebar />
         <main className="flex-1 overflow-y-auto bg-slate-50 dark:bg-slate-900">
-          <a href="#main-content" className="skip-to-content">
-            Skip to main content
-          </a>
-          
           <div id="main-content" className="container-page mobile-container pb-20 lg:pb-6">
             {children}
           </div>

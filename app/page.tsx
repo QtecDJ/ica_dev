@@ -1,4 +1,4 @@
-import { getStats, getMember, getTeam } from "./actions";
+import { getStats, getStatsForCoach, getMember, getTeam } from "./actions";
 import { Users, Calendar, Trophy, Dumbbell, TrendingUp, UserPlus, CheckCircle, XCircle, Bell, ArrowRight, User, Clock, MapPin, BookMarked } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions, hasRole, hasAnyRole } from "@/lib/auth-utils";
@@ -359,8 +359,6 @@ function QuickActionCard({ href, icon, title, description, color }: {
 }
 
   // Admin/Coach Dashboard
-  const stats = await getStats();
-  
   // Get coach's team IDs if user has coach role
   const coachTeamIds = isCoach
     ? await sql`
@@ -371,6 +369,11 @@ function QuickActionCard({ href, icon, title, description, color }: {
     : [];
   
   const coachTeamIdList = coachTeamIds.map((t: any) => t.team_id);
+  
+  // Use team-filtered stats for coaches (who are not also admin/manager)
+  const stats = (isCoach && !isAdmin && !isManager) 
+    ? await getStatsForCoach(coachTeamIdList)
+    : await getStats();
   
   // Extended Stats für Admin/Manager/Coach mit Training-Statistiken
   const extendedStats = (isAdmin || isManager)
