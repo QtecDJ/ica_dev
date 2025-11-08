@@ -6,6 +6,9 @@ import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 
+// Force dynamic rendering (uses headers/session)
+export const dynamic = 'force-dynamic';
+
 const sql = neon(process.env.DATABASE_URL!);
 
 export async function GET(request: NextRequest) {

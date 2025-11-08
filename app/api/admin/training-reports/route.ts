@@ -3,6 +3,9 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth-utils";
 import { neon } from "@neondatabase/serverless";
 
+// Force dynamic rendering (uses headers/session)
+export const dynamic = 'force-dynamic';
+
 const sql = neon(process.env.DATABASE_URL!);
 
 export async function GET(request: NextRequest) {
