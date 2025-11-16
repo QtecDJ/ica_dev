@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Send, User, Mail, MessageSquare, Check, AlertCircle } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import MentionInput from "./MentionInput";
 
 interface Contact {
   id: number;
@@ -16,17 +18,24 @@ interface Contact {
 export default function NewEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { data: session } = useSession();
   
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [recipientId, setRecipientId] = useState<number | null>(null);
+  const [subjectText, setSubjectText] = useState("");
 
   const [formData, setFormData] = useState({
     recipient_id: searchParams.get("recipient") || "",
     subject: searchParams.get("subject") || "",
     body: "",
   });
+
+  // Prüfe ob User Coach/Admin/Manager ist (für @mention System)
+  const userRole = session?.user?.role;
+  const isCoachOrAdmin = userRole === "coach" || userRole === "admin" || userRole === "manager";
 
   useEffect(() => {
     fetchContacts();
@@ -50,9 +59,12 @@ export default function NewEmailForm() {
     setSuccess(false);
     setLoading(true);
 
-    // Validierung
-    if (!formData.recipient_id || !formData.subject || !formData.body) {
-      setError("Bitte fülle alle Felder aus!");
+    // Validierung - für @mention System nutzen wir recipientId state
+    const finalRecipientId = isCoachOrAdmin ? recipientId : parseInt(formData.recipient_id);
+    const finalSubject = isCoachOrAdmin ? subjectText : formData.subject;
+
+    if (!finalRecipientId || !finalSubject || !formData.body) {
+      setError("Bitte fülle alle Felder aus und wähle einen Empfänger mit @ aus!");
       setLoading(false);
       return;
     }
@@ -62,8 +74,8 @@ export default function NewEmailForm() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          recipient_id: parseInt(formData.recipient_id),
-          subject: formData.subject,
+          recipient_id: finalRecipientId,
+          subject: finalSubject,
           body: formData.body,
         }),
       });
@@ -113,51 +125,78 @@ export default function NewEmailForm() {
           </div>
         )}
 
-        {/* Empfänger */}
-        <div>
-          <label className="label flex items-center gap-2">
-            <User className="w-4 h-4" />
-            Empfänger *
-          </label>
-          <select
-            value={formData.recipient_id}
-            onChange={(e) => setFormData({ ...formData, recipient_id: e.target.value })}
-            className="input"
-            required
-            disabled={loading || success}
-          >
-            <option value="">-- Empfänger auswählen --</option>
-            {contacts.map((contact) => (
-              <option key={contact.id} value={contact.id}>
-                {contact.name} {contact.team_name ? `(${contact.team_name})` : ""} - {contact.role}
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Wähle einen Empfänger für deine Nachricht
-          </p>
-        </div>
+        {/* Empfänger - Unterschiedlich je nach Rolle */}
+        {!isCoachOrAdmin ? (
+          // Members & Parents: Dropdown mit nur Coaches/Trainers
+          <div>
+            <label className="label flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Empfänger (Trainer/Coach) *
+            </label>
+            <select
+              value={formData.recipient_id}
+              onChange={(e) => setFormData({ ...formData, recipient_id: e.target.value })}
+              className="input"
+              required
+              disabled={loading || success}
+            >
+              <option value="">-- Trainer/Coach auswählen --</option>
+              {contacts.map((contact) => (
+                <option key={contact.id} value={contact.id}>
+                  {contact.name} {contact.team_name ? `(${contact.team_name})` : ""} - {contact.role}
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Wähle einen Trainer oder Coach aus deinem Team
+            </p>
+          </div>
+        ) : (
+          // Coaches/Admins/Managers: @mention System für Betreff
+          <div>
+            <label className="label flex items-center gap-2">
+              <User className="w-4 h-4" />
+              Empfänger (mit @erwähnen) *
+            </label>
+            <MentionInput
+              contacts={contacts}
+              value={subjectText}
+              onChange={setSubjectText}
+              onSelectRecipient={setRecipientId}
+              disabled={loading || success}
+              placeholder="Beginne mit @benutzername um einen Empfänger auszuwählen..."
+            />
+            {recipientId && (
+              <div className="mt-2 p-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg text-sm text-green-700 dark:text-green-300 flex items-center gap-2">
+                <Check className="w-4 h-4" />
+                Empfänger ausgewählt: {contacts.find(c => c.id === recipientId)?.name}
+              </div>
+            )}
+          </div>
+        )}
 
-        {/* Betreff */}
-        <div>
-          <label className="label flex items-center gap-2">
-            <Mail className="w-4 h-4" />
-            Betreff *
-          </label>
-          <input
-            type="text"
-            value={formData.subject}
-            onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-            className="input"
-            placeholder="z.B. Frage zu Training am Samstag"
-            required
-            maxLength={200}
-            disabled={loading || success}
-          />
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            Maximal 200 Zeichen
-          </p>
-        </div>
+        {/* Betreff - nur für Members/Parents, Coaches nutzen Betreff-Feld als @mention */}
+        {!isCoachOrAdmin && (
+          <div>
+            <label className="label flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Betreff *
+            </label>
+            <input
+              type="text"
+              value={formData.subject}
+              onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
+              className="input"
+              placeholder="z.B. Frage zu Training am Samstag"
+              required
+              maxLength={200}
+              disabled={loading || success}
+            />
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+              Maximal 200 Zeichen
+            </p>
+          </div>
+        )}
 
         {/* Nachricht */}
         <div>

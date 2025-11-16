@@ -5,6 +5,8 @@ import { NextResponse } from "next/server";
 
 const sql = neon(process.env.DATABASE_URL!);
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     // Authentifizierung prüfen

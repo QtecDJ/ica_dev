@@ -9,7 +9,8 @@ import {
   IconBarbell, 
   IconUser, 
   IconMail, 
-  IconShield 
+  IconShield,
+  IconBriefcase
 } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -63,16 +64,24 @@ export default function MobileBottomNav() {
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
-      { href: "/teams", label: "Teams", icon: <IconTrophy className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/coach/verwaltung", label: "Tools", icon: <IconBriefcase className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/administration", label: "Admin", icon: <IconShield className="w-5 h-5" stroke={2} />, isActive: false },
     ];
-  } else {
-    // Coach (only)
+  } else if (hasRole("coach")) {
+    // Coach (only) - without admin/manager access
     navItems = [
       { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/coach/verwaltung", label: "Tools", icon: <IconBriefcase className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/teams", label: "Teams", icon: <IconTrophy className="w-5 h-5" stroke={2} />, isActive: false },
+    ];
+  } else {
+    // Fallback für andere Rollen
+    navItems = [
+      { href: "/", label: "Home", icon: <IconHome className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/emails", label: "Post", icon: <IconMail className="w-5 h-5" stroke={2} />, isActive: false },
       { href: "/trainings", label: "Training", icon: <IconBarbell className="w-5 h-5" stroke={2} />, isActive: false },
+      { href: "/profil", label: "Profil", icon: <IconUser className="w-5 h-5" stroke={2} />, isActive: false },
     ];
   }
 

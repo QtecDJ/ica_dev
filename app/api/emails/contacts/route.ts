@@ -5,6 +5,8 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL!);
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/emails/contacts - Hole verfügbare Kontakte zum Schreiben
 export async function GET(request: NextRequest) {
   try {
@@ -18,80 +20,55 @@ export async function GET(request: NextRequest) {
 
     let contacts: any[] = [];
 
-    // Alle können Admins schreiben
-    const admins = await sql`
-      SELECT id, name, email, role, 'admin' as contact_type
-      FROM users
-      WHERE role = 'admin' AND id != ${userId}
-      ORDER BY name
-    `;
-    contacts.push(...admins);
-
-    // Coaches können allen anderen Coaches schreiben
-    if (userRole === "coach" || userRole === "admin") {
-      const coaches = await sql`
-        SELECT id, name, email, role, 'coach' as contact_type
+    // Members und Parents können nur Trainer/Coaches anschreiben
+    if (userRole === "member" || userRole === "parent") {
+      if (userRole === "parent") {
+        // Parents können Coaches ihrer Kinder-Teams schreiben
+        const coaches = await sql`
+          SELECT DISTINCT u.id, u.name, u.email, u.role, t.name as team_name
+          FROM users u
+          JOIN team_coaches tc ON u.id = tc.coach_id
+          JOIN teams t ON tc.team_id = t.id
+          JOIN members m ON m.team_id = t.id
+          JOIN parent_children pc ON pc.child_member_id = m.id
+          WHERE pc.parent_user_id = ${userId}
+            AND (u.role = 'coach' OR u.role = 'admin' OR u.role = 'manager')
+          ORDER BY tc.is_primary DESC, u.name
+        `;
+        contacts.push(...coaches);
+      } else if (userRole === "member") {
+        // Members können Coaches ihres Teams schreiben
+        const coaches = await sql`
+          SELECT DISTINCT u.id, u.name, u.email, u.role, t.name as team_name
+          FROM users user_self
+          JOIN members m ON user_self.member_id = m.id
+          JOIN teams t ON m.team_id = t.id
+          JOIN team_coaches tc ON t.id = tc.team_id
+          JOIN users u ON tc.coach_id = u.id
+          WHERE user_self.id = ${userId}
+            AND (u.role = 'coach' OR u.role = 'admin' OR u.role = 'manager')
+          ORDER BY tc.is_primary DESC, u.name
+        `;
+        contacts.push(...coaches);
+      }
+    } else {
+      // Coaches, Admins, Manager können ALLE schreiben (für @mention System)
+      const allUsers = await sql`
+        SELECT id, name, email, role, 'user' as contact_type
         FROM users
-        WHERE role = 'coach' AND id != ${userId}
-        ORDER BY name
+        WHERE id != ${userId}
+        ORDER BY 
+          CASE role
+            WHEN 'admin' THEN 1
+            WHEN 'manager' THEN 2
+            WHEN 'coach' THEN 3
+            WHEN 'parent' THEN 4
+            WHEN 'member' THEN 5
+            ELSE 6
+          END,
+          name
       `;
-      contacts.push(...coaches);
-    }
-
-    // Coaches/Admins können Parents schreiben
-    if (userRole === "coach") {
-      const parents = await sql`
-        SELECT DISTINCT u.id, u.name, u.email, u.role, 'parent' as contact_type
-        FROM users u
-        JOIN parent_children pc ON pc.parent_user_id = u.id
-        JOIN members m ON pc.child_member_id = m.id
-        JOIN teams t ON m.team_id = t.id
-        JOIN team_coaches tc ON t.id = tc.team_id
-        WHERE tc.coach_id = ${userId}
-          AND u.role = 'parent'
-        ORDER BY u.name
-      `;
-      contacts.push(...parents);
-    } else if (userRole === "admin") {
-      const parents = await sql`
-        SELECT id, name, email, role, 'parent' as contact_type
-        FROM users
-        WHERE role = 'parent'
-        ORDER BY name
-      `;
-      contacts.push(...parents);
-    }
-
-    // Parents können Coaches ihrer Kinder-Teams schreiben
-    if (userRole === "parent") {
-      const coaches = await sql`
-        SELECT DISTINCT u.id, u.name, u.email, u.role, t.name as team_name
-        FROM users u
-        JOIN team_coaches tc ON u.id = tc.coach_id
-        JOIN teams t ON tc.team_id = t.id
-        JOIN members m ON m.team_id = t.id
-        JOIN parent_children pc ON pc.child_member_id = m.id
-        WHERE pc.parent_user_id = ${userId}
-          AND u.role IN ('coach', 'admin')
-        ORDER BY tc.is_primary DESC, u.name
-      `;
-      contacts.push(...coaches);
-    }
-
-    // Members können Coaches ihres Teams schreiben
-    if (userRole === "member") {
-      const coaches = await sql`
-        SELECT DISTINCT u.id, u.name, u.email, u.role, t.name as team_name
-        FROM users user_self
-        JOIN members m ON user_self.member_id = m.id
-        JOIN teams t ON m.team_id = t.id
-        JOIN team_coaches tc ON t.id = tc.team_id
-        JOIN users u ON tc.coach_id = u.id
-        WHERE user_self.id = ${userId}
-          AND u.role IN ('coach', 'admin')
-        ORDER BY tc.is_primary DESC, u.name
-      `;
-      contacts.push(...coaches);
+      contacts.push(...allUsers);
     }
 
     // Entferne Duplikate basierend auf ID

@@ -11,7 +11,8 @@ import {
   IconMessageCircle, 
   IconShield, 
   IconSettings,
-  IconMail
+  IconMail,
+  IconBriefcase
 } from "@tabler/icons-react";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -69,6 +70,11 @@ export default function ResponsiveSidebar() {
       { href: "/calendar", label: "Kalender", iconName: "Calendar" },
       { href: "/trainings", label: "Trainings", iconName: "Dumbbell" },
     ];
+  }
+  
+  // Coach Verwaltung für Coaches, Admins und Manager
+  if (hasAnyRole(["coach", "admin", "manager"])) {
+    navItems.push({ href: "/coach/verwaltung", label: "Coach Tools", iconName: "Briefcase" });
   }
   
   // Admin und Manager haben Zugriff auf Administration (check roles array)

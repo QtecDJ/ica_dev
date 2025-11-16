@@ -5,6 +5,8 @@ import { neon } from "@neondatabase/serverless";
 
 const sql = neon(process.env.DATABASE_URL!);
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/emails/unread-count - Hole Anzahl ungelesener Emails
 export async function GET(request: NextRequest) {
   try {
